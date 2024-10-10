@@ -1,4 +1,5 @@
 import os
+import sys
 
 from dotenv import load_dotenv
 from src.client.client import Client
@@ -6,6 +7,9 @@ from src.account.account_id import AccountId
 from src.crypto.private_key import PrivateKey
 from src.tokens.token_create_transaction import TokenCreateTransaction
 from src.client.network import Network
+
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.insert(0, project_root)
 
 def main():
     load_dotenv()

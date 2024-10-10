@@ -46,7 +46,7 @@ class Client:
 
         if response.nodeTransactionPrecheckCode != response_code_pb2.ResponseCodeEnum.OK:
             error_code = response.nodeTransactionPrecheckCode
-            error_message = response_code_pb2.ResponseCodeEnum.ResponseCodeEnum.Name(error_code)
+            error_message = response_code_pb2.ResponseCodeEnum.Name(error_code)
             print(f"Error during transaction submission: {error_code} ({error_message})")
             return None
 

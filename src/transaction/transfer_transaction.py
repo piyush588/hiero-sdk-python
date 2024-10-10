@@ -24,7 +24,7 @@ class TransferTransaction(Transaction):
     def build_transaction_body(self):
         crypto_transfer_tx_body = crypto_transfer_pb2.CryptoTransferTransactionBody()
         
-        # HBAR transfers
+        # HBAR 
         if self.hbar_transfers:
             transfer_list = basic_types_pb2.TransferList()
             for account_id_str, amount in self.hbar_transfers.items():
@@ -35,7 +35,7 @@ class TransferTransaction(Transaction):
                 transfer_list.accountAmounts.append(account_amount)
             crypto_transfer_tx_body.transfers.CopyFrom(transfer_list)
         
-        # Token transfers
+        # Token
         for token_id_str, transfers in self.token_transfers.items():
             token_id = TokenId.from_string(token_id_str)
             token_transfer_list = basic_types_pb2.TokenTransferList()

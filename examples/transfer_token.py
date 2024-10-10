@@ -1,9 +1,6 @@
 import sys
 import os
 
-project_root = os.path.abspath(os.path.dirname(__file__))
-sys.path.insert(0, project_root)
-
 from src.client.client import Client
 from src.account.account_id import AccountId
 from src.tokens.token_id import TokenId
@@ -12,6 +9,8 @@ from src.transaction.transfer_transaction import TransferTransaction
 from src.client.network import Network
 from dotenv import load_dotenv
 
+project_root = os.path.abspath(os.path.dirname(__file__))
+sys.path.insert(0, project_root)
 
 def main():
     load_dotenv()
@@ -39,8 +38,8 @@ def main():
     client.set_operator(operator_id, operator_key)
 
     transfer_tx = TransferTransaction()
-    transfer_tx.add_hbar_transfer(operator_id, -1_000_000_000)  # -10 hbar in tinybars
-    transfer_tx.add_hbar_transfer(recipient_id, 1_000_000_000)   # +10 hbar in tinybars
+    # transfer_tx.add_hbar_transfer(operator_id, -1_000_000_000)  # -10 hbar in tinybars
+    # transfer_tx.add_hbar_transfer(recipient_id, 1_000_000_000)   # +10 hbar in tinybars
 
     transfer_tx.add_token_transfer(token_id, operator_id, -100)
     transfer_tx.add_token_transfer(token_id, recipient_id, 100)

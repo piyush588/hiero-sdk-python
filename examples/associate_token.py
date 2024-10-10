@@ -1,4 +1,6 @@
 import os
+import sys
+
 from dotenv import load_dotenv
 from src.client.client import Client
 from src.account.account_id import AccountId
@@ -6,6 +8,9 @@ from src.tokens.token_id import TokenId
 from src.crypto.private_key import PrivateKey
 from src.tokens.token_associate_transaction import TokenAssociateTransaction
 from src.client.network import Network
+
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.insert(0, project_root)
 
 def main():
     load_dotenv()
@@ -33,7 +38,7 @@ def main():
     associate_tx = TokenAssociateTransaction()
     associate_tx.account_id = operator_id  
     associate_tx.token_ids = [token_id]
-    associate_tx.transaction_fee = 100_000_000  
+    associate_tx.transaction_fee = 1_000_000_000  
 
     # execute tx
     receipt = client.execute_transaction(associate_tx)
