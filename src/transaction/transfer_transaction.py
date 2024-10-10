@@ -1,7 +1,7 @@
 from .transaction import Transaction
-from src.outputs import crypto_transfer_pb2, transaction_body_pb2, basic_types_pb2
-from src.account.account_id import AccountId
-from src.tokens.token_id import TokenId
+from ..outputs import crypto_transfer_pb2, transaction_body_pb2, basic_types_pb2
+from ..account.account_id import AccountId
+from ..tokens.token_id import TokenId
 from collections import defaultdict
 
 class TransferTransaction(Transaction):

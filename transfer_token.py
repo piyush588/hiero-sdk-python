@@ -1,14 +1,17 @@
 import sys
 import os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), 'src')))
 
+project_root = os.path.abspath(os.path.dirname(__file__))
+sys.path.insert(0, project_root)
+
+from src.client.client import Client
+from src.account.account_id import AccountId
+from src.tokens.token_id import TokenId
+from src.crypto.private_key import PrivateKey
+from src.transaction.transfer_transaction import TransferTransaction
+from src.client.network import Network
 from dotenv import load_dotenv
-from client.client import Client
-from account.account_id import AccountId
-from tokens.token_id import TokenId
-from crypto.private_key import PrivateKey
-from transaction.transfer_transaction import TransferTransaction
-from client.network import Network
+
 
 def main():
     load_dotenv()
@@ -42,7 +45,7 @@ def main():
     transfer_tx.add_token_transfer(token_id, operator_id, -100)
     transfer_tx.add_token_transfer(token_id, recipient_id, 100)
 
-    # Sset tx fee
+    # set tx fee
     transfer_tx.transaction_fee = 20_000_000  # Adjust as needed
 
     # exec tx

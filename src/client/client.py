@@ -1,16 +1,15 @@
 import grpc
 import time
-from src.outputs import (
+from ..outputs import (
     token_service_pb2_grpc,
     crypto_service_pb2_grpc,
     response_code_pb2,
 )
-from src.client.network import Network
-from src.utils import generate_transaction_id
-from src.tokens.token_create_transaction import TokenCreateTransaction
-from src.tokens.token_associate_transaction import TokenAssociateTransaction
-from src.transaction.transfer_transaction import TransferTransaction
-
+from .network import Network
+from ..utils import generate_transaction_id
+from ..tokens.token_create_transaction import TokenCreateTransaction
+from ..tokens.token_associate_transaction import TokenAssociateTransaction
+from ..transaction.transfer_transaction import TransferTransaction
 
 class Client:
     def __init__(self, network=None):
