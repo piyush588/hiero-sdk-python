@@ -12,6 +12,6 @@ def generate_transaction_id(account_id_proto):
     transaction_id = basic_types_pb2.TransactionID()
     transaction_id.accountID.CopyFrom(account_id_proto)
     transaction_id.transactionValidStart.CopyFrom(current_time)
-    transaction_id.scheduled = False  # Explicitly set scheduled to False
+    transaction_id.scheduled = False 
 
     return transaction_id

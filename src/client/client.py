@@ -222,9 +222,15 @@ class Client:
         return transaction
 
     def execute_transaction(self, transaction, timeout=60):
-        account_id_proto = self.operator_account_id.to_proto()
-        transaction.transaction_id = generate_transaction_id(account_id_proto)
-        transaction.node_account_id = self.network.node_account_id.to_proto()
+        if not transaction.transaction_id:
+            account_id_proto = self.operator_account_id.to_proto()
+            transaction.transaction_id = generate_transaction_id(account_id_proto)
+        if not transaction.node_account_id:
+            transaction.node_account_id = self.network.node_account_id.to_proto()
+        if not transaction.transaction_fee:
+            transaction.transaction_fee = 100_000  # Set a default fee
+
+        # Add the operator's signature
         transaction.sign(self.operator_private_key)
 
         transaction_proto = transaction.to_proto()
@@ -249,13 +255,13 @@ class Client:
         transaction_id = transaction.transaction_id
         print(f"Transaction submitted. Transaction ID: {self._format_transaction_id(transaction_id)}")
 
-        # qait for transaction receipt
+        # Wait for transaction receipt
         receipt = self.get_transaction_receipt(transaction_id)
         if receipt.status != response_code_pb2.ResponseCodeEnum.SUCCESS:
             status_message = response_code_pb2.ResponseCodeEnum.Name(receipt.status)
             raise Exception(f"Transaction failed with status: {status_message}")
 
-        # get tx record
+        # Get transaction record
         record = self.get_transaction_record(transaction_id)
 
         return record
