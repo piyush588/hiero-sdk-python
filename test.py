@@ -1,19 +1,17 @@
-from src.outputs import transaction_get_receipt_pb2
+import os
+import sys
+import time
+from dotenv import load_dotenv
+from src.client.network import Network
+from src.outputs import transaction_get_receipt_pb2, response_code_pb2
 from src.client.client import Client
 from src.account.account_id import AccountId
 from src.crypto.private_key import PrivateKey
 from src.tokens.token_create_transaction import TokenCreateTransaction
 from src.tokens.token_associate_transaction import TokenAssociateTransaction
 from src.transaction.transfer_transaction import TransferTransaction
-from src.client.network import Network
 from src.tokens.token_id import TokenId
 
-import os
-import sys
-from dotenv import load_dotenv
-
-project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-sys.path.insert(0, project_root)
 
 def load_credentials():
     """Load credentials from .env file"""
@@ -37,80 +35,83 @@ def load_credentials():
         print("Missing credentials in .env file.")
         sys.exit(1)
 
-def create_token(operator_id, operator_key):
-    """Create a new token and return its token ID"""
-    network = Network()
-    client = Client(network)
-    client.set_operator(operator_id, operator_key)
 
+def create_token(client):
+    """Create a new token and return its token ID"""
     token_tx = TokenCreateTransaction()
     token_tx.token_name = "MyToken"
     token_tx.token_symbol = "MTK"
     token_tx.decimals = 2
     token_tx.initial_supply = 5
-    token_tx.treasury_account_id = operator_id  
-    token_tx.transaction_fee = 10_000_000_000
+    token_tx.treasury_account_id = client.operator_account_id
+    token_tx.transaction_fee = 10_000_000_000  # Adjust as necessary
 
-    transaction_response = client.execute_transaction(token_tx)
-    
-    receipt = transaction_response
-    if receipt and receipt.tokenID:
-        print(f"Token creation successful. Token ID: {receipt.tokenID}")
-        return receipt.tokenID
+    record = client.execute_transaction(token_tx)
+    if record:
+        receipt = record.receipt
+        status = receipt.status
+        status_code = response_code_pb2.ResponseCodeEnum.Name(status)
+        if status == response_code_pb2.ResponseCodeEnum.SUCCESS:
+            if receipt.tokenID and receipt.tokenID.tokenNum != 0:
+                token_id = receipt.tokenID
+                formatted_token_id = f"{token_id.shardNum}.{token_id.realmNum}.{token_id.tokenNum}"
+                print(f"Token creation successful. Token ID: {formatted_token_id}")
+                return token_id
+            else:
+                print("Token creation failed: Token ID not returned in receipt.")
+                sys.exit(1)
+        else:
+            print(f"Token creation failed with status: {status_code}")
+            sys.exit(1)
     else:
-        print("Token creation failed.")
+        print("Token creation failed: No record returned.")
         sys.exit(1)
 
-def associate_token(recipient_id, recipient_key, token_id):
+
+def associate_token(client, recipient_id, recipient_key, token_id):
     """Associate the created token with the recipient account"""
-    network = Network()
-    client = Client(network)
+
     client.set_operator(recipient_id, recipient_key)
 
     associate_tx = TokenAssociateTransaction()
-    associate_tx.account_id = recipient_id  
+    associate_tx.account_id = recipient_id
     associate_tx.token_ids = [token_id]
     associate_tx.transaction_fee = 10_000_000_000
 
-    transaction_response = client.execute_transaction(associate_tx)
+    receipt = client.execute_transaction(associate_tx)
 
-    receipt = transaction_response
     if receipt:
         print("Token association successful.")
     else:
         print("Token association failed.")
         sys.exit(1)
 
-def transfer_token(operator_id, operator_key, recipient_id, token_id):
+
+def transfer_token(client, recipient_id, token_id):
     """Transfer the created token to the recipient"""
-    network = Network()
-    client = Client(network)
-    client.set_operator(operator_id, operator_key)
-
     transfer_tx = TransferTransaction()
-    transfer_tx.add_token_transfer(token_id, operator_id, -1)
+    transfer_tx.add_token_transfer(token_id, client.operator_account_id, -1)
     transfer_tx.add_token_transfer(token_id, recipient_id, 1)
-    transfer_tx.transaction_fee = 10_000_000_000 
+    transfer_tx.transaction_fee = 10_000_000_000
 
-    transaction_response = client.execute_transaction(transfer_tx)
+    receipt = client.execute_transaction(transfer_tx)
 
-    receipt = transaction_response
     if receipt:
         print("Token transfer successful.")
     else:
         print("Token transfer failed.")
         sys.exit(1)
 
+
 def main():
     operator_id, operator_key, recipient_id, recipient_key = load_credentials()
+    network = Network()
+    client = Client(network)
+    client.set_operator(operator_id, operator_key)
 
-    # uncomment below to create token first
-    create_token(operator_id, operator_key)
-
-    # use existing tokenid for association and transfer
-    token_id = TokenId.from_string("0.0.4972709")
-    associate_token(recipient_id, recipient_key, token_id)
-    transfer_token(operator_id, operator_key, recipient_id, token_id)
+    token_id = create_token(client)
+    associate_token(client, recipient_id, recipient_key, token_id)
+    transfer_token(client, recipient_id, token_id)
 
 if __name__ == "__main__":
     main()
