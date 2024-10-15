@@ -1,7 +1,7 @@
 import grpc
 import time
-from src.account.account_id import AccountId
-from src.outputs import (
+from ..account.account_id import AccountId
+from ..outputs import (
     token_service_pb2_grpc,
     crypto_transfer_pb2,
     crypto_service_pb2_grpc,
@@ -17,11 +17,11 @@ from src.outputs import (
     transaction_contents_pb2
 )
 from cryptography.hazmat.primitives import serialization
-from src.utils import generate_transaction_id 
-from src.client.network import Network
-from src.tokens.token_create_transaction import TokenCreateTransaction
-from src.tokens.token_associate_transaction import TokenAssociateTransaction
-from src.transaction.transfer_transaction import TransferTransaction
+from ..utils import generate_transaction_id 
+from .network import Network
+from ..tokens.token_create_transaction import TokenCreateTransaction
+from ..tokens.token_associate_transaction import TokenAssociateTransaction
+from ..transaction.transfer_transaction import TransferTransaction
 
 class Client:
     def __init__(self, network=None):
@@ -102,13 +102,6 @@ class Client:
             # execute query
             response = receipt_stub.getTransactionReceipts(query)
 
-            precheck_code = response.transactionGetReceipt.header.nodeTransactionPrecheckCode
-            if precheck_code != response_code_pb2.ResponseCodeEnum.OK:
-                error_message = response_code_pb2.ResponseCodeEnum.Name(precheck_code)
-                print(f"Attempt {attempt + 1}: Error fetching receipt: {error_message}")
-                time.sleep(sleep_seconds)
-                continue
-
             receipt = response.transactionGetReceipt.receipt
             status = receipt.status
 
@@ -116,7 +109,6 @@ class Client:
             if status == response_code_pb2.ResponseCodeEnum.SUCCESS:
                 return receipt
             elif status == response_code_pb2.ResponseCodeEnum.UNKNOWN or status == response_code_pb2.ResponseCodeEnum.RECEIPT_NOT_FOUND:
-                print(f"Attempt {attempt + 1}: Receipt not found yet, retrying...")
                 time.sleep(sleep_seconds)
                 continue
             else:
@@ -153,11 +145,6 @@ class Client:
 
         # Debugging
         # print(f"Response: {response}")
-
-        precheck_code = response.transactionGetRecord.header.nodeTransactionPrecheckCode
-        if precheck_code != response_code_pb2.ResponseCodeEnum.OK:
-            error_message = response_code_pb2.ResponseCodeEnum.Name(precheck_code)
-            raise Exception(f"Error fetching record: {error_message}")
 
         record = response.transactionGetRecord.transactionRecord
         return record
@@ -228,9 +215,8 @@ class Client:
         if not transaction.node_account_id:
             transaction.node_account_id = self.network.node_account_id.to_proto()
         if not transaction.transaction_fee:
-            transaction.transaction_fee = 100_000  # Set a default fee
+            transaction.transaction_fee = 100_000 
 
-        # Add the operator's signature
         transaction.sign(self.operator_private_key)
 
         transaction_proto = transaction.to_proto()
@@ -255,13 +241,13 @@ class Client:
         transaction_id = transaction.transaction_id
         print(f"Transaction submitted. Transaction ID: {self._format_transaction_id(transaction_id)}")
 
-        # Wait for transaction receipt
+        # wait for tx receipt
         receipt = self.get_transaction_receipt(transaction_id)
         if receipt.status != response_code_pb2.ResponseCodeEnum.SUCCESS:
             status_message = response_code_pb2.ResponseCodeEnum.Name(receipt.status)
             raise Exception(f"Transaction failed with status: {status_message}")
 
-        # Get transaction record
+        # get tx record
         record = self.get_transaction_record(transaction_id)
 
         return record
