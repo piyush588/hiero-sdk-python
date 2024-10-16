@@ -86,10 +86,5 @@ def main():
 
     print(f"Token creation successful. Token ID: {token_id}")
 
-    # store token Id in env var
-    with open('.env', 'a') as env_file:
-        env_file.write(f"TOKEN_ID={token_id}\n")
-        print("Token ID saved to .env file.")
-
 if __name__ == "__main__":
     main()

@@ -1,5 +1,3 @@
-# src/transaction/transaction.py
-
 from src.outputs import transaction_pb2, transaction_body_pb2, basic_types_pb2, transaction_contents_pb2
 from cryptography.hazmat.primitives.serialization import Encoding, PublicFormat
 
