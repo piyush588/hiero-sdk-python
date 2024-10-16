@@ -1,4 +1,4 @@
-from src.outputs import transaction_pb2, transaction_body_pb2, basic_types_pb2, transaction_contents_pb2
+from src.outputs import transaction_pb2, transaction_body_pb2, basic_types_pb2, transaction_contents_pb2, token_create_pb2, token_associate_pb2, crypto_transfer_pb2
 from cryptography.hazmat.primitives.serialization import Encoding, PublicFormat
 
 class Transaction:
@@ -45,5 +45,29 @@ class Transaction:
         )
         return transaction
 
-    def build_transaction_body(self):
-        raise NotImplementedError("Must implement build_transaction_body in subclass")
+    def build_base_transaction_body(self, specific_tx_body):
+        """
+        Builds the base transaction body by combining the base transaction fields 
+        with the specific transaction body fields (e.g., token associate, transfer).
+        """
+        transaction_body = transaction_body_pb2.TransactionBody()
+        
+        transaction_body.transactionID.CopyFrom(self.transaction_id)
+        transaction_body.nodeAccountID.CopyFrom(self.node_account_id)
+        transaction_body.transactionFee = self.transaction_fee
+        transaction_body.transactionValidDuration.seconds = self.transaction_valid_duration_seconds
+        transaction_body.generateRecord = self.generate_record
+        transaction_body.memo = self.memo
+
+        # set specific transaction body (like token associate, transfer, etc.)
+        if isinstance(specific_tx_body, token_create_pb2.TokenCreateTransactionBody):
+            transaction_body.tokenCreation.CopyFrom(specific_tx_body)
+        elif isinstance(specific_tx_body, token_associate_pb2.TokenAssociateTransactionBody):
+            transaction_body.tokenAssociate.CopyFrom(specific_tx_body)
+        elif isinstance(specific_tx_body, crypto_transfer_pb2.CryptoTransferTransactionBody):
+            transaction_body.cryptoTransfer.CopyFrom(specific_tx_body)
+        # add more here if extending SDK
+        else:
+            raise ValueError("Unsupported transaction type")
+
+        return transaction_body

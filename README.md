@@ -52,6 +52,12 @@ To run the test suite for the SDK, use the following command:
 python -m unittest discover -s tests
 ```
 
+To run one script testing all capabilities of the SDK, use the following command:
+```
+python test.py
+```
+
+
 ## Usage
 
 Below are examples of how to use the SDK for creating tokens, associating them with accounts, and transferring tokens (also see 'examples' directiory)
