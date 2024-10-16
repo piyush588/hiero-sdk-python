@@ -39,6 +39,12 @@ class TransferTransaction(Transaction):
         self.token_transfers[token_id_str][account_id_str] += amount
         return self
 
+    def set_common_fields(self, transaction_id, node_account_id, transaction_fee=None, memo=None):
+        """
+        Use the setup_base_transaction method to set common fields.
+        """
+        self.setup_base_transaction(transaction_id, node_account_id, transaction_fee, memo)
+
     def build_transaction_body(self):
         """
         Build and return the protobuf transaction body for a transfer transaction.

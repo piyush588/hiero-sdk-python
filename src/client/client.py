@@ -198,13 +198,11 @@ class Client:
         return transaction
 
     def execute_transaction(self, transaction, timeout=60):
+        # Setup common transaction fields
         if not transaction.transaction_id:
             account_id_proto = self.operator_account_id.to_proto()
-            transaction.transaction_id = generate_transaction_id(account_id_proto)
-        if not transaction.node_account_id:
-            transaction.node_account_id = self.network.node_account_id.to_proto()
-        if not transaction.transaction_fee:
-            transaction.transaction_fee = 100_000 
+            transaction_id = generate_transaction_id(account_id_proto)
+            transaction.setup_base_transaction(transaction_id, self.network.node_account_id.to_proto())
 
         transaction.sign(self.operator_private_key)
 
@@ -240,6 +238,7 @@ class Client:
         record = self.get_transaction_record(transaction_id)
 
         return record
+
 
     def _submit_transaction_with_retry(self, transaction_proto, stub_method, max_retries=3):
         response = None

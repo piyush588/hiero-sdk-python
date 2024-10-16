@@ -1,6 +1,5 @@
 from src.transaction.transaction import Transaction
 from src.outputs import token_create_pb2
-from src.outputs import basic_types_pb2
 
 class TokenCreateTransaction(Transaction):
     def __init__(self):
@@ -11,20 +10,7 @@ class TokenCreateTransaction(Transaction):
         self.initial_supply = 0
         self.treasury_account_id = None  
 
-    def set_token_details(self, token_name, token_symbol, decimals, initial_supply, treasury_account_id):
-        """
-        Setup method to initialize token details.
-        """
-        self.token_name = token_name
-        self.token_symbol = token_symbol
-        self.decimals = decimals
-        self.initial_supply = initial_supply
-        self.treasury_account_id = treasury_account_id
-
     def build_transaction_body(self):
-        """
-        Build the TokenCreate transaction body using the initialized details.
-        """
         if not all([self.token_name, self.token_symbol, self.treasury_account_id]):
             raise ValueError("Token name, symbol, and treasury account ID must be set")
 
@@ -33,7 +19,10 @@ class TokenCreateTransaction(Transaction):
         token_create_tx_body.symbol = self.token_symbol
         token_create_tx_body.decimals = self.decimals
         token_create_tx_body.initialSupply = self.initial_supply
-
         token_create_tx_body.treasury.CopyFrom(self.treasury_account_id.to_proto())
 
         return self.build_base_transaction_body(token_create_tx_body)
+
+    def set_common_fields(self, transaction_id, node_account_id, transaction_fee=None, memo=None):
+        """ Use the setup_base_transaction method to set common fields. """
+        self.setup_base_transaction(transaction_id, node_account_id, transaction_fee, memo)
