@@ -17,7 +17,7 @@ from ..outputs import (
     transaction_contents_pb2
 )
 from cryptography.hazmat.primitives import serialization
-from ..utils import generate_transaction_id 
+from ..utils import generate_transaction_id
 from .network import Network
 from ..tokens.token_create_transaction import TokenCreateTransaction
 from ..tokens.token_associate_transaction import TokenAssociateTransaction
@@ -132,19 +132,12 @@ class Client:
         transaction_get_record_query = transaction_get_record_pb2.TransactionGetRecordQuery()
         transaction_get_record_query.header.CopyFrom(query_header)
         transaction_get_record_query.transactionID.CopyFrom(transaction_id)
-        # transaction_get_record_query.include_duplicates = False
         transaction_get_record_query.include_child_records = False
-
-        # Debugging
-        # print(f"TransactionGetRecordQuery: {transaction_get_record_query}")
 
         query = query_pb2.Query()
         query.transactionGetRecord.CopyFrom(transaction_get_record_query)
 
         response = record_stub.getTxRecordByTxID(query)
-
-        # Debugging
-        # print(f"Response: {response}")
 
         record = response.transactionGetRecord.transactionRecord
         return record
@@ -186,22 +179,18 @@ class Client:
             format=serialization.PublicFormat.Raw
         )
 
-        # build signature pair
         sig_pair = basic_types_pb2.SignaturePair(
             pubKeyPrefix=public_key_bytes[:6],
             ed25519=signature
         )
 
-        # build signature map
         sig_map = basic_types_pb2.SignatureMap(sigPair=[sig_pair])
 
-        # build signed tx
         signed_transaction = transaction_contents_pb2.SignedTransaction(
             bodyBytes=transaction_body_bytes,
             sigMap=sig_map
         )
 
-        # build final tx
         transaction = transaction_pb2.Transaction(
             signedTransactionBytes=signed_transaction.SerializeToString()
         )
@@ -251,7 +240,6 @@ class Client:
         record = self.get_transaction_record(transaction_id)
 
         return record
-
 
     def _submit_transaction_with_retry(self, transaction_proto, stub_method, max_retries=3):
         response = None

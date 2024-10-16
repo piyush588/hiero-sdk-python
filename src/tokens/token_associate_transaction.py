@@ -7,7 +7,17 @@ class TokenAssociateTransaction(Transaction):
         self.account_id = None
         self.token_ids = []
 
+    def set_association_details(self, account_id, token_ids):
+        """
+        Setup method to initialize account ID and token IDs.
+        """
+        self.account_id = account_id
+        self.token_ids = token_ids
+
     def build_transaction_body(self):
+        """
+        Build the TokenAssociate transaction body using the initialized details.
+        """
         if not self.account_id or not self.token_ids:
             raise ValueError("Account ID and token IDs must be set")
 

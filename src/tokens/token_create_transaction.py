@@ -11,7 +11,20 @@ class TokenCreateTransaction(Transaction):
         self.initial_supply = 0
         self.treasury_account_id = None  
 
+    def set_token_details(self, token_name, token_symbol, decimals, initial_supply, treasury_account_id):
+        """
+        Setup method to initialize token details.
+        """
+        self.token_name = token_name
+        self.token_symbol = token_symbol
+        self.decimals = decimals
+        self.initial_supply = initial_supply
+        self.treasury_account_id = treasury_account_id
+
     def build_transaction_body(self):
+        """
+        Build the TokenCreate transaction body using the initialized details.
+        """
         if not all([self.token_name, self.token_symbol, self.treasury_account_id]):
             raise ValueError("Token name, symbol, and treasury account ID must be set")
 

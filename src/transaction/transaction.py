@@ -13,9 +13,11 @@ class Transaction:
         self.signature_map = basic_types_pb2.SignatureMap()
 
     def sign(self, private_key):
+        """
+        Sign the transaction using the provided private key.
+        """
         if self.transaction_body_bytes is None:
-            transaction_body = self.build_transaction_body()
-            self.transaction_body_bytes = transaction_body.SerializeToString()
+            self.transaction_body_bytes = self.build_transaction_body().SerializeToString()
 
         signature = private_key.sign(self.transaction_body_bytes)
 
@@ -32,6 +34,9 @@ class Transaction:
         self.signature_map.sigPair.append(sig_pair)
 
     def to_proto(self):
+        """
+        Serialize the signed transaction into a protobuf message.
+        """
         if self.transaction_body_bytes is None:
             raise Exception("Transaction must be signed before calling to_proto()")
 
@@ -40,10 +45,20 @@ class Transaction:
             sigMap=self.signature_map
         )
 
-        transaction = transaction_pb2.Transaction(
+        return transaction_pb2.Transaction(
             signedTransactionBytes=signed_transaction.SerializeToString()
         )
-        return transaction
+
+    def setup_base_transaction(self, transaction_id, node_account_id, transaction_fee=None, memo=None):
+        """
+        Common function to set up the base transaction fields. This can be reused by different transaction types.
+        """
+        self.transaction_id = transaction_id
+        self.node_account_id = node_account_id
+        if transaction_fee is not None:
+            self.transaction_fee = transaction_fee
+        if memo is not None:
+            self.memo = memo
 
     def build_base_transaction_body(self, specific_tx_body):
         """
