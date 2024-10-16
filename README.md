@@ -49,7 +49,7 @@ TOKEN_ID=0.0.100xx
 
 To run the test suite for the SDK, use the following command:
 ```
-python -m unittest discover -s tests
+pytest ./tests 
 ```
 
 To run one script testing all capabilities of the SDK, use the following command:
