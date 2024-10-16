@@ -13,17 +13,11 @@ from src.tokens.token_id import TokenId
 from src.outputs import response_code_pb2
 from src.utils import generate_transaction_id
 
+# Load environment variables
+load_dotenv()
+
 def load_credentials():
     """Load operator and recipient credentials from environment variables."""
-
-    # clear env vars
-    os.environ.pop('OPERATOR_ID', None)
-    os.environ.pop('OPERATOR_KEY', None)
-    os.environ.pop('RECIPIENT_ID', None)
-    os.environ.pop('RECIPIENT_KEY', None)
-
-    load_dotenv()
-    
     operator_id_str = os.getenv('OPERATOR_ID')
     operator_key_str = os.getenv('OPERATOR_KEY')
     recipient_id_str = os.getenv('RECIPIENT_ID')
@@ -47,12 +41,12 @@ def load_credentials():
 def create_token(client):
     """Create a new token and return its TokenId instance."""
     token_tx = TokenCreateTransaction()
-    token_tx.token_name = "MyToken"
-    token_tx.token_symbol = "MTK"
-    token_tx.decimals = 2
-    token_tx.initial_supply = 5
+    token_tx.token_name = os.getenv('TOKEN_NAME', "MyToken")
+    token_tx.token_symbol = os.getenv('TOKEN_SYMBOL', "MTK")
+    token_tx.decimals = int(os.getenv('TOKEN_DECIMALS', 2))
+    token_tx.initial_supply = int(os.getenv('INITIAL_SUPPLY', 5))
     token_tx.treasury_account_id = client.operator_account_id
-    token_tx.transaction_fee = 10_000_000_000  
+    token_tx.transaction_fee = int(os.getenv('TRANSACTION_FEE', 10_000_000_000))
 
     record = client.execute_transaction(token_tx)
     if not record:
@@ -82,8 +76,6 @@ def create_token(client):
 
 def associate_token(client, recipient_id, recipient_key, token_id):
     """Associate the specified token with the recipient account."""
-
-    # ensure recipient_id and token_id are instances of AccountId and TokenId
     recipient_id = _ensure_account_id(recipient_id)
     token_id = _ensure_token_id(token_id)
     recipient_key = _ensure_private_key(recipient_key)
@@ -91,9 +83,8 @@ def associate_token(client, recipient_id, recipient_key, token_id):
     associate_tx = TokenAssociateTransaction()
     associate_tx.account_id = recipient_id
     associate_tx.token_ids = [token_id]
-    associate_tx.transaction_fee = 10_000_000_000
+    associate_tx.transaction_fee = int(os.getenv('TRANSACTION_FEE', 10_000_000_000))
 
-    # set transaction id and node account id
     associate_tx.transaction_id = generate_transaction_id(client.operator_account_id.to_proto())
     associate_tx.node_account_id = client.network.node_account_id.to_proto()
 
@@ -108,14 +99,13 @@ def associate_token(client, recipient_id, recipient_key, token_id):
 
 def transfer_token(client, recipient_id, token_id):
     """Transfer the specified token to the recipient account."""
-
     recipient_id = _ensure_account_id(recipient_id)
     token_id = _ensure_token_id(token_id)
 
     transfer_tx = TransferTransaction()
     transfer_tx.add_token_transfer(token_id, client.operator_account_id, -1)
     transfer_tx.add_token_transfer(token_id, recipient_id, 1)
-    transfer_tx.transaction_fee = 10_000_000_000
+    transfer_tx.transaction_fee = int(os.getenv('TRANSACTION_FEE', 10_000_000_000))
 
     receipt = client.execute_transaction(transfer_tx)
     if receipt:
@@ -161,7 +151,7 @@ def main():
     # create new token
     token_id = create_token(client)
 
-    # sssociate token with recipient account
+    # associate token with recipient account
     associate_token(client, recipient_id, recipient_key, token_id)
 
     # transfer token to recipient
