@@ -12,7 +12,7 @@ def test_build_transaction_body(mock_account_ids):
     associate_tx.account_id = account_id
     associate_tx.token_ids = [token_id_1, token_id_2]
     associate_tx.transaction_id = generate_transaction_id(account_id.to_proto())
-    associate_tx.node_account_id = node_account_id.to_proto()
+    associate_tx.node_account_id = node_account_id 
 
     transaction_body = associate_tx.build_transaction_body()
 
@@ -39,7 +39,7 @@ def test_sign_transaction(mock_account_ids):
     associate_tx.account_id = account_id
     associate_tx.token_ids = [token_id_1]
     associate_tx.transaction_id = generate_transaction_id(account_id.to_proto())
-    associate_tx.node_account_id = node_account_id.to_proto()
+    associate_tx.node_account_id = node_account_id 
 
     # mock private key and signing operation
     private_key = MagicMock()
@@ -63,7 +63,7 @@ def test_to_proto(mock_account_ids):
     associate_tx.account_id = account_id
     associate_tx.token_ids = [token_id_1]
     associate_tx.transaction_id = generate_transaction_id(account_id.to_proto())
-    associate_tx.node_account_id = node_account_id.to_proto()
+    associate_tx.node_account_id = node_account_id  
 
     # mock private key for signing
     private_key = MagicMock()
