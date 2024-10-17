@@ -11,7 +11,6 @@ from src.tokens.token_associate_transaction import TokenAssociateTransaction
 from src.transaction.transfer_transaction import TransferTransaction
 from src.tokens.token_id import TokenId
 from src.outputs import response_code_pb2
-from src.utils import generate_transaction_id
 
 # Load environment variables
 load_dotenv()
@@ -48,12 +47,11 @@ def create_token(client):
     token_tx.treasury_account_id = client.operator_account_id
     token_tx.transaction_fee = int(os.getenv('TRANSACTION_FEE', 10_000_000_000))
 
-    record = client.execute_transaction(token_tx)
-    if not record:
-        print("Token creation failed: No record returned.")
+    receipt, record = client.execute_transaction(token_tx)
+    if not receipt:
+        print("Token creation failed: No receipt returned.")
         sys.exit(1)
 
-    receipt = record.receipt
     status = receipt.status
     status_code = response_code_pb2.ResponseCodeEnum.Name(status)
 
@@ -76,70 +74,33 @@ def create_token(client):
 
 def associate_token(client, recipient_id, recipient_key, token_id):
     """Associate the specified token with the recipient account."""
-    recipient_id = _ensure_account_id(recipient_id)
-    token_id = _ensure_token_id(token_id)
-    recipient_key = _ensure_private_key(recipient_key)
 
     associate_tx = TokenAssociateTransaction()
     associate_tx.account_id = recipient_id
     associate_tx.token_ids = [token_id]
     associate_tx.transaction_fee = int(os.getenv('TRANSACTION_FEE', 10_000_000_000))
 
-    associate_tx.transaction_id = generate_transaction_id(client.operator_account_id.to_proto())
-    associate_tx.node_account_id = client.network.node_account_id.to_proto()
-
-    associate_tx.sign(recipient_key)
-
-    receipt = client.execute_transaction(associate_tx)
-    if receipt:
+    record = client.execute_transaction(associate_tx, additional_signers=[recipient_key])
+    if record:
         print("Token association successful.")
     else:
         print("Token association failed.")
         sys.exit(1)
 
 def transfer_token(client, recipient_id, token_id):
-    """Transfer the specified token to the recipient account."""
-    recipient_id = _ensure_account_id(recipient_id)
-    token_id = _ensure_token_id(token_id)
 
+    """Transfer the specified token to the recipient account."""
     transfer_tx = TransferTransaction()
     transfer_tx.add_token_transfer(token_id, client.operator_account_id, -1)
     transfer_tx.add_token_transfer(token_id, recipient_id, 1)
     transfer_tx.transaction_fee = int(os.getenv('TRANSACTION_FEE', 10_000_000_000))
 
-    receipt = client.execute_transaction(transfer_tx)
-    if receipt:
+    record = client.execute_transaction(transfer_tx)
+    if record:
         print("Token transfer successful.")
     else:
         print("Token transfer failed.")
         sys.exit(1)
-
-def _ensure_account_id(account_id):
-    """Helper function to ensure account_id is an AccountId instance."""
-    if isinstance(account_id, AccountId):
-        return account_id
-    elif isinstance(account_id, str):
-        return AccountId.from_string(account_id)
-    else:
-        raise ValueError("account_id must be a string or AccountId instance")
-
-def _ensure_token_id(token_id):
-    """Helper function to ensure token_id is a TokenId instance."""
-    if isinstance(token_id, TokenId):
-        return token_id
-    elif isinstance(token_id, str):
-        return TokenId.from_string(token_id)
-    else:
-        raise ValueError("token_id must be a string or TokenId instance")
-
-def _ensure_private_key(private_key):
-    """Helper function to ensure private_key is a PrivateKey instance."""
-    if isinstance(private_key, PrivateKey):
-        return private_key
-    elif isinstance(private_key, str):
-        return PrivateKey.from_string(private_key)
-    else:
-        raise ValueError("private_key must be a string or PrivateKey instance")
 
 def main():
     operator_id, operator_key, recipient_id, recipient_key = load_credentials()

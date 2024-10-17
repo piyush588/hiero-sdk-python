@@ -197,14 +197,17 @@ class Client:
 
         return transaction
 
-    def execute_transaction(self, transaction, timeout=60):
-        # Setup common transaction fields
-        if not transaction.transaction_id:
-            account_id_proto = self.operator_account_id.to_proto()
-            transaction_id = generate_transaction_id(account_id_proto)
-            transaction.setup_base_transaction(transaction_id, self.network.node_account_id.to_proto())
+    def execute_transaction(self, transaction, additional_signers=None, timeout=60):
 
+        if not transaction.transaction_id:
+            transaction_id = generate_transaction_id(self.operator_account_id.to_proto())
+            transaction.setup_base_transaction(transaction_id, self.network.node_account_id)
+        
         transaction.sign(self.operator_private_key)
+
+        if additional_signers:
+            for signer in additional_signers:
+                transaction.sign(signer)
 
         transaction_proto = transaction.to_proto()
 
@@ -228,16 +231,14 @@ class Client:
         transaction_id = transaction.transaction_id
         print(f"Transaction submitted. Transaction ID: {self._format_transaction_id(transaction_id)}")
 
-        # wait for tx receipt
         receipt = self.get_transaction_receipt(transaction_id)
         if receipt.status != response_code_pb2.ResponseCodeEnum.SUCCESS:
             status_message = response_code_pb2.ResponseCodeEnum.Name(receipt.status)
             raise Exception(f"Transaction failed with status: {status_message}")
 
-        # get tx record
         record = self.get_transaction_record(transaction_id)
 
-        return record
+        return receipt, record
 
 
     def _submit_transaction_with_retry(self, transaction_proto, stub_method, max_retries=3):

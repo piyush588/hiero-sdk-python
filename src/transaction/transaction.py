@@ -49,12 +49,12 @@ class Transaction:
             signedTransactionBytes=signed_transaction.SerializeToString()
         )
 
-    def setup_base_transaction(self, transaction_id, node_account_id, transaction_fee=None, memo=None):
+    def setup_base_transaction(self, transaction_id=None, node_account_id=None, transaction_fee=None, memo=None):
         """
-        Common function to set up the base transaction fields. This can be reused by different transaction types.
+        Common function to set up the base transaction fields.
         """
-        self.transaction_id = transaction_id
-        self.node_account_id = node_account_id
+        self.transaction_id = transaction_id or self.transaction_id
+        self.node_account_id = node_account_id or self.node_account_id
         if transaction_fee is not None:
             self.transaction_fee = transaction_fee
         if memo is not None:
@@ -68,7 +68,7 @@ class Transaction:
         transaction_body = transaction_body_pb2.TransactionBody()
         
         transaction_body.transactionID.CopyFrom(self.transaction_id)
-        transaction_body.nodeAccountID.CopyFrom(self.node_account_id)
+        transaction_body.nodeAccountID.CopyFrom(self.node_account_id.to_proto())
         transaction_body.transactionFee = self.transaction_fee
         transaction_body.transactionValidDuration.seconds = self.transaction_valid_duration_seconds
         transaction_body.generateRecord = self.generate_record

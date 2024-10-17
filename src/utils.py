@@ -6,18 +6,19 @@ def generate_transaction_id(account_id_proto):
     Generate a unique transaction ID based on the account ID and the current timestamp.
     """
     import time
-    from random import randint
 
-    timestamp = int(time.time())
-    nanos = randint(0, 999999999)
+    current_time = time.time()
+    timestamp_seconds = int(current_time)
+    timestamp_nanos = int((current_time - timestamp_seconds) * 1e9)
 
-    tx_timestamp = timestamp_pb2.Timestamp(seconds=timestamp, nanos=nanos)
+    tx_timestamp = timestamp_pb2.Timestamp(seconds=timestamp_seconds, nanos=timestamp_nanos)
 
     tx_id = basic_types_pb2.TransactionID(
         transactionValidStart=tx_timestamp,
         accountID=account_id_proto
     )
     return tx_id
+
 
 def sign_transaction(transaction, private_key):
     # sign the transaction using the operator's private key
