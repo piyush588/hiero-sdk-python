@@ -1,5 +1,6 @@
 import os
 import sys
+from dotenv import load_dotenv
 
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.insert(0, project_root)
@@ -10,6 +11,8 @@ from src.crypto.private_key import PrivateKey
 from src.client.network import Network
 from src.tokens.token_id import TokenId
 from src.transaction.transfer_transaction import TransferTransaction
+
+load_dotenv()
 
 def transfer_tokens():
     network = Network()
@@ -23,16 +26,20 @@ def transfer_tokens():
 
     client.set_operator(operator_id, operator_key)
 
-    transfer_tx = TransferTransaction()
-    transfer_tx.add_token_transfer(token_id, operator_id, -amount)
-    transfer_tx.add_token_transfer(token_id, recipient_id, amount)
+    transaction = (
+        TransferTransaction()
+        .add_token_transfer(token_id, operator_id, -amount)
+        .add_token_transfer(token_id, recipient_id, amount)
+        .freeze_with(client)
+        .sign(operator_key)
+    )
 
-    receipt = client.execute_transaction(transfer_tx)
-
-    if receipt:
+    try:
+        receipt = transaction.execute(client)
         print("Token transfer successful.")
-    else:
-        print("Token transfer failed.")
+    except Exception as e:
+        print(f"Token transfer failed: {str(e)}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     transfer_tokens()

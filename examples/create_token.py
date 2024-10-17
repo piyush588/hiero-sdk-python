@@ -1,5 +1,6 @@
 import os
 import sys
+from dotenv import load_dotenv
 
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.insert(0, project_root)
@@ -10,6 +11,8 @@ from src.crypto.private_key import PrivateKey
 from src.tokens.token_create_transaction import TokenCreateTransaction
 from src.client.network import Network
 
+load_dotenv()
+
 def create_token():
     network = Network()
     client = Client(network)
@@ -19,19 +22,27 @@ def create_token():
 
     client.set_operator(operator_id, operator_key)
 
-    token_tx = TokenCreateTransaction()
-    token_tx.token_name = "MyToken"
-    token_tx.token_symbol = "MTK"
-    token_tx.decimals = 2
-    token_tx.initial_supply = 10
-    token_tx.treasury_account_id = operator_id
+    transaction = (
+        TokenCreateTransaction()
+        .set_token_name("MyToken")
+        .set_token_symbol("MTK")
+        .set_decimals(2)
+        .set_initial_supply(10)
+        .set_treasury_account_id(operator_id)
+        .freeze_with(client)
+        .sign(operator_key)
+    )
 
-    receipt = client.execute_transaction(token_tx)
-
-    if receipt:
-        print(f"Token created with ID: {receipt.tokenId}")
-    else:
-        print("Token creation failed.")
+    try:
+        receipt = transaction.execute(client)
+        if receipt and receipt.tokenId:
+            print(f"Token created with ID: {receipt.tokenId}")
+        else:
+            print("Token creation failed: Token ID not returned in receipt.")
+            sys.exit(1)
+    except Exception as e:
+        print(f"Token creation failed: {str(e)}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     create_token()

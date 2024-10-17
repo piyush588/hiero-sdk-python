@@ -26,18 +26,21 @@ def load_credentials():
 
     return operator_id, operator_key, recipient_id, recipient_key
 
-def create_token(client):
+def create_token(client, operator_id, operator_key):
     """Create a new token and return its TokenId instance."""
+    transaction = (
+            TokenCreateTransaction()
+            .set_token_name("ExampleToken")
+            .set_token_symbol("EXT")
+            .set_decimals(2)
+            .set_initial_supply(1000)
+            .set_treasury_account_id(operator_id)
+            .freeze_with(client)
+            .sign(operator_key)
+        )
     
-    token_tx = TokenCreateTransaction()
-    token_tx.token_name = os.getenv('TOKEN_NAME', "MyToken")
-    token_tx.token_symbol = os.getenv('TOKEN_SYMBOL', "MTK")
-    token_tx.decimals = int(os.getenv('TOKEN_DECIMALS', 2))
-    token_tx.initial_supply = int(os.getenv('INITIAL_SUPPLY', 5))
-    token_tx.treasury_account_id = client.operator_account_id
-
     try:
-        receipt = client.execute_transaction(token_tx)
+        receipt = transaction.execute(client)
     except Exception as e:
         print(f"Token creation failed: {str(e)}")
         sys.exit(1)
@@ -53,13 +56,16 @@ def create_token(client):
 
 def associate_token(client, recipient_id, recipient_key, token_id):
     """Associate the specified token with the recipient account."""
-
-    associate_tx = TokenAssociateTransaction()
-    associate_tx.account_id = recipient_id
-    associate_tx.token_ids = [token_id]
+    transaction = (
+        TokenAssociateTransaction()
+        .set_account_id(recipient_id)
+        .add_token_id(token_id)
+        .freeze_with(client)
+        .sign(recipient_key)
+    )
 
     try:
-        client.execute_transaction(associate_tx, additional_signers=[recipient_key])
+        receipt = transaction.execute(client)
         print("Token association successful.")
     except Exception as e:
         print(f"Token association failed: {str(e)}")
@@ -67,17 +73,21 @@ def associate_token(client, recipient_id, recipient_key, token_id):
 
 def transfer_token(client, recipient_id, token_id):
     """Transfer the specified token to the recipient account."""
-
-    transfer_tx = TransferTransaction()
-    transfer_tx.add_token_transfer(token_id, client.operator_account_id, -1)
-    transfer_tx.add_token_transfer(token_id, recipient_id, 1)
+    transaction = (
+        TransferTransaction()
+        .add_token_transfer(token_id, client.operator_account_id, -1)
+        .add_token_transfer(token_id, recipient_id, 1)
+        .freeze_with(client)
+        .sign(client.operator_private_key)
+    )
 
     try:
-        client.execute_transaction(transfer_tx)
+        receipt = transaction.execute(client)
         print("Token transfer successful.")
     except Exception as e:
         print(f"Token transfer failed: {str(e)}")
         sys.exit(1)
+
 
 def main():
     operator_id, operator_key, recipient_id, recipient_key = load_credentials()
@@ -86,13 +96,10 @@ def main():
     client = Client(network)
     client.set_operator(operator_id, operator_key)
 
-    # create new token
-    token_id = create_token(client)
+    token_id = create_token(client, operator_id, operator_key)
 
-    # associate token with recipient account
     associate_token(client, recipient_id, recipient_key, token_id)
 
-    # transfer token to recipient
     transfer_token(client, recipient_id, token_id)
 
 if __name__ == "__main__":

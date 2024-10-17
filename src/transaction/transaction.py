@@ -1,4 +1,9 @@
-from src.outputs import transaction_pb2, transaction_body_pb2, basic_types_pb2, transaction_contents_pb2, token_create_pb2, token_associate_pb2, crypto_transfer_pb2
+# transaction.py
+
+from src.outputs import (
+    transaction_pb2, transaction_body_pb2, basic_types_pb2,
+    transaction_contents_pb2, token_create_pb2, token_associate_pb2, crypto_transfer_pb2
+)
 from cryptography.hazmat.primitives.serialization import Encoding, PublicFormat
 
 class Transaction:
@@ -34,6 +39,8 @@ class Transaction:
         )
 
         self.signature_map.sigPair.append(sig_pair)
+
+        return self
 
     def to_proto(self):
         """
@@ -88,8 +95,112 @@ class Transaction:
             transaction_body.tokenAssociate.CopyFrom(specific_tx_body)
         elif isinstance(specific_tx_body, crypto_transfer_pb2.CryptoTransferTransactionBody):
             transaction_body.cryptoTransfer.CopyFrom(specific_tx_body)
-        # add more here if extending SDK
         else:
             raise ValueError("Unsupported transaction type")
 
         return transaction_body
+
+    def freeze_with(self, client):
+        """
+        Freezes the transaction with the provided client.
+
+        Args:
+            client (Client): The client instance.
+
+        Returns:
+            Transaction: The instance for chaining.
+        """
+        if self.transaction_id is None:
+            self.transaction_id = client.generate_transaction_id()
+
+        if self.node_account_id is None:
+            self.node_account_id = client.network.node_account_id
+
+        self.transaction_body_bytes = self.build_transaction_body().SerializeToString()
+
+        return self
+
+    def execute(self, client):
+        """
+        Executes the transaction using the provided client.
+
+        Args:
+            client (Client): The client instance.
+
+        Returns:
+            TransactionResponse: The response from the network.
+        """
+        if self.transaction_body_bytes is None:
+            raise Exception("Transaction must be frozen before execution. Call freeze_with(client) first.")
+
+        if not self.is_signed_by(client.operator_private_key.public_key()):
+            self.sign(client.operator_private_key)
+
+        transaction_proto = self.to_proto()
+
+        response = self.execute_transaction(client, transaction_proto)
+
+        return response
+
+    def get_receipt(self, client, timeout=60):
+        """
+        Retrieves the receipt for the transaction.
+
+        Args:
+            client (Client): The client instance.
+            timeout (int): Timeout in seconds.
+
+        Returns:
+            TransactionReceipt: The transaction receipt.
+        """
+        if self.transaction_id is None:
+            raise Exception("Transaction ID is not set.")
+
+        receipt = client.get_transaction_receipt(self.transaction_id, timeout)
+
+        return receipt
+
+    def is_signed_by(self, public_key):
+        """
+        Checks if the transaction has been signed by the given public key.
+
+        Args:
+            public_key: The public key to check.
+
+        Returns:
+            bool: True if signed by the public key, False otherwise.
+        """
+        public_key_bytes = public_key.public_bytes(
+            encoding=Encoding.Raw,
+            format=PublicFormat.Raw
+        )
+        pub_key_prefix = public_key_bytes[:6]
+
+        for sig_pair in self.signature_map.sigPair:
+            if sig_pair.pubKeyPrefix == pub_key_prefix:
+                return True
+        return False
+
+    def build_transaction_body(self):
+        """
+        Abstract method to build the transaction body.
+        Should be implemented by subclasses.
+
+        Returns:
+            TransactionBody: The protobuf TransactionBody message.
+        """
+        raise NotImplementedError("Subclasses must implement build_transaction_body()")
+
+    def execute_transaction(self, client, transaction_proto):
+        """
+        Abstract method to execute the transaction.
+        Should be implemented by subclasses.
+
+        Args:
+            client (Client): The client instance.
+            transaction_proto (Transaction): The transaction protobuf message.
+
+        Returns:
+            Response: The response from the network.
+        """
+        raise NotImplementedError("Subclasses must implement execute_transaction()")
