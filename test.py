@@ -1,3 +1,5 @@
+# test.py
+
 import os
 import sys
 from dotenv import load_dotenv
@@ -10,7 +12,6 @@ from src.tokens.token_create_transaction import TokenCreateTransaction
 from src.tokens.token_associate_transaction import TokenAssociateTransaction
 from src.transaction.transfer_transaction import TransferTransaction
 from src.tokens.token_id import TokenId
-from src.outputs import response_code_pb2
 
 # Load environment variables
 load_dotenv()
@@ -47,16 +48,10 @@ def create_token(client):
     token_tx.treasury_account_id = client.operator_account_id
     token_tx.transaction_fee = int(os.getenv('TRANSACTION_FEE', 10_000_000_000))
 
-    receipt, record = client.execute_transaction(token_tx)
-    if not receipt:
-        print("Token creation failed: No receipt returned.")
-        sys.exit(1)
-
-    status = receipt.status
-    status_code = response_code_pb2.ResponseCodeEnum.Name(status)
-
-    if status != response_code_pb2.ResponseCodeEnum.SUCCESS:
-        print(f"Token creation failed with status: {status_code}")
+    try:
+        receipt = client.execute_transaction(token_tx)
+    except Exception as e:
+        print(f"Token creation failed: {str(e)}")
         sys.exit(1)
 
     if not receipt.tokenID or receipt.tokenID.tokenNum == 0:
@@ -80,26 +75,26 @@ def associate_token(client, recipient_id, recipient_key, token_id):
     associate_tx.token_ids = [token_id]
     associate_tx.transaction_fee = int(os.getenv('TRANSACTION_FEE', 10_000_000_000))
 
-    record = client.execute_transaction(associate_tx, additional_signers=[recipient_key])
-    if record:
+    try:
+        client.execute_transaction(associate_tx, additional_signers=[recipient_key])
         print("Token association successful.")
-    else:
-        print("Token association failed.")
+    except Exception as e:
+        print(f"Token association failed: {str(e)}")
         sys.exit(1)
 
 def transfer_token(client, recipient_id, token_id):
-
     """Transfer the specified token to the recipient account."""
+
     transfer_tx = TransferTransaction()
     transfer_tx.add_token_transfer(token_id, client.operator_account_id, -1)
     transfer_tx.add_token_transfer(token_id, recipient_id, 1)
     transfer_tx.transaction_fee = int(os.getenv('TRANSACTION_FEE', 10_000_000_000))
 
-    record = client.execute_transaction(transfer_tx)
-    if record:
+    try:
+        client.execute_transaction(transfer_tx)
         print("Token transfer successful.")
-    else:
-        print("Token transfer failed.")
+    except Exception as e:
+        print(f"Token transfer failed: {str(e)}")
         sys.exit(1)
 
 def main():

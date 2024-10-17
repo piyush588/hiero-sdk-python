@@ -1,3 +1,5 @@
+# client.py
+
 import grpc
 import time
 from ..account.account_id import AccountId
@@ -8,7 +10,6 @@ from ..outputs import (
     transaction_get_receipt_pb2,
     query_pb2,
     query_header_pb2,
-    response_code_pb2,
     basic_types_pb2,
     transaction_body_pb2,
     transaction_pb2,
@@ -22,6 +23,7 @@ from .network import Network
 from ..tokens.token_create_transaction import TokenCreateTransaction
 from ..tokens.token_associate_transaction import TokenAssociateTransaction
 from ..transaction.transfer_transaction import TransferTransaction
+from ..response_code import ResponseCode
 
 class Client:
     def __init__(self, network=None):
@@ -106,14 +108,14 @@ class Client:
             status = receipt.status
 
             # check if the transaction has reached consensus
-            if status == response_code_pb2.ResponseCodeEnum.SUCCESS:
+            if status == ResponseCode.SUCCESS:
                 return receipt
-            elif status == response_code_pb2.ResponseCodeEnum.UNKNOWN or status == response_code_pb2.ResponseCodeEnum.RECEIPT_NOT_FOUND:
+            elif status in (ResponseCode.UNKNOWN, ResponseCode.RECEIPT_NOT_FOUND):
                 time.sleep(sleep_seconds)
                 continue
             else:
                 # handle other status codes
-                status_message = response_code_pb2.ResponseCodeEnum.Name(status)
+                status_message = ResponseCode.get_name(status)
                 raise Exception(f"Transaction failed with status: {status_message}")
 
         raise Exception("Exceeded maximum attempts to fetch transaction receipt.")
@@ -198,7 +200,6 @@ class Client:
         return transaction
 
     def execute_transaction(self, transaction, additional_signers=None, timeout=60):
-
         if not transaction.transaction_id:
             transaction_id = generate_transaction_id(self.operator_account_id.to_proto())
             transaction.setup_base_transaction(transaction_id, self.network.node_account_id)
@@ -222,31 +223,27 @@ class Client:
 
         response = self._submit_transaction_with_retry(transaction_proto, stub_method)
 
-        if response.nodeTransactionPrecheckCode != response_code_pb2.ResponseCodeEnum.OK:
+        if response.nodeTransactionPrecheckCode != ResponseCode.OK:
             error_code = response.nodeTransactionPrecheckCode
-            error_message = response_code_pb2.ResponseCodeEnum.Name(error_code)
-            print(f"Error during transaction submission: {error_code} ({error_message})")
-            return None
+            error_message = ResponseCode.get_name(error_code)
+            raise Exception(f"Error during transaction submission: {error_code} ({error_message})")
 
         transaction_id = transaction.transaction_id
         print(f"Transaction submitted. Transaction ID: {self._format_transaction_id(transaction_id)}")
 
         receipt = self.get_transaction_receipt(transaction_id)
-        if receipt.status != response_code_pb2.ResponseCodeEnum.SUCCESS:
-            status_message = response_code_pb2.ResponseCodeEnum.Name(receipt.status)
+        if receipt.status != ResponseCode.SUCCESS:
+            status_message = ResponseCode.get_name(receipt.status)
             raise Exception(f"Transaction failed with status: {status_message}")
 
-        record = self.get_transaction_record(transaction_id)
-
-        return receipt, record
-
+        return receipt
 
     def _submit_transaction_with_retry(self, transaction_proto, stub_method, max_retries=3):
         response = None
         for attempt in range(max_retries):
             try:
                 response = stub_method(transaction_proto)
-                if response.nodeTransactionPrecheckCode == response_code_pb2.ResponseCodeEnum.BUSY:
+                if response.nodeTransactionPrecheckCode == ResponseCode.BUSY:
                     print(f"Node is busy (attempt {attempt + 1}/{max_retries}), retrying...")
                     self._switch_node()
                     time.sleep(2)
