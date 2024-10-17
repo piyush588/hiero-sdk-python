@@ -28,6 +28,7 @@ def load_credentials():
 
 def create_token(client):
     """Create a new token and return its TokenId instance."""
+    
     token_tx = TokenCreateTransaction()
     token_tx.token_name = os.getenv('TOKEN_NAME', "MyToken")
     token_tx.token_symbol = os.getenv('TOKEN_SYMBOL', "MTK")

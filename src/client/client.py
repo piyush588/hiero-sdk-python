@@ -5,13 +5,13 @@ from ..outputs import (
     token_service_pb2_grpc,
     crypto_transfer_pb2,
     crypto_service_pb2_grpc,
-    query_pb2,
-    query_header_pb2,
     basic_types_pb2,
     transaction_body_pb2,
     transaction_pb2,
     transaction_contents_pb2,
     transaction_get_record_pb2,
+    query_pb2, 
+    query_header_pb2
 )
 from cryptography.hazmat.primitives import serialization
 from ..utils import generate_transaction_id
@@ -22,6 +22,7 @@ from ..transaction.transfer_transaction import TransferTransaction
 from ..transaction.transaction_receipt import TransactionReceipt
 from ..response_code import ResponseCode
 from ..query.transaction_get_receipt_query import TransactionGetReceiptQuery 
+
 
 class Client:
     def __init__(self, network=None):

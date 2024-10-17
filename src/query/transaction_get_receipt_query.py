@@ -1,4 +1,4 @@
-from src.outputs import transaction_get_receipt_pb2, query_pb2, response_pb2
+from src.outputs import transaction_get_receipt_pb2, query_pb2, query_header_pb2
 
 class TransactionGetReceiptQuery:
     def __init__(self):
@@ -8,7 +8,7 @@ class TransactionGetReceiptQuery:
         if not self.transaction_id:
             raise ValueError("Transaction ID must be set before executing the query.")
 
-        query_header = query_pb2.QueryHeader()
+        query_header = query_header_pb2.QueryHeader()
 
         transaction_get_receipt = transaction_get_receipt_pb2.TransactionGetReceiptQuery()
         transaction_get_receipt.header.CopyFrom(query_header)
