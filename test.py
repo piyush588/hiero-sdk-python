@@ -9,27 +9,17 @@ from src.crypto.private_key import PrivateKey
 from src.tokens.token_create_transaction import TokenCreateTransaction
 from src.tokens.token_associate_transaction import TokenAssociateTransaction
 from src.transaction.transfer_transaction import TransferTransaction
-from src.tokens.token_id import TokenId
 
 # Load environment variables
 load_dotenv()
 
 def load_credentials():
     """Load operator and recipient credentials from environment variables."""
-    operator_id_str = os.getenv('OPERATOR_ID')
-    operator_key_str = os.getenv('OPERATOR_KEY')
-    recipient_id_str = os.getenv('RECIPIENT_ID')
-    recipient_key_str = os.getenv('RECIPIENT_KEY')
-
-    if not all([operator_id_str, operator_key_str, recipient_id_str, recipient_key_str]):
-        print("Missing credentials in environment variables.")
-        sys.exit(1)
-
     try:
-        operator_id = AccountId.from_string(operator_id_str)
-        operator_key = PrivateKey.from_string(operator_key_str)
-        recipient_id = AccountId.from_string(recipient_id_str)
-        recipient_key = PrivateKey.from_string(recipient_key_str)
+        operator_id = AccountId.from_string(os.getenv('OPERATOR_ID'))
+        operator_key = PrivateKey.from_string(os.getenv('OPERATOR_KEY'))
+        recipient_id = AccountId.from_string(os.getenv('RECIPIENT_ID'))
+        recipient_key = PrivateKey.from_string(os.getenv('RECIPIENT_KEY'))
     except Exception as e:
         print(f"Error parsing credentials: {e}")
         sys.exit(1)
@@ -51,15 +41,11 @@ def create_token(client):
         print(f"Token creation failed: {str(e)}")
         sys.exit(1)
 
-    if not receipt.tokenID or receipt.tokenID.tokenNum == 0:
+    if not receipt.tokenId:
         print("Token creation failed: Token ID not returned in receipt.")
         sys.exit(1)
 
-    token_id = TokenId(
-        shard=receipt.tokenID.shardNum,
-        realm=receipt.tokenID.realmNum,
-        num=receipt.tokenID.tokenNum
-    )
+    token_id = receipt.tokenId
     print(f"Token creation successful. Token ID: {token_id}")
 
     return token_id

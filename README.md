@@ -90,7 +90,7 @@ def create_token():
     receipt = client.execute_transaction(token_tx)
 
     if receipt:
-        print(f"Token created with ID: {receipt.tokenID}")
+        print(f"Token created with ID: {receipt.tokenId}")
     else:
         print("Token creation failed.")
 

@@ -42,9 +42,11 @@ def test_sign_transaction(mock_account_ids):
     token_tx = TokenCreateTransaction()
     token_tx.token_name = "MyToken"
     token_tx.token_symbol = "MTK"
+    token_tx.decimals = 2
+    token_tx.initial_supply = 1000
     token_tx.treasury_account_id = account_id_sender
     token_tx.transaction_id = generate_transaction_id(account_id_sender.to_proto())
-    token_tx.node_account_id = node_account_id  
+    token_tx.node_account_id = node_account_id
 
     private_key = MagicMock()
     private_key.sign.return_value = b'signature'
@@ -65,9 +67,11 @@ def test_to_proto(mock_account_ids):
     token_tx = TokenCreateTransaction()
     token_tx.token_name = "MyToken"
     token_tx.token_symbol = "MTK"
+    token_tx.decimals = 2
+    token_tx.initial_supply = 1000
     token_tx.treasury_account_id = account_id_sender
     token_tx.transaction_id = generate_transaction_id(account_id_sender.to_proto())
-    token_tx.node_account_id = node_account_id 
+    token_tx.node_account_id = node_account_id
 
     private_key = MagicMock()
     private_key.sign.return_value = b'signature'

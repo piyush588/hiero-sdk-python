@@ -1,5 +1,3 @@
-# client.py
-
 import grpc
 import time
 from ..account.account_id import AccountId
@@ -7,7 +5,6 @@ from ..outputs import (
     token_service_pb2_grpc,
     crypto_transfer_pb2,
     crypto_service_pb2_grpc,
-    transaction_get_receipt_pb2,
     query_pb2,
     query_header_pb2,
     basic_types_pb2,
@@ -15,7 +12,6 @@ from ..outputs import (
     transaction_pb2,
     transaction_contents_pb2,
     transaction_get_record_pb2,
-    transaction_contents_pb2
 )
 from cryptography.hazmat.primitives import serialization
 from ..utils import generate_transaction_id
@@ -23,7 +19,9 @@ from .network import Network
 from ..tokens.token_create_transaction import TokenCreateTransaction
 from ..tokens.token_associate_transaction import TokenAssociateTransaction
 from ..transaction.transfer_transaction import TransferTransaction
+from ..transaction.transaction_receipt import TransactionReceipt
 from ..response_code import ResponseCode
+from ..query.transaction_get_receipt_query import TransactionGetReceiptQuery 
 
 class Client:
     def __init__(self, network=None):
@@ -48,7 +46,7 @@ class Client:
         transaction_body = transaction_body_pb2.TransactionBody()
         transaction_body.transactionID.CopyFrom(transaction_id)
         transaction_body.nodeAccountID.CopyFrom(self.network.node_account_id.to_proto())
-        transaction_body.transactionFee = 0  # Set fee to 0 for free queries
+        transaction_body.transactionFee = 0  
         transaction_body.transactionValidDuration.seconds = 120
         transaction_body.generateRecord = False
         transaction_body.memo = "Query Payment"
@@ -81,43 +79,24 @@ class Client:
         return transaction
 
     def get_transaction_receipt(self, transaction_id, max_attempts=10, sleep_seconds=2):
-        channel = grpc.insecure_channel(self.network.node_address)
-        receipt_stub = crypto_service_pb2_grpc.CryptoServiceStub(channel)
-
         for attempt in range(max_attempts):
-            payment_transaction = self._create_payment_transaction_for_query()
+            try:
+                receipt_query = TransactionGetReceiptQuery()
+                receipt_query.transaction_id = transaction_id
+                receipt_proto = receipt_query.execute(self)
+                status = receipt_proto.status
 
-            # build the query header with payment tx
-            query_header = query_header_pb2.QueryHeader()
-            query_header.payment.CopyFrom(payment_transaction)
-            query_header.responseType = query_header_pb2.ResponseType.Value('ANSWER_ONLY')
-
-            # build TransactionGetReceipt query
-            transaction_get_receipt_query = transaction_get_receipt_pb2.TransactionGetReceiptQuery()
-            transaction_get_receipt_query.header.CopyFrom(query_header)
-            transaction_get_receipt_query.transactionID.CopyFrom(transaction_id)
-
-            # build query
-            query = query_pb2.Query()
-            query.transactionGetReceipt.CopyFrom(transaction_get_receipt_query)
-
-            # execute query
-            response = receipt_stub.getTransactionReceipts(query)
-
-            receipt = response.transactionGetReceipt.receipt
-            status = receipt.status
-
-            # check if the transaction has reached consensus
-            if status == ResponseCode.SUCCESS:
-                return receipt
-            elif status in (ResponseCode.UNKNOWN, ResponseCode.RECEIPT_NOT_FOUND):
+                if status == ResponseCode.SUCCESS:
+                    return TransactionReceipt(receipt_proto)
+                elif status in (ResponseCode.UNKNOWN, ResponseCode.RECEIPT_NOT_FOUND):
+                    time.sleep(sleep_seconds)
+                    continue
+                else:
+                    status_message = ResponseCode.get_name(status)
+                    raise Exception(f"Transaction failed with status: {status_message}")
+            except Exception as e:
+                print(f"Error retrieving transaction receipt: {e}")
                 time.sleep(sleep_seconds)
-                continue
-            else:
-                # handle other status codes
-                status_message = ResponseCode.get_name(status)
-                raise Exception(f"Transaction failed with status: {status_message}")
-
         raise Exception("Exceeded maximum attempts to fetch transaction receipt.")
     
     def get_transaction_record(self, transaction_id):
@@ -234,6 +213,7 @@ class Client:
         print(f"Transaction submitted. Transaction ID: {self._format_transaction_id(transaction_id)}")
 
         receipt = self.get_transaction_receipt(transaction_id)
+
         if receipt.status != ResponseCode.SUCCESS:
             status_message = ResponseCode.get_name(receipt.status)
             raise Exception(f"Transaction failed with status: {status_message}")
@@ -259,7 +239,7 @@ class Client:
 
     def _switch_node(self):
         """Switch to a new node in the network and update stubs."""
-        self.network.select_node()  # Select a new node
+        self.network.select_node()  
         self.channel = grpc.insecure_channel(self.network.node_address)
         self.token_stub = token_service_pb2_grpc.TokenServiceStub(self.channel)
         self.crypto_stub = crypto_service_pb2_grpc.CryptoServiceStub(self.channel)
@@ -268,3 +248,17 @@ class Client:
         account_id = transaction_id.accountID
         valid_start = transaction_id.transactionValidStart
         return f"{account_id.shardNum}.{account_id.realmNum}.{account_id.accountNum}-{valid_start.seconds}.{valid_start.nanos}"
+    
+    def send_query(self, query, timeout=60):
+        """
+        Sends a query to the network and returns the response.
+        """
+        query_bytes = query.SerializeToString()
+        stub = crypto_service_pb2_grpc.CryptoServiceStub(self.channel)
+
+        try:
+            response = stub.getTransactionReceipts(query, timeout=timeout)
+            return response
+        except grpc.RpcError as e:
+            print(f"gRPC error during query execution: {e}")
+            return None
