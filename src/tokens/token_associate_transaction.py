@@ -7,6 +7,8 @@ class TokenAssociateTransaction(Transaction):
         self.account_id = None
         self.token_ids = []
 
+        self._default_transaction_fee = 500_000_000 
+
     def build_transaction_body(self):
         if not self.account_id or not self.token_ids:
             raise ValueError("Account ID and token IDs must be set")

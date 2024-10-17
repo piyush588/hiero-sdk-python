@@ -5,12 +5,14 @@ class Transaction:
     def __init__(self):
         self.transaction_id = None
         self.node_account_id = None
-        self.transaction_fee = 100_000_000
-        self.transaction_valid_duration_seconds = 120
+        self.transaction_fee = None
+        self.transaction_valid_duration = 120
         self.generate_record = False
         self.memo = ""
         self.transaction_body_bytes = None
         self.signature_map = basic_types_pb2.SignatureMap()
+
+        self._default_transaction_fee = 2_000_000
 
     def sign(self, private_key):
         """
@@ -62,15 +64,20 @@ class Transaction:
 
     def build_base_transaction_body(self, specific_tx_body):
         """
-        Builds the base transaction body by combining the base transaction fields 
+        Builds the base transaction body by combining the base transaction fields
         with the specific transaction body fields (e.g., token associate, transfer).
         """
         transaction_body = transaction_body_pb2.TransactionBody()
-        
+
+        if not self.transaction_id:
+            raise ValueError("Transaction ID must be set before building the transaction body.")
+        if not self.node_account_id:
+            raise ValueError("Node account ID must be set before building the transaction body.")
+
         transaction_body.transactionID.CopyFrom(self.transaction_id)
         transaction_body.nodeAccountID.CopyFrom(self.node_account_id.to_proto())
-        transaction_body.transactionFee = self.transaction_fee
-        transaction_body.transactionValidDuration.seconds = self.transaction_valid_duration_seconds
+        transaction_body.transactionFee = self.transaction_fee or self._default_transaction_fee
+        transaction_body.transactionValidDuration.seconds = self.transaction_valid_duration
         transaction_body.generateRecord = self.generate_record
         transaction_body.memo = self.memo
 

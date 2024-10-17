@@ -1,5 +1,3 @@
-# test.py
-
 import os
 import sys
 from dotenv import load_dotenv
@@ -46,7 +44,6 @@ def create_token(client):
     token_tx.decimals = int(os.getenv('TOKEN_DECIMALS', 2))
     token_tx.initial_supply = int(os.getenv('INITIAL_SUPPLY', 5))
     token_tx.treasury_account_id = client.operator_account_id
-    token_tx.transaction_fee = int(os.getenv('TRANSACTION_FEE', 10_000_000_000))
 
     try:
         receipt = client.execute_transaction(token_tx)
@@ -73,7 +70,6 @@ def associate_token(client, recipient_id, recipient_key, token_id):
     associate_tx = TokenAssociateTransaction()
     associate_tx.account_id = recipient_id
     associate_tx.token_ids = [token_id]
-    associate_tx.transaction_fee = int(os.getenv('TRANSACTION_FEE', 10_000_000_000))
 
     try:
         client.execute_transaction(associate_tx, additional_signers=[recipient_key])
@@ -88,7 +84,6 @@ def transfer_token(client, recipient_id, token_id):
     transfer_tx = TransferTransaction()
     transfer_tx.add_token_transfer(token_id, client.operator_account_id, -1)
     transfer_tx.add_token_transfer(token_id, recipient_id, 1)
-    transfer_tx.transaction_fee = int(os.getenv('TRANSACTION_FEE', 10_000_000_000))
 
     try:
         client.execute_transaction(transfer_tx)

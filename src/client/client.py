@@ -202,8 +202,10 @@ class Client:
     def execute_transaction(self, transaction, additional_signers=None, timeout=60):
         if not transaction.transaction_id:
             transaction_id = generate_transaction_id(self.operator_account_id.to_proto())
-            transaction.setup_base_transaction(transaction_id, self.network.node_account_id)
-        
+            transaction.transaction_id = transaction_id
+        if not transaction.node_account_id:
+            transaction.node_account_id = self.network.node_account_id
+
         transaction.sign(self.operator_private_key)
 
         if additional_signers:

@@ -3,12 +3,15 @@ from ..outputs import crypto_transfer_pb2, basic_types_pb2
 from ..account.account_id import AccountId
 from ..tokens.token_id import TokenId
 from collections import defaultdict
+from collections import defaultdict
 
 class TransferTransaction(Transaction):
     def __init__(self):
         super().__init__()
         self.hbar_transfers = defaultdict(int)
         self.token_transfers = defaultdict(lambda: defaultdict(int))
+
+        self._default_transaction_fee = 100_000_000
 
     def add_hbar_transfer(self, account_id, amount):
         """
@@ -38,6 +41,7 @@ class TransferTransaction(Transaction):
         account_id_str = str(account_id)
         self.token_transfers[token_id_str][account_id_str] += amount
         return self
+
 
     def set_common_fields(self, transaction_id, node_account_id, transaction_fee=None, memo=None):
         """

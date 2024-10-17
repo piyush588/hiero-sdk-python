@@ -6,9 +6,11 @@ class TokenCreateTransaction(Transaction):
         super().__init__()
         self.token_name = None
         self.token_symbol = None
-        self.decimals = 0
-        self.initial_supply = 0
-        self.treasury_account_id = None  
+        self.decimals = None
+        self.initial_supply = None
+        self.treasury_account_id = None
+
+        self._default_transaction_fee = 3_000_000_000
 
     def build_transaction_body(self):
         if not all([self.token_name, self.token_symbol, self.treasury_account_id]):
