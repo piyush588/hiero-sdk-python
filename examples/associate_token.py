@@ -33,7 +33,7 @@ def associate_token():
     )
 
     try:
-        transaction.execute(client)
+        receipt = transaction.execute(client)
         print("Token association successful.")
     except Exception as e:
         print(f"Token association failed: {str(e)}")

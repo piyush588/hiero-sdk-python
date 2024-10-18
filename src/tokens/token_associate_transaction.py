@@ -108,6 +108,10 @@ class TokenAssociateTransaction(Transaction):
 
         Returns:
             TransactionReceipt: The receipt from the network.
+
+        Raises:
+            ValueError: If the client is not provided.
+            Exception: If the transaction submission fails.
         """
         if client is None:
             client = self.client
@@ -116,9 +120,6 @@ class TokenAssociateTransaction(Transaction):
 
         if self.transaction_body_bytes is None:
             raise Exception("Transaction must be frozen before execution. Call freeze_with(client) first.")
-
-        if not self.is_signed_by(client.operator_private_key.public_key()):
-            self.sign(client.operator_private_key)
 
         transaction_proto = self.to_proto()
 

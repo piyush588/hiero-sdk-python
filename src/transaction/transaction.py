@@ -1,5 +1,3 @@
-# transaction.py
-
 from src.outputs import (
     transaction_pb2, transaction_body_pb2, basic_types_pb2,
     transaction_contents_pb2, token_create_pb2, token_associate_pb2, crypto_transfer_pb2

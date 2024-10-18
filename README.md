@@ -65,73 +65,40 @@ Below are examples of how to use the SDK for creating tokens, associating them w
 ### Creating a Token
 
 ```
-from src.client.client import Client
-from src.account.account_id import AccountId
-from src.crypto.private_key import PrivateKey
-from src.tokens.token_create_transaction import TokenCreateTransaction
-from src.client.network import Network
-
-def create_token():
-    network = Network()
-    client = Client(network)
-
-    operator_id = AccountId.from_string("0.0.123456")
-    operator_key = PrivateKey.from_string("302e020100300506032b657004220420...")
-
-    client.set_operator(operator_id, operator_key)
-
-    token_tx = TokenCreateTransaction()
-    token_tx.token_name = "MyToken"
-    token_tx.token_symbol = "MTK"
-    token_tx.decimals = 2
-    token_tx.initial_supply = 1000
-    token_tx.treasury_account_id = operator_id
-
-    receipt = client.execute_transaction(token_tx)
-
-    if receipt:
-        print(f"Token created with ID: {receipt.tokenId}")
-    else:
-        print("Token creation failed.")
-
-if __name__ == "__main__":
-    create_token()
+transaction = (
+        TokenCreateTransaction()
+        .set_token_name("MyToken")
+        .set_token_symbol("MTK")
+        .set_decimals(2)
+        .set_initial_supply(10)
+        .set_treasury_account_id(operator_id)
+        .freeze_with(client)
+        .sign(operator_key)
+    )
 ```
 
 ### Associating a Token
 
 ```
-from src.tokens.token_associate_transaction import TokenAssociateTransaction
-
-def associate_token(client, account_id, token_id):
-    associate_tx = TokenAssociateTransaction()
-    associate_tx.account_id = account_id
-    associate_tx.token_ids = [token_id]
-
-    receipt = client.execute_transaction(associate_tx)
-
-    if receipt:
-        print(f"Token associated successfully with account: {account_id}")
-    else:
-        print("Token association failed.")
+transaction = (
+        TokenAssociateTransaction()
+        .set_account_id(recipient_id)
+        .add_token_id(token_id)
+        .freeze_with(client)
+        .sign(recipient_key)
+    )
 ```
 
 ### Transfering a Token
 
 ```
-from src.transaction.transfer_transaction import TransferTransaction
-
-def transfer_tokens(client, token_id, sender_account, recipient_account, amount):
-    transfer_tx = TransferTransaction()
-    transfer_tx.add_token_transfer(token_id, sender_account, -amount)
-    transfer_tx.add_token_transfer(token_id, recipient_account, amount)
-
-    receipt = client.execute_transaction(transfer_tx)
-
-    if receipt:
-        print("Token transfer successful.")
-    else:
-        print("Token transfer failed.")
+    transaction = (
+        TransferTransaction()
+        .add_token_transfer(token_id, operator_id, -amount)
+        .add_token_transfer(token_id, recipient_id, amount)
+        .freeze_with(client)
+        .sign(operator_key)
+    )
 ```
 
 ## Contributing
