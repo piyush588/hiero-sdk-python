@@ -57,6 +57,13 @@ To run one script testing all capabilities of the SDK, use the following command
 python test.py
 ```
 
+Output:
+```
+Token creation successful. Token ID: 0.0.5002222
+Token association successful.
+Token transfer successful.
+```
+
 
 ## Usage
 
