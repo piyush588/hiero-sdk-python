@@ -74,14 +74,16 @@ Below are examples of how to use the SDK for creating tokens, associating them w
 ```
 transaction = (
         TokenCreateTransaction()
-        .set_token_name("MyToken")
-        .set_token_symbol("MTK")
+        .set_token_name("ExampleToken")
+        .set_token_symbol("EXT")
         .set_decimals(2)
-        .set_initial_supply(10)
+        .set_initial_supply(1000)
         .set_treasury_account_id(operator_id)
         .freeze_with(client)
-        .sign(operator_key)
     )
+
+    transaction.sign(operator_key)
+    transaction.execute(client)
 ```
 
 ### Associating a Token
@@ -94,6 +96,8 @@ transaction = (
         .freeze_with(client)
         .sign(recipient_key)
     )
+
+    transaction.execute(client)
 ```
 
 ### Transfering a Token
@@ -106,6 +110,8 @@ transaction = (
         .freeze_with(client)
         .sign(operator_key)
     )
+
+    transaction.execute(client)
 ```
 
 ## Contributing
