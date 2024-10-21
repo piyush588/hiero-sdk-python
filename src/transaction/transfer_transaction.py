@@ -1,5 +1,3 @@
-# transfer_transaction.py
-
 from src.transaction.transaction import Transaction
 from src.outputs import crypto_transfer_pb2, basic_types_pb2
 from src.account.account_id import AccountId

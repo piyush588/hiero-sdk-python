@@ -114,6 +114,20 @@ transaction = (
     transaction.execute(client)
 ```
 
+### Transfering a HBAR
+
+```
+    transaction = (
+        TransferTransaction()
+        .add_hbar_transfer(operator_id, -100000000)  # send 1 HBAR (in tinybars)
+        .add_hbar_transfer(recipient_id, 100000000)  
+        .freeze_with(client)
+    )
+
+    transaction.sign(operator_key)
+    transaction.execute(client)
+```
+
 ## Contributing
 
 Contributions are welcome! Please follow these steps:
