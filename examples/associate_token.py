@@ -20,7 +20,7 @@ def associate_token():
 
     recipient_id = AccountId.from_string(os.getenv('RECIPIENT_ID'))
     recipient_key = PrivateKey.from_string(os.getenv('RECIPIENT_KEY'))
-    token_id = TokenId.from_string(os.getenv('TOKEN_ID'))
+    token_id = TokenId.from_string("0.0.5009592")
 
     client.set_operator(recipient_id, recipient_key)
 

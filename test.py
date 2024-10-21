@@ -1,7 +1,7 @@
 import os
 import sys
+import binascii
 from dotenv import load_dotenv
-
 from src.client.network import Network
 from src.client.client import Client
 from src.account.account_id import AccountId
@@ -29,16 +29,17 @@ def load_credentials():
 def create_token(client, operator_id, operator_key):
     """Create a new token and return its TokenId instance."""
     transaction = (
-            TokenCreateTransaction()
-            .set_token_name("ExampleToken")
-            .set_token_symbol("EXT")
-            .set_decimals(2)
-            .set_initial_supply(1000)
-            .set_treasury_account_id(operator_id)
-            .freeze_with(client)
-            .sign(operator_key)
-        )
-    
+        TokenCreateTransaction()
+        .set_token_name("ExampleToken")
+        .set_token_symbol("EXT")
+        .set_decimals(2)
+        .set_initial_supply(1000)
+        .set_treasury_account_id(operator_id)
+        .freeze_with(client)
+    )
+
+    transaction.sign(operator_key)
+
     try:
         receipt = transaction.execute(client)
     except Exception as e:
@@ -61,7 +62,8 @@ def associate_token(client, recipient_id, recipient_key, token_id):
         .set_account_id(recipient_id)
         .add_token_id(token_id)
         .freeze_with(client)
-        .sign(recipient_key)
+        .sign(client.operator_private_key)  # sign with operator's key (payer)
+        .sign(recipient_key)                # sign with recipient's key
     )
 
     try:
@@ -87,7 +89,6 @@ def transfer_token(client, recipient_id, token_id):
     except Exception as e:
         print(f"Token transfer failed: {str(e)}")
         sys.exit(1)
-
 
 def main():
     operator_id, operator_key, recipient_id, recipient_key = load_credentials()

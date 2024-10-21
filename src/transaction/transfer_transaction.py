@@ -1,9 +1,10 @@
+# transfer_transaction.py
+
 from src.transaction.transaction import Transaction
 from src.outputs import crypto_transfer_pb2, basic_types_pb2
 from src.account.account_id import AccountId
 from src.tokens.token_id import TokenId
 from collections import defaultdict
-from src.transaction.transaction_receipt import TransactionReceipt
 from src.response_code import ResponseCode
 
 class TransferTransaction(Transaction):
@@ -29,6 +30,8 @@ class TransferTransaction(Transaction):
         Returns:
             TransferTransaction: The instance of the transaction for chaining.
         """
+        self._require_not_frozen()
+
         if not isinstance(account_id, AccountId):
             raise TypeError("account_id must be an AccountId instance.")
         if not isinstance(amount, int) or amount == 0:
@@ -49,6 +52,8 @@ class TransferTransaction(Transaction):
         Returns:
             TransferTransaction: The instance of the transaction for chaining.
         """
+        self._require_not_frozen()
+
         if not isinstance(token_id, TokenId):
             raise TypeError("token_id must be a TokenId instance.")
         if not isinstance(account_id, AccountId):
@@ -68,7 +73,7 @@ class TransferTransaction(Transaction):
         """
         crypto_transfer_tx_body = crypto_transfer_pb2.CryptoTransferTransactionBody()
 
-        # HBAR 
+        # HBAR
         if self.hbar_transfers:
             transfer_list = basic_types_pb2.TransferList()
             for account_id, amount in self.hbar_transfers.items():
@@ -78,7 +83,7 @@ class TransferTransaction(Transaction):
                 transfer_list.accountAmounts.append(account_amount)
             crypto_transfer_tx_body.transfers.CopyFrom(transfer_list)
 
-        # Token 
+        # Token
         for token_id, transfers in self.token_transfers.items():
             token_transfer_list = basic_types_pb2.TokenTransferList()
             token_transfer_list.token.CopyFrom(token_id.to_proto())
@@ -89,51 +94,22 @@ class TransferTransaction(Transaction):
                 token_transfer_list.transfers.append(account_amount)
             crypto_transfer_tx_body.tokenTransfers.append(token_transfer_list)
 
-        return self.build_base_transaction_body(crypto_transfer_tx_body)
+        transaction_body = self.build_base_transaction_body()
+        transaction_body.cryptoTransfer.CopyFrom(crypto_transfer_tx_body)
 
-    def freeze_with(self, client):
+        return transaction_body
+
+    def _execute_transaction(self, client, transaction_proto):
         """
-        Freezes the transaction with the provided client.
+        Executes the transfer transaction using the provided client.
 
         Args:
             client (Client): The client instance.
-
-        Returns:
-            TransferTransaction: The instance for chaining.
-        """
-        self.client = client
-        if self.transaction_id is None:
-            self.transaction_id = client.generate_transaction_id()
-
-        if self.node_account_id is None:
-            self.node_account_id = client.network.node_account_id
-
-        self.transaction_body_bytes = self.build_transaction_body().SerializeToString()
-
-        return self
-
-    def execute(self, client=None):
-        """
-        Executes the transaction using the provided client.
-
-        Args:
-            client (Client): The client instance. If None, uses the client from freeze_with.
+            transaction_proto (Transaction): The transaction protobuf message.
 
         Returns:
             TransactionReceipt: The receipt from the network.
         """
-        if client is None:
-            client = self.client
-        if client is None:
-            raise ValueError("Client must be provided either in freeze_with or execute.")
-
-        if self.transaction_body_bytes is None:
-            raise Exception("Transaction must be frozen before execution. Call freeze_with(client) first.")
-
-        if not self.is_signed_by(client.operator_private_key.public_key()):
-            self.sign(client.operator_private_key)
-
-        transaction_proto = self.to_proto()
         response = client.crypto_stub.cryptoTransfer(transaction_proto)
 
         if response.nodeTransactionPrecheckCode != ResponseCode.OK:

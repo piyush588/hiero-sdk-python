@@ -24,7 +24,8 @@ def test_build_transaction_body(mock_account_ids):
     associate_tx = TokenAssociateTransaction()
 
     associate_tx.set_account_id(account_id)
-    associate_tx.set_token_ids([token_id_1, token_id_2])
+    associate_tx.add_token_id(token_id_1)
+    associate_tx.add_token_id(token_id_2)
     associate_tx.transaction_id = generate_transaction_id(account_id.to_proto())
     associate_tx.node_account_id = node_account_id
 
@@ -36,6 +37,7 @@ def test_build_transaction_body(mock_account_ids):
     assert len(transaction_body.tokenAssociate.tokens) == 2
     assert transaction_body.tokenAssociate.tokens[0].tokenNum == token_id_1.num
     assert transaction_body.tokenAssociate.tokens[1].tokenNum == token_id_2.num
+
 
 def test_missing_fields():
     """Test that building the transaction without account ID or token IDs raises a ValueError."""
@@ -62,8 +64,9 @@ def test_sign_transaction(mock_account_ids):
     assert len(associate_tx.signature_map.sigPair) == 1
     sig_pair = associate_tx.signature_map.sigPair[0]
 
-    assert sig_pair.pubKeyPrefix == b'public'
+    assert sig_pair.pubKeyPrefix == b'public_key'  
     assert sig_pair.ed25519 == b'signature'
+
 
 def test_to_proto(mock_account_ids):
     """Test converting the token associate transaction to protobuf format after signing."""

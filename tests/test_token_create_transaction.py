@@ -64,8 +64,9 @@ def test_sign_transaction(mock_account_ids):
 
     assert len(token_tx.signature_map.sigPair) == 1
     sig_pair = token_tx.signature_map.sigPair[0]
-    assert sig_pair.pubKeyPrefix == b'public'
+    assert sig_pair.pubKeyPrefix == b'public_key' 
     assert sig_pair.ed25519 == b'signature'
+
 
 def test_to_proto(mock_account_ids):
     """Test converting the token creation transaction to protobuf format after signing."""
