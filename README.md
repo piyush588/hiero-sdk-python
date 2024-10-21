@@ -12,6 +12,7 @@ This is a Python SDK for interacting with the Hedera Hashgraph platform. It allo
   - [Creating a Token](#creating-a-token)
   - [Associating a Token](#associating-a-token)
   - [Transferring Tokens](#transferring-tokens)
+  - [Transferring HBAR](#transferring-hbar)
 - [Contributing](#contributing)
 
 ## Installation
