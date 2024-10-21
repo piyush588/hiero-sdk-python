@@ -59,7 +59,7 @@ python test.py
 
 #### Output:
 ```
-Token creation successful. Token ID: 0.0.5002222
+Token creation successful. Token ID: 0.0.5002xxx
 Token association successful.
 Token transfer successful.
 ```
