@@ -10,6 +10,7 @@ from .network import Network
 from src.transaction.transaction_receipt import TransactionReceipt
 from src.response_code import ResponseCode
 from src.query.transaction_get_receipt_query import TransactionGetReceiptQuery
+import random
 
 
 class Client:
@@ -74,9 +75,10 @@ class Client:
         if self.operator_account_id is None:
             raise ValueError("Operator account ID must be set to generate transaction ID.")
 
-        current_time = time.time()
-        timestamp_seconds = int(current_time)
-        timestamp_nanos = int((current_time - timestamp_seconds) * 1e9)
+        cut_off_seconds = random.randint(5, 8)
+        adjusted_time = time.time() - cut_off_seconds
+        timestamp_seconds = int(adjusted_time)
+        timestamp_nanos = int((adjusted_time - timestamp_seconds) * 1e9)
 
         tx_timestamp = timestamp_pb2.Timestamp(seconds=timestamp_seconds, nanos=timestamp_nanos)
 
