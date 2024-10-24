@@ -83,7 +83,7 @@ def create_token(client, operator_id):
 
     return token_id
 
-def associate_token(client, recipient_id, recipient_key, token_id):
+def associate_token(client, recipient_id, recipient_private_key, token_id):
     """Associate the specified token with the recipient account."""
     transaction = (
         TokenAssociateTransaction()
@@ -92,7 +92,7 @@ def associate_token(client, recipient_id, recipient_key, token_id):
         .freeze_with(client)
     )
     transaction.sign(client.operator_private_key) # sign with operator's key (payer)
-    transaction.sign(recipient_key) # sign with newly created accounts key (recipient)
+    transaction.sign(recipient_private_key) # sign with newly created accounts key (recipient)
 
     try:
         receipt = transaction.execute(client)
@@ -131,9 +131,9 @@ def main():
     client = Client(network)
     client.set_operator(operator_id, operator_key)
 
-    recipient_id, recipient_key = create_new_account(client)
+    recipient_id, recipient_private_key = create_new_account(client)
     token_id = create_token(client, operator_id)
-    associate_token(client, recipient_id, recipient_key, token_id)
+    associate_token(client, recipient_id, recipient_private_key, token_id)
     transfer_token(client, recipient_id, token_id)
 
 if __name__ == "__main__":
