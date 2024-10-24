@@ -9,6 +9,7 @@ This is a Python SDK for interacting with the Hedera Hashgraph platform. It allo
 - [Environment Setup](#environment-setup)
 - [Running Tests](#running-tests)
 - [Usage](#usage)
+  - [Creating an Account](#creating-an-account)
   - [Creating a Token](#creating-a-token)
   - [Associating a Token](#associating-a-token)
   - [Transferring Tokens](#transferring-tokens)
@@ -60,7 +61,10 @@ python test.py
 
 #### Output:
 ```
-Token creation successful. Token ID: 0.0.5002xxx
+Account creation successful. New Account ID: 0.0.5025xxx
+New Account Private Key: 228a06c363b0eb328434d51xxx...
+New Account Public Key: 8f444e36e8926def492adxxx...
+Token creation successful. Token ID: 0.0.5025xxx
 Token association successful.
 Token transfer successful.
 ```
@@ -69,6 +73,21 @@ Token transfer successful.
 ## Usage
 
 Below are examples of how to use the SDK for creating tokens, associating them with accounts, and transferring tokens (also see 'examples' directiory)
+
+### Creating an Account
+
+```
+transaction = (
+        AccountCreateTransaction()
+        .set_key(new_account_public_key)
+        .set_initial_balance(initial_balance)
+        .set_account_memo("Test")
+        .freeze_with(client)
+    )
+    transaction.sign(client.operator_private_key)
+    transaction.execute(client)
+```
+
 
 ### Creating a Token
 
