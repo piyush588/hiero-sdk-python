@@ -1,7 +1,7 @@
 import pytest
 from unittest.mock import MagicMock
 from src.tokens.token_associate_transaction import TokenAssociateTransaction
-from src.outputs import basic_types_pb2, timestamp_pb2
+from src.proto import basic_types_pb2, timestamp_pb2
 
 def generate_transaction_id(account_id_proto):
     """Generate a unique transaction ID based on the account ID and the current timestamp."""

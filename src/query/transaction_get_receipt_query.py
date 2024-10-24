@@ -1,4 +1,4 @@
-from src.outputs import transaction_get_receipt_pb2, query_pb2, query_header_pb2
+from src.proto import transaction_get_receipt_pb2, query_pb2, query_header_pb2
 
 
 class TransactionGetReceiptQuery:

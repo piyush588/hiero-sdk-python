@@ -1,4 +1,4 @@
-from src.outputs import basic_types_pb2
+from src.proto import basic_types_pb2
 
 class TokenId:
     def __init__(self, shard=0, realm=0, num=0):

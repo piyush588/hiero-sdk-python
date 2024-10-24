@@ -1,5 +1,5 @@
 from src.transaction.transaction import Transaction
-from src.outputs import crypto_transfer_pb2, basic_types_pb2
+from src.proto import crypto_transfer_pb2, basic_types_pb2
 from src.account.account_id import AccountId
 from src.tokens.token_id import TokenId
 from collections import defaultdict

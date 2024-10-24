@@ -1,6 +1,6 @@
 import grpc
 import time
-from src.outputs import (
+from src.proto import (
     token_service_pb2_grpc,
     crypto_service_pb2_grpc,
     basic_types_pb2,

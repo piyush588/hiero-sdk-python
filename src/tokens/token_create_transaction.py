@@ -1,5 +1,5 @@
 from src.transaction.transaction import Transaction
-from src.outputs import token_create_pb2
+from src.proto import token_create_pb2
 from src.response_code import ResponseCode
 
 class TokenCreateTransaction(Transaction):

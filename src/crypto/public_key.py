@@ -38,7 +38,7 @@ class PublicKey:
         Returns:
             Key: The protobuf Key message.
         """
-        from src.outputs import basic_types_pb2
+        from src.proto import basic_types_pb2
         public_bytes = self._public_key.public_bytes(
             encoding=serialization.Encoding.Raw,
             format=serialization.PublicFormat.Raw

@@ -6,7 +6,7 @@ from src.account.account_id import AccountId
 from src.crypto.private_key import PrivateKey
 from src.client.client import Client
 from src.response_code import ResponseCode
-from src.outputs import basic_types_pb2, transaction_receipt_pb2, timestamp_pb2
+from src.proto import basic_types_pb2, transaction_receipt_pb2, timestamp_pb2
 from cryptography.hazmat.primitives import serialization
 
 def generate_transaction_id(account_id_proto):
