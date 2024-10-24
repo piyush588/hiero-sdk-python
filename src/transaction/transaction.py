@@ -1,9 +1,9 @@
 from src.proto import (
     transaction_pb2, transaction_body_pb2, basic_types_pb2,
-    transaction_contents_pb2, duration_pb2, timestamp_pb2
+    transaction_contents_pb2, duration_pb2
 )
 from cryptography.hazmat.primitives.serialization import Encoding, PublicFormat
-import time
+from src.transaction.transaction_id import TransactionId
 
 class Transaction:
     """
@@ -188,19 +188,17 @@ class Transaction:
         if self.transaction_id is None:
             if self.operator_account_id is None:
                 raise ValueError("Operator account ID is not set.")
-            current_time = int(time.time())
-            transaction_id = basic_types_pb2.TransactionID(
-                accountID=self.operator_account_id.to_proto(),
-                transactionValidStart=timestamp_pb2.Timestamp(seconds=current_time, nanos=0)
-            )
-        else:
-            transaction_id = self.transaction_id 
+            # Generate a TransactionId instance
+            self.transaction_id = TransactionId.generate(self.operator_account_id)
+
+        # Convert the TransactionId to its Protobuf representation
+        transaction_id_proto = self.transaction_id.to_proto()
 
         if self.node_account_id is None:
             raise ValueError("Node account ID is not set.")
 
         transaction_body = transaction_body_pb2.TransactionBody(
-            transactionID=transaction_id,
+            transactionID=transaction_id_proto,  # Use the Protobuf TransactionID
             nodeAccountID=self.node_account_id.to_proto(),
             transactionFee=self.transaction_fee or self._default_transaction_fee,
             transactionValidDuration=duration_pb2.Duration(seconds=self.transaction_valid_duration),

@@ -54,7 +54,7 @@ class Network:
 
         self.network = network
         self.nodes = self._fetch_nodes_from_mirror_node()
-
+        
         if not self.nodes:
             # default nodes if fetching from the mirror node API fails
             self.nodes = self.DEFAULT_NODES[self.network]
@@ -98,3 +98,9 @@ class Network:
         """
         self.node_address, self.node_account_id = random.choice(self.nodes)
         # print(f"Selected node: {self.node_address} (Account ID: {self.node_account_id})")
+
+    def get_node_address(self, node_account_id):
+            for address, account_id in self.nodes:
+                if account_id == node_account_id:
+                    return address
+            return None

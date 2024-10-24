@@ -52,3 +52,11 @@ class AccountId:
         Returns the string representation of the AccountId in 'shard.realm.num' format.
         """
         return f"{self.shard}.{self.realm}.{self.num}"
+
+    def __eq__(self, other):
+            if not isinstance(other, AccountId):
+                return False
+            return (self.shard, self.realm, self.num) == (other.shard, other.realm, other.num)
+
+    def __hash__(self):
+        return hash((self.shard, self.realm, self.num))
