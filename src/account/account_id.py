@@ -8,18 +8,47 @@ class AccountId:
 
     @classmethod
     def from_string(cls, account_id_str):
+        """
+        Creates an AccountId instance from a string in the format 'shard.realm.num'.
+        """
         parts = account_id_str.strip().split('.')
         if len(parts) != 3:
-            raise ValueError("Invalid account ID format, expected 'shard.realm.account'")
+            raise ValueError("Invalid account ID string format. Expected 'shard.realm.num'")
         shard, realm, num = map(int, parts)
         return cls(shard, realm, num)
 
+    @classmethod
+    def from_proto(cls, account_id_proto):
+        """
+        Creates an AccountId instance from a protobuf AccountID object.
+
+        Args:
+            account_id_proto (AccountID): The protobuf AccountID object.
+
+        Returns:
+            AccountId: An instance of AccountId.
+        """
+        return cls(
+            shard=account_id_proto.shardNum,
+            realm=account_id_proto.realmNum,
+            num=account_id_proto.accountNum
+        )
+
     def to_proto(self):
-        account_id = basic_types_pb2.AccountID()
-        account_id.shardNum = self.shard
-        account_id.realmNum = self.realm
-        account_id.accountNum = self.num
-        return account_id
+        """
+        Converts the AccountId instance to a protobuf AccountID object.
+
+        Returns:
+            AccountID: The protobuf AccountID object.
+        """
+        return basic_types_pb2.AccountID(
+            shardNum=self.shard,
+            realmNum=self.realm,
+            accountNum=self.num
+        )
 
     def __str__(self):
+        """
+        Returns the string representation of the AccountId in 'shard.realm.num' format.
+        """
         return f"{self.shard}.{self.realm}.{self.num}"
