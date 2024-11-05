@@ -27,7 +27,7 @@ class AccountCreateTransaction(Transaction):
         self.auto_renew_period = 7890000  # default auto-renew period in seconds (90 days)
         self.account_memo = ""
 
-        self._default_transaction_fee = 100_000_000
+        self._default_transaction_fee = 300_000_000
 
     def set_initial_balance(self, balance):
         self._require_not_frozen()
