@@ -58,3 +58,7 @@ class TransactionReceipt:
             TransactionReceiptProto: The protobuf transaction receipt.
         """
         return self._receipt_proto
+
+    @classmethod
+    def from_proto(cls, proto):
+        return cls(receipt_proto=proto)

@@ -63,8 +63,8 @@ class Query:
             try:
                 self.node_index = attempt % len(self.node_account_ids)
                 node_account_id = self.node_account_ids[self.node_index]
-                request = self._make_request()  # Ensure this method is properly implemented
-                response = client.send_query(request, node_account_id, timeout=timeout)
+                # Pass self instead of request
+                response = client.send_query(self, node_account_id, timeout=timeout)
                 if response is None:
                     continue
                 status = self._get_status_from_response(response)
@@ -78,6 +78,7 @@ class Query:
                 print(f"Error executing query: {e}")
                 continue
         raise Exception("Failed to execute query after maximum attempts.")
+
 
     def _get_status_from_response(self, response):
         """

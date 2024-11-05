@@ -106,8 +106,11 @@ class Transaction:
             self.transaction_id = client.generate_transaction_id()
 
         if self.node_account_id is None:
-            self.node_account_id = client.network.node_account_id
+            if not hasattr(client, 'node_account_id') or client.node_account_id is None:
+                raise ValueError("Node account ID is not set in client.")
+            self.node_account_id = client.node_account_id
 
+        # print(f"Transaction's node account ID set to: {self.node_account_id}")
         self.transaction_body_bytes = self.build_transaction_body().SerializeToString()
 
         return self
@@ -188,17 +191,15 @@ class Transaction:
         if self.transaction_id is None:
             if self.operator_account_id is None:
                 raise ValueError("Operator account ID is not set.")
-            # Generate a TransactionId instance
             self.transaction_id = TransactionId.generate(self.operator_account_id)
 
-        # Convert the TransactionId to its Protobuf representation
         transaction_id_proto = self.transaction_id.to_proto()
 
         if self.node_account_id is None:
             raise ValueError("Node account ID is not set.")
 
         transaction_body = transaction_body_pb2.TransactionBody(
-            transactionID=transaction_id_proto,  # Use the Protobuf TransactionID
+            transactionID=transaction_id_proto,  
             nodeAccountID=self.node_account_id.to_proto(),
             transactionFee=self.transaction_fee or self._default_transaction_fee,
             transactionValidDuration=duration_pb2.Duration(seconds=self.transaction_valid_duration),
@@ -208,7 +209,7 @@ class Transaction:
 
         return transaction_body
 
-    def _execute_transaction(self, client, transaction_proto):
+    def _execute_transaction(self):
         """
         Abstract method to execute the transaction.
 

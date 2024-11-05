@@ -101,7 +101,6 @@ class Client:
 
         try:
             request = query._make_request()
-            # The method name should match the RPC method in the proto file
             response = stub.getTransactionReceipts(request, timeout=timeout)
             return response
         except grpc.RpcError as e:
@@ -125,3 +124,4 @@ class Client:
         self.channel = grpc.insecure_channel(node_address)
         self.token_stub = token_service_pb2_grpc.TokenServiceStub(self.channel)
         self.crypto_stub = crypto_service_pb2_grpc.CryptoServiceStub(self.channel)
+        self.node_account_id = node_account_id

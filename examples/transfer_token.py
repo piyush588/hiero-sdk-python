@@ -15,7 +15,7 @@ from src.transaction.transfer_transaction import TransferTransaction
 load_dotenv()
 
 def transfer_tokens():
-    network = Network()
+    network = Network(network='testnet')
     client = Client(network)
 
     operator_id = AccountId.from_string(os.getenv('OPERATOR_ID'))

@@ -14,7 +14,7 @@ from src.client.network import Network
 load_dotenv()
 
 def create_token():
-    network = Network()
+    network = Network(network='testnet')
     client = Client(network)
 
     operator_id = AccountId.from_string(os.getenv('OPERATOR_ID'))

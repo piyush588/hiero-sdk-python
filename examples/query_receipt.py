@@ -19,8 +19,6 @@ load_dotenv()
 def query_receipt():
     network = Network(network='testnet')
     client = Client(network)
-    node_account_ids = client.get_node_account_ids()
-    print(f"Available Node Account IDs: {node_account_ids}")
     operator_id = AccountId.from_string(os.getenv('OPERATOR_ID'))
     operator_key = PrivateKey.from_string(os.getenv('OPERATOR_KEY'))
     recipient_id = AccountId.from_string(os.getenv('RECIPIENT_ID'))
