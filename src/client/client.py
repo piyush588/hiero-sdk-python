@@ -97,11 +97,16 @@ class Client:
             None. Exceptions are caught and printed, returning None on failure.
         """
         self._switch_node(node_account_id)
-        stub = self.crypto_stub  # Using CryptoServiceStub
+        stub = self.crypto_stub  
 
         try:
             request = query._make_request()
-            response = stub.getTransactionReceipts(request, timeout=timeout)
+            if hasattr(request, 'cryptogetAccountBalance'):
+                response = stub.cryptoGetBalance(request, timeout=timeout)
+            elif hasattr(request, 'transactionGetReceipt'):
+                response = stub.getTransactionReceipts(request, timeout=timeout)
+            else:
+                raise Exception("Unsupported query type.")
             return response
         except grpc.RpcError as e:
             print(f"gRPC error during query execution: {e}")

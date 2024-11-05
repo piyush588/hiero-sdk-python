@@ -63,7 +63,6 @@ class Query:
             try:
                 self.node_index = attempt % len(self.node_account_ids)
                 node_account_id = self.node_account_ids[self.node_index]
-                # Pass self instead of request
                 response = client.send_query(self, node_account_id, timeout=timeout)
                 if response is None:
                     continue
