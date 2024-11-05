@@ -1,56 +1,95 @@
-from src.proto import transaction_get_receipt_pb2, query_pb2, query_header_pb2
+from src.query.query import Query
+from src.proto import transaction_get_receipt_pb2, query_pb2
+from src.response_code import ResponseCode
+from src.transaction.transaction_id import TransactionId
+from src.transaction.transaction_receipt import TransactionReceipt
+import traceback
 
-
-class TransactionGetReceiptQuery:
+class TransactionGetReceiptQuery(Query):
     """
-    Represents a query to retrieve the receipt of a specific transaction.
+    A query to retrieve the receipt of a specific transaction from the Hedera network.
 
-    This query is used to check the status and result of a previously submitted transaction.
-
-    Attributes:
-        transaction_id (TransactionID): The ID of the transaction to query.
+    This class constructs and executes a query to obtain the receipt of a transaction,
+    which includes the transaction's status and other pertinent information.
     """
 
     def __init__(self):
-        """
-        Initializes the TransactionGetReceiptQuery with no transaction ID.
-        """
+        """Initializes a new instance of the TransactionGetReceiptQuery class."""
+        super().__init__()
         self.transaction_id = None
 
-    def execute(self, client, timeout=60):
+    def set_transaction_id(self, transaction_id: TransactionId):
         """
-        Executes the transaction receipt query using the provided client.
+        Sets the transaction ID for which to retrieve the receipt.
 
         Args:
-            client (Client): The client instance to use for sending the query.
-            timeout (int, optional): Timeout for the query in seconds. Defaults to 60.
+            transaction_id (TransactionId): The ID of the transaction.
 
         Returns:
-            TransactionReceiptProto: The protobuf receipt of the transaction.
+            TransactionGetReceiptQuery: The current instance for method chaining.
+        """
+        self.transaction_id = transaction_id
+        return self
+
+    def _make_request(self):
+        """
+        Constructs the protobuf request for the transaction receipt query.
+
+        Returns:
+            Query: The protobuf Query object containing the transaction receipt query.
 
         Raises:
             ValueError: If the transaction ID is not set.
-            Exception: If no response is received or the receipt is not found in the response.
+            Exception: If an error occurs during request construction.
         """
-        if not self.transaction_id:
-            raise ValueError("Transaction ID must be set before executing the query.")
+        try:
+            if not self.transaction_id:
+                raise ValueError("Transaction ID must be set before making the request.")
 
-        query_header = query_header_pb2.QueryHeader()
+            query_header = self._make_request_header()
+            transaction_get_receipt = transaction_get_receipt_pb2.TransactionGetReceiptQuery()
+            transaction_get_receipt.header.CopyFrom(query_header)
+            transaction_get_receipt.transactionID.CopyFrom(self.transaction_id.to_proto())
 
-        transaction_get_receipt = transaction_get_receipt_pb2.TransactionGetReceiptQuery()
-        transaction_get_receipt.header.CopyFrom(query_header)
-        transaction_get_receipt.transactionID.CopyFrom(self.transaction_id)
+            query = query_pb2.Query()
+            if not hasattr(query, 'transactionGetReceipt'):
+                raise AttributeError("Query object has no attribute 'transactionGetReceipt'")
+            query.transactionGetReceipt.CopyFrom(transaction_get_receipt)
 
-        query = query_pb2.Query()
-        query.transactionGetReceipt.CopyFrom(transaction_get_receipt)
+            return query
+        except Exception as e:
+            print(f"Exception in _make_request: {e}")
+            traceback.print_exc()
+            raise
 
-        response = client.send_query(query, timeout=timeout)
+    def _get_status_from_response(self, response):
+        """
+        Extracts the status code from the response header.
 
-        if response is None:
-            raise Exception("No response received from the network.")
+        Args:
+            response (Response): The response received from the network.
 
-        if response.transactionGetReceipt:
-            receipt = response.transactionGetReceipt.receipt
-            return receipt
+        Returns:
+            int: The status code indicating the result of the query.
+        """
+        header = response.transactionGetReceipt.header
+        return header.nodeTransactionPrecheckCode
+
+    def _map_response(self, response):
+        """
+        Maps the response to a TransactionReceipt object.
+
+        Args:
+            response (Response): The response received from the network.
+
+        Returns:
+            TransactionReceipt: The transaction receipt extracted from the response.
+
+        Raises:
+            Exception: If the transaction receipt is not found in the response.
+        """
+        if response.transactionGetReceipt and response.transactionGetReceipt.receipt:
+            receipt_proto = response.transactionGetReceipt.receipt
+            return TransactionReceipt.from_proto(receipt_proto)
         else:
             raise Exception("Transaction receipt not found in the response.")

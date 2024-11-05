@@ -15,7 +15,7 @@ from src.tokens.token_associate_transaction import TokenAssociateTransaction
 load_dotenv()
 
 def associate_token():
-    network = Network()
+    network = Network(network='testnet')
     client = Client(network)
 
     recipient_id = AccountId.from_string(os.getenv('OPERATOR_ID'))

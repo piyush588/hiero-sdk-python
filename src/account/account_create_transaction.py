@@ -1,9 +1,9 @@
 from src.transaction.transaction import Transaction
 from src.proto import crypto_create_pb2, duration_pb2
 from src.response_code import ResponseCode
-from src.account.account_id import AccountId
 from src.crypto.public_key import PublicKey
-from src.proto import transaction_body_pb2
+from src.hbar import Hbar
+
 
 class AccountCreateTransaction(Transaction):
     """
@@ -31,6 +31,8 @@ class AccountCreateTransaction(Transaction):
 
     def set_initial_balance(self, balance):
         self._require_not_frozen()
+        if not isinstance(balance, (Hbar, int)):
+            raise TypeError("initial_balance must be an instance of Hbar or int representing tinybars.")
         self.initial_balance = balance
         return self
 
@@ -66,10 +68,19 @@ class AccountCreateTransaction(Transaction):
         """
         if not self.key:
             raise ValueError("Key must be set.")
+        
+        if self.initial_balance is None:
+            initial_balance_tinybars = 0
+        elif isinstance(self.initial_balance, Hbar):
+            initial_balance_tinybars = self.initial_balance.to_tinybars()
+        elif isinstance(self.initial_balance, int):
+            initial_balance_tinybars = self.initial_balance
+        else:
+            raise TypeError("initial_balance must be an instance of Hbar or int representing tinybars.")
 
         crypto_create_body = crypto_create_pb2.CryptoCreateTransactionBody(
             key=self.key.to_proto(),
-            initialBalance=self.initial_balance,
+            initialBalance=initial_balance_tinybars,
             receiverSigRequired=self.receiver_signature_required,
             autoRenewPeriod=duration_pb2.Duration(seconds=self.auto_renew_period),
             memo=self.account_memo

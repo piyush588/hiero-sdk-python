@@ -15,7 +15,7 @@ from src.response_code import ResponseCode
 load_dotenv()
 
 def create_new_account():
-    network = Network()
+    network = Network(network='testnet')
     client = Client(network)
     operator_id = AccountId.from_string(os.getenv('OPERATOR_ID'))
     operator_key = PrivateKey.from_string(os.getenv('OPERATOR_KEY'))
