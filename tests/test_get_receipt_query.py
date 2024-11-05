@@ -5,12 +5,14 @@ from src.transaction.transaction_id import TransactionId
 from src.client.client import Client
 from src.account.account_id import AccountId
 from src.response_code import ResponseCode
-from src.proto import response_pb2, transaction_receipt_pb2
+from src.proto import (
+    response_pb2,
+    transaction_receipt_pb2,
+    transaction_get_receipt_pb2,
+    response_header_pb2,
+)
 
 def test_transaction_get_receipt_query():
-    """
-    Tests the TransactionGetReceiptQuery by mocking the client and response.
-    """
     transaction_id = TransactionId.generate(AccountId(0, 0, 1234))
 
     query = TransactionGetReceiptQuery()
@@ -24,15 +26,15 @@ def test_transaction_get_receipt_query():
     receipt = transaction_receipt_pb2.TransactionReceipt(
         status=ResponseCode.SUCCESS
     )
+
     response = response_pb2.Response(
-        transactionGetReceipt=response_pb2.TransactionGetReceiptResponse(
-            header=response_pb2.ResponseHeader(
+        transactionGetReceipt=transaction_get_receipt_pb2.TransactionGetReceiptResponse(
+            header=response_header_pb2.ResponseHeader(
                 nodeTransactionPrecheckCode=ResponseCode.OK
             ),
             receipt=receipt
         )
     )
-
     client.send_query.return_value = response
 
     result = query.execute(client)

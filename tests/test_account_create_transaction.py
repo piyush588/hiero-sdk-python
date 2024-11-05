@@ -4,6 +4,7 @@ from src.account.account_create_transaction import AccountCreateTransaction
 from src.transaction.transaction_receipt import TransactionReceipt
 from src.account.account_id import AccountId
 from src.crypto.private_key import PrivateKey
+from src.transaction.transaction_id import TransactionId
 from src.client.client import Client
 from src.response_code import ResponseCode
 from src.proto import basic_types_pb2, transaction_receipt_pb2, timestamp_pb2
@@ -18,9 +19,9 @@ def generate_transaction_id(account_id_proto):
 
     tx_timestamp = timestamp_pb2.Timestamp(seconds=timestamp_seconds, nanos=timestamp_nanos)
 
-    tx_id = basic_types_pb2.TransactionID(
-        transactionValidStart=tx_timestamp,
-        accountID=account_id_proto
+    tx_id = TransactionId(
+        valid_start=tx_timestamp,
+        account_id=account_id_proto
     )
     return tx_id
 
@@ -37,7 +38,7 @@ def test_account_create_transaction_build(mock_account_ids):
         .set_initial_balance(100000000)
         .set_account_memo("Test account")
     )
-    account_tx.transaction_id = generate_transaction_id(operator_id.to_proto())
+    account_tx.transaction_id = generate_transaction_id(operator_id)
     account_tx.node_account_id = node_account_id
 
     transaction_body = account_tx.build_transaction_body()
@@ -65,7 +66,7 @@ def test_account_create_transaction_sign(mock_account_ids):
         .set_initial_balance(100000000)
         .set_account_memo("Test account")
     )
-    account_tx.transaction_id = generate_transaction_id(operator_id.to_proto())
+    account_tx.transaction_id = generate_transaction_id(operator_id)
     account_tx.node_account_id = node_account_id
     account_tx.freeze_with(None)  
     account_tx.sign(operator_private_key)
@@ -86,7 +87,7 @@ def test_account_create_transaction_execute(mock_account_ids):
         .set_initial_balance(100000000)
         .set_account_memo("Test account")
     )
-    account_tx.transaction_id = generate_transaction_id(operator_id.to_proto())
+    account_tx.transaction_id = generate_transaction_id(operator_id)
     account_tx.node_account_id = node_account_id
     account_tx.freeze_with(None)  
     account_tx.sign(operator_private_key)
