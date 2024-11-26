@@ -24,7 +24,7 @@ jobs:
 
       - name: Prepare Hedera Solo
         id: solo
-        uses: OpenElements/hedera-solo-action@v0.3
+        uses: OpenElements/hedera-solo-action@v0.4
 
       - name: Set environment variables
         run: |
