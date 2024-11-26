@@ -127,7 +127,7 @@ def transfer_token(client, recipient_id, token_id):
 def main():
     operator_id, operator_key = load_operator_credentials()
 
-    network_type = os.getenv('NETWORK', 'testnet')
+    network_type = os.getenv('NETWORK')
     if network_type == 'solo':
         network = Network(node_address='localhost:50211', node_account_id=AccountId(0, 0, 3))
     else:
