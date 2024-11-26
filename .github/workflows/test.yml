@@ -29,7 +29,7 @@ jobs:
       - name: Set environment variables
         run: |
           echo "OPERATOR_ID=${{ steps.solo.outputs.accountId }}"
-          echo "OPERATOR_KEY=${{ steps.solo.outputs.privateKey  }}"
+          echo "OPERATOR_KEY=${{ steps.solo.outputs.privateKey }}"
           echo "PUBLIC_KEY"${{ steps.solo.outputs.publicKey }}"
 
       - name: Run tests
