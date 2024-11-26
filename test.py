@@ -10,9 +10,6 @@ from src.tokens.token_associate_transaction import TokenAssociateTransaction
 from src.transaction.transfer_transaction import TransferTransaction
 from src.response_code import ResponseCode
 
-# uncomment next two lines if running script manually to load .env file:
-# from dotenv import load_dotenv
-# load_dotenv()
 
 def load_operator_credentials():
     """Load operator credentials from environment variables."""
@@ -127,7 +124,7 @@ def transfer_token(client, recipient_id, token_id):
 def main():
     operator_id, operator_key = load_operator_credentials()
 
-    network_type = os.getenv('NETWORK', 'testnet')
+    network_type = os.getenv('NETWORK')
     if network_type == 'solo':
         network = Network(node_address='localhost:50211', node_account_id=AccountId(0, 0, 3))
     else:
