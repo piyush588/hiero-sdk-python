@@ -40,5 +40,5 @@ jobs:
           OPERATOR_ID: ${{ steps.solo.outputs.accountId }}
           OPERATOR_KEY: ${{ steps.solo.outputs.privateKey }}
           PUBLIC_KEY: ${{ steps.solo.outputs.publicKey }}
-          NETWORK: 
+          NETWORK: 'solo'
         run: python test.py
