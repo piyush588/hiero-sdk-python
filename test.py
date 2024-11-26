@@ -1,5 +1,6 @@
 import os
 import sys
+from dotenv import load_dotenv
 from src.client.network import Network
 from src.client.client import Client
 from src.account.account_id import AccountId
@@ -10,6 +11,7 @@ from src.tokens.token_associate_transaction import TokenAssociateTransaction
 from src.transaction.transfer_transaction import TransferTransaction
 from src.response_code import ResponseCode
 
+load_dotenv()
 
 def load_operator_credentials():
     """Load operator credentials from environment variables."""
