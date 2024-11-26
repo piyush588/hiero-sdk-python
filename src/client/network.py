@@ -11,6 +11,7 @@ class Network:
         'mainnet': 'https://mainnet-public.mirrornode.hedera.com',
         'testnet': 'https://testnet.mirrornode.hedera.com',
         'previewnet': 'https://previewnet.mirrornode.hedera.com',
+        'solo': 'localhost:8080'
     }
 
     DEFAULT_NODES = {
@@ -39,6 +40,9 @@ class Network:
             ("1.previewnet.hedera.com:50211", AccountId(0, 0, 4)),
             ("2.previewnet.hedera.com:50211", AccountId(0, 0, 5)),
             ("3.previewnet.hedera.com:50211", AccountId(0, 0, 6)),
+        ],
+        'solo': [
+            ("localhost:50211", AccountId(0, 0, 3))
         ],
     }
 
