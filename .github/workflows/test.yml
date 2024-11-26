@@ -1,0 +1,36 @@
+name: Hedera Solo Integration Tests
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'  
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Setup Hedera Solo
+        uses: OpenElements/hedera-solo-action@v0.1
+        id: solo
+
+      - name: Set environment variables
+        run: |
+          echo "OPERATOR_ID=${{ steps.solo.outputs.accountId }}" >> $GITHUB_ENV
+          echo "OPERATOR_KEY=${{ steps.solo.outputs.privateKey  }}" >> $GITHUB_ENV
+          echo "PUBLIC_KEY"${{ steps.solo.outputs.publicKey }}" >> $GITHUB_ENV
+
+      - name: Run tests
+        run: python test.py
