@@ -32,11 +32,15 @@ jobs:
           echo "OPERATOR_KEY=${{ steps.solo.outputs.privateKey }}"
           echo "PUBLIC_KEY=${{ steps.solo.outputs.publicKey }}"
 
+      - name: Install your package
+        run: pip install -e .
+
       - name: Run tests
         env:
           OPERATOR_ID: ${{ steps.solo.outputs.accountId }}
           OPERATOR_KEY: ${{ steps.solo.outputs.privateKey }}
           PUBLIC_KEY: ${{ steps.solo.outputs.publicKey }}
           NETWORK: 'solo'
+          PYTHONPATH: ${{ github.workspace }}/src
         run: python test.py
 
