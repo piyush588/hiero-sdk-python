@@ -127,7 +127,7 @@ def transfer_token(client, recipient_id, token_id):
 def main():
     operator_id, operator_key = load_operator_credentials()
 
-    network = Network(os.getenv('NETWORK'))
+    network = Network(os.getenv('NETWORK', 'solo'))
     client = Client(network)
     client.set_operator(operator_id, operator_key)
 
