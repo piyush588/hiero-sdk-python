@@ -46,24 +46,24 @@ class Network:
         ],
     }
 
-    def __init__(self, network='testnet'):
+    def __init__(self, node_address=None, node_account_id=None, network='testnet'):
         """
         Initializes the Network with the specified network name.
 
         Args:
             network (str): The network to connect to ('mainnet', 'testnet', 'previewnet').
         """
-        if network not in ('mainnet', 'testnet', 'previewnet'):
-            raise ValueError("Network must be 'mainnet', 'testnet', or 'previewnet'.")
+        if node_address and node_account_id:
+            self.nodes = [(node_address, node_account_id)]
+        else:
+            self.network = network
+            self.nodes = self._fetch_nodes_from_mirror_node()
+            
+            if not self.nodes:
+                # default nodes if fetching from the mirror node API fails
+                self.nodes = self.DEFAULT_NODES[self.network]
 
-        self.network = network
-        self.nodes = self._fetch_nodes_from_mirror_node()
-        
-        if not self.nodes:
-            # default nodes if fetching from the mirror node API fails
-            self.nodes = self.DEFAULT_NODES[self.network]
-
-        self.select_node()
+            self.select_node()
 
     def _fetch_nodes_from_mirror_node(self):
         """

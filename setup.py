@@ -14,6 +14,7 @@ setup(
         'cryptography',
         'protobuf==5.27.2',
         'cryptography',
-        'python-dotenv'
+        'python-dotenv',
+        'requests'
     ],
 )

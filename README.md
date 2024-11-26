@@ -54,10 +54,13 @@ To run the test suite for the SDK, use the following command:
 pytest ./tests 
 ```
 
-To run one script testing all capabilities of the SDK, use the following command:
-```
-python test.py
-```
+The test file in the root of this project will be automatically run when pushing onto a branch.
+This is done by running 'Hedera Solo'. Read more about it here:
+
+- [Github Marketplace](https://github.com/marketplace/actions/hedera-solo)
+- [Blog Post by Hendrik Ebbers](https://dev.to/hendrikebbers/ci-for-hedera-based-projects-2nja)
+
+
 
 #### Output:
 ```
