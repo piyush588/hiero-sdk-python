@@ -44,5 +44,4 @@ jobs:
           PUBLIC_KEY: ${{ steps.solo.outputs.publicKey }}
           NETWORK: solo
         run: |
-          echo $NETWORK
           python test.py
