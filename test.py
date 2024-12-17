@@ -56,6 +56,10 @@ def create_new_account(client, initial_balance=100000000):
 
 def create_token(client, operator_id):
     """Create a new token and return its TokenId instance."""
+
+    admin_key = PrivateKey.generate()
+    admin_public_key = admin_key.public_key()
+
     transaction = (
         TokenCreateTransaction()
         .set_token_name("ExampleToken")
@@ -63,8 +67,10 @@ def create_token(client, operator_id):
         .set_decimals(2)
         .set_initial_supply(1000)
         .set_treasury_account_id(operator_id)
+        .set_admin_key(admin_public_key)  
         .freeze_with(client)
     )
+
     transaction.sign(client.operator_private_key)
 
     try:
@@ -78,9 +84,10 @@ def create_token(client, operator_id):
         sys.exit(1)
 
     token_id = receipt.tokenId
-    print(f"Token creation successful. Token ID: {token_id}")
+    print(f"Token creation successful. Token ID: {token_id}, Admin Key: {admin_key.to_string()}")
 
-    return token_id
+    return token_id, admin_key
+
 
 def associate_token(client, recipient_id, recipient_private_key, token_id):
     """Associate the specified token with the recipient account."""
@@ -126,13 +133,14 @@ def transfer_token(client, recipient_id, token_id):
 def main():
     operator_id, operator_key = load_operator_credentials()
 
-    network = Network(os.getenv('NETWORK'))
+    network = Network(node_address='localhost:50211', node_account_id=AccountId(0, 0, 3))
+    # network = Network(network_type)
 
     client = Client(network)
     client.set_operator(operator_id, operator_key)
 
     recipient_id, recipient_private_key = create_new_account(client)
-    token_id = create_token(client, operator_id)
+    token_id, admin_key = create_token(client, operator_id)
     associate_token(client, recipient_id, recipient_private_key, token_id)
     transfer_token(client, recipient_id, token_id)
 
