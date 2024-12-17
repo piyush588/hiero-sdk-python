@@ -67,7 +67,6 @@ def create_token(client, operator_id):
         .set_decimals(2)
         .set_initial_supply(1000)
         .set_treasury_account_id(operator_id)
-        .set_admin_key(admin_public_key)  
         .freeze_with(client)
     )
 
