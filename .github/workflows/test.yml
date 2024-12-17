@@ -43,4 +43,6 @@ jobs:
           ADMIN_KEY: ${{ steps.solo.outputs.privateKey }}
           PUBLIC_KEY: ${{ steps.solo.outputs.publicKey }}
           NETWORK: solo
-        run: python test.py
+        run: |
+          echo $NETWORK
+          python test.py
