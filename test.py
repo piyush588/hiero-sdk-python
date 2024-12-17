@@ -1,5 +1,6 @@
 import os
 import sys
+from dotenv import load_dotenv
 from src.client.network import Network
 from src.client.client import Client
 from src.account.account_id import AccountId
@@ -7,9 +8,11 @@ from src.account.account_create_transaction import AccountCreateTransaction
 from src.crypto.private_key import PrivateKey
 from src.tokens.token_create_transaction import TokenCreateTransaction
 from src.tokens.token_associate_transaction import TokenAssociateTransaction
+from src.tokens.token_id import TokenId
 from src.transaction.transfer_transaction import TransferTransaction
 from src.response_code import ResponseCode
 
+load_dotenv()
 
 def load_operator_credentials():
     """Load operator credentials from environment variables."""
@@ -54,6 +57,7 @@ def create_new_account(client, initial_balance=100000000):
 
 def create_token(client, operator_id):
     """Create a new token and return its TokenId instance."""
+
     transaction = (
         TokenCreateTransaction()
         .set_token_name("ExampleToken")
@@ -63,6 +67,7 @@ def create_token(client, operator_id):
         .set_treasury_account_id(operator_id)
         .freeze_with(client)
     )
+
     transaction.sign(client.operator_private_key)
 
     try:
@@ -89,7 +94,7 @@ def associate_token(client, recipient_id, recipient_private_key, token_id):
         .freeze_with(client)
     )
     transaction.sign(client.operator_private_key) # sign with operator's key (payer)
-    transaction.sign(recipient_private_key) # sign with newly created accounts key (recipient)
+    transaction.sign(recipient_private_key) # sign with newly created account's key (recipient)
 
     try:
         receipt = transaction.execute(client)
@@ -124,7 +129,9 @@ def transfer_token(client, recipient_id, token_id):
 def main():
     operator_id, operator_key = load_operator_credentials()
 
-    network = Network(node_address='localhost:50211', node_account_id=AccountId(0, 0, 3))
+    network_type = os.getenv('NETWORK')
+    network = Network(network=network_type)
+
     client = Client(network)
     client.set_operator(operator_id, operator_key)
 
