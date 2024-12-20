@@ -1,16 +1,15 @@
 import os
 import sys
 from dotenv import load_dotenv
-from client.network import Network
-from client.client import Client
-from account.account_id import AccountId
-from account.account_create_transaction import AccountCreateTransaction
-from crypto.private_key import PrivateKey
-from tokens.token_create_transaction import TokenCreateTransaction
-from tokens.token_associate_transaction import TokenAssociateTransaction
-from tokens.token_id import TokenId
-from transaction.transfer_transaction import TransferTransaction
-from response_code import ResponseCode
+from hedera_sdk_python.client.network import Network
+from hedera_sdk_python.client.client import Client
+from hedera_sdk_python.account.account_id import AccountId
+from hedera_sdk_python.account.account_create_transaction import AccountCreateTransaction
+from hedera_sdk_python.crypto.private_key import PrivateKey
+from hedera_sdk_python.tokens.token_create_transaction import TokenCreateTransaction
+from hedera_sdk_python.tokens.token_associate_transaction import TokenAssociateTransaction
+from hedera_sdk_python.transaction.transfer_transaction import TransferTransaction
+from hedera_sdk_python.response_code import ResponseCode
 
 load_dotenv()
 
