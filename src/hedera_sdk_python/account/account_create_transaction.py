@@ -21,10 +21,12 @@ class AccountCreateTransaction(Transaction):
         Initializes a new AccountCreateTransaction instance with default values.
         """
         super().__init__()
+        self.initial_balance = 0
         self.key = None
         self.receiver_signature_required = False
         self.auto_renew_period = 7890000  # default auto-renew period in seconds (90 days)
         self.account_memo = ""
+
         self._default_transaction_fee = 300_000_000
 
     def set_initial_balance(self, balance):
