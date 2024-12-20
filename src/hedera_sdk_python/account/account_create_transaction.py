@@ -16,24 +16,16 @@ class AccountCreateTransaction(Transaction):
     to build and execute an account creation transaction.
     """
 
-    def __init__(self, initial_balance=0, key=None, receiver_signature_required=False, auto_renew_period=7890000, account_memo=""):
+    def __init__(self):
         """
         Initializes a new AccountCreateTransaction instance with default values.
         """
         super().__init__()
-        if not isinstance(initial_balance, (Hbar, int)):
-            raise TypeError("initial_balance must be an instance of Hbar or int representing tinybars.")
-
         self.key = None
         self.receiver_signature_required = False
         self.auto_renew_period = 7890000  # default auto-renew period in seconds (90 days)
         self.account_memo = ""
         self._default_transaction_fee = 300_000_000
-        self.initial_balance = initial_balance
-        self.key = key
-        self.receiver_signature_required = receiver_signature_required
-        self.auto_renew_period = auto_renew_period
-        self.account_memo = account_memo
 
     def set_initial_balance(self, balance):
         self._require_not_frozen()
