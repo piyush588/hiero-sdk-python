@@ -1,7 +1,8 @@
 # Hedera (Mini) SDK in Python
 
-This is a Python SDK for interacting with the Hedera Hashgraph platform. It allows developers to manage Token transactions like CREATE, ASSOCIATE and TRANSFER.
-
+This is a Python SDK for interacting with the Hedera Hashgraph platform. It allows developers to manage Token
+transactions like CREATE, ASSOCIATE and TRANSFER, as well as Consensus transactions like managing topics and
+submitting messages.
 
 ## Table of Contents
 
@@ -14,9 +15,27 @@ This is a Python SDK for interacting with the Hedera Hashgraph platform. It allo
   - [Associating a Token](#associating-a-token)
   - [Transferring Tokens](#transferring-tokens)
   - [Transferring HBAR](#transferring-hbar)
+  - [Creating a Topic](#creating-a-topic)
 - [Contributing](#contributing)
 
 ## Installation
+
+0. Install `uv`:
+
+`uv` is an ultra-fast Python package and project manager. It replaces `pip`, `pip-tools`, `pipx`, `poetry`, `pyenv`,
+`virtualenv`, and more.
+
+```bash
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+
+If on macOS, you can also install `uv` using Homebrew:
+
+```bash
+brew install uv
+```
+
+Other installation methods can be found [here](https://docs.astral.sh/uv/getting-started/installation/).
 
 1. Clone this repository:
 
@@ -27,31 +46,40 @@ cd hedera_sdk_python
 
 2. Install dependencies:
 
-```
-pip install -r requirements.txt
+One of the really nice features of `uv` is that it will download and manage the correct version of python and build
+with the correct version of python based on the `.python-version`  file in the project. This means you don't have to
+worry about managing multiple versions of python on your machine!
+
+```bash
+uv sync
+./generate_proto.sh
 ```
 
-3. Install the SDK as a Python Package:
-```
-pip install .
-```
+To update to a newer version of the protobuf libraries, edit the `generate_proto.sh` file and change the version number
+and then rerun it.
 
 ## Environment Setup
 
-Before using the SDK, you need to configure your environment variables for the operator account and other credentials. Create a .env file in the root of your project with the following (replace with your environment variables):
+Before using the SDK, you need to configure your environment variables for the operator account and other credentials.
+Create a .env file in the root of your project with the following (replace with your environment variables):
 
 ```
 OPERATOR_ID=0.0.1234xx
 OPERATOR_KEY=302e020100300506032b657004220420...
 RECIPIENT_ID=0.0.789xx
 TOKEN_ID=0.0.100xx
+NETWORK=testnet
 ```
+
+A [sample .env](.env.example) file is provided in the root of this project. If you do not have an account on
+the Hedera testnet, you can easily get one from the [Hedera Portal](https://portal.hedera.com/). Learn more about
+testnet [here](https://docs.hedera.com/guides/testnet).
 
 ## Running Tests
 
 To run the test suite for the SDK, use the following command:
 ```
-pytest ./tests 
+uv run pytest 
 ```
 
 The test file in the root of this project will be automatically run when pushing onto a branch.
@@ -59,8 +87,6 @@ This is done by running 'Hedera Solo'. Read more about it here:
 
 - [Github Marketplace](https://github.com/marketplace/actions/hedera-solo)
 - [Blog Post by Hendrik Ebbers](https://dev.to/hendrikebbers/ci-for-hedera-based-projects-2nja)
-
-
 
 #### Output:
 ```
@@ -71,7 +97,6 @@ Token creation successful. Token ID: 0.0.5025xxx
 Token association successful.
 Token transfer successful.
 ```
-
 
 ## Usage
 
@@ -148,6 +173,20 @@ transaction = (
     )
 
     transaction.sign(operator_key)
+    transaction.execute(client)
+```
+
+### Creating a Topic
+
+```
+    transaction = (
+        TopicCreateTransaction(
+            memo="My Super Topic Memo",
+            admin_key=topic_admin_key)
+        .freeze_with(client)
+        .sign(operator_key)
+    )
+
     transaction.execute(client)
 ```
 

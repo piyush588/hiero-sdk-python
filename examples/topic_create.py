@@ -2,18 +2,15 @@ import os
 import sys
 from dotenv import load_dotenv
 
-project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-sys.path.insert(0, project_root)
-
 from hedera_sdk_python.client.client import Client
 from hedera_sdk_python.account.account_id import AccountId
 from hedera_sdk_python.crypto.private_key import PrivateKey
-from hedera_sdk_python.tokens.token_create_transaction import TokenCreateTransaction
 from hedera_sdk_python.client.network import Network
+from hedera_sdk_python.consensus.topic_create_transaction import TopicCreateTransaction
 
 load_dotenv()
 
-def create_token():
+def create_topic():
     network = Network(network='testnet')
     client = Client(network)
 
@@ -23,26 +20,23 @@ def create_token():
     client.set_operator(operator_id, operator_key)
 
     transaction = (
-        TokenCreateTransaction()
-        .set_token_name("MyToken")
-        .set_token_symbol("MTK")
-        .set_decimals(2)
-        .set_initial_supply(10)
-        .set_treasury_account_id(operator_id)
+        TopicCreateTransaction(
+            memo="Python SDK created topic",
+            admin_key=operator_key.public_key())
         .freeze_with(client)
         .sign(operator_key)
     )
 
     try:
         receipt = transaction.execute(client)
-        if receipt and receipt.tokenId:
-            print(f"Token created with ID: {receipt.tokenId}")
+        if receipt and receipt.topicId:
+            print(f"Topic created with ID: {receipt.topicId}")
         else:
-            print("Token creation failed: Token ID not returned in receipt.")
+            print("Topic creation failed: Topic ID not returned in receipt.")
             sys.exit(1)
     except Exception as e:
-        print(f"Token creation failed: {str(e)}")
+        print(f"Topic creation failed: {str(e)}")
         sys.exit(1)
 
 if __name__ == "__main__":
-    create_token()
+    create_topic()

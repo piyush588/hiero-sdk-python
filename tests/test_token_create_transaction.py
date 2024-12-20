@@ -1,8 +1,8 @@
 import pytest
 from unittest.mock import MagicMock
-from src.tokens.token_create_transaction import TokenCreateTransaction
-from src.proto import basic_types_pb2, timestamp_pb2
-from src.transaction.transaction_id import TransactionId
+from hedera_sdk_python.tokens.token_create_transaction import TokenCreateTransaction
+from hedera_sdk_python.hapi import basic_types_pb2, timestamp_pb2
+from hedera_sdk_python.transaction.transaction_id import TransactionId
 
 def generate_transaction_id(account_id_proto):
     """Generate a unique transaction ID based on the account ID and the current timestamp."""
