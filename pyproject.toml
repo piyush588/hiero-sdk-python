@@ -3,6 +3,9 @@ name = "hedera_sdk_python"
 dynamic = ["version"]
 description = "A Hiero SDK in pure Python"
 maintainers = [
+    { name = "Nadine Loepfe", email = "nadine.loepfe@hashgraph.com" }
+]
+authors = [
     { name = "Nadine Loepfe", email = "nadine.loepfe@hashgraph.com" },
     { name = "Richard Bair", email = "rbair23@users.noreply.github.com" }
 ]
