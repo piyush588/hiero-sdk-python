@@ -1,16 +1,16 @@
 import os
 import sys
 from dotenv import load_dotenv
-from src.client.network import Network
-from src.client.client import Client
-from src.account.account_id import AccountId
-from src.account.account_create_transaction import AccountCreateTransaction
-from src.crypto.private_key import PrivateKey
-from src.tokens.token_create_transaction import TokenCreateTransaction
-from src.tokens.token_associate_transaction import TokenAssociateTransaction
-from src.tokens.token_id import TokenId
-from src.transaction.transfer_transaction import TransferTransaction
-from src.response_code import ResponseCode
+from client.network import Network
+from client.client import Client
+from account.account_id import AccountId
+from account.account_create_transaction import AccountCreateTransaction
+from crypto.private_key import PrivateKey
+from tokens.token_create_transaction import TokenCreateTransaction
+from tokens.token_associate_transaction import TokenAssociateTransaction
+from tokens.token_id import TokenId
+from transaction.transfer_transaction import TransferTransaction
+from response_code import ResponseCode
 
 load_dotenv()
 

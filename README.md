@@ -18,6 +18,14 @@ This is a Python SDK for interacting with the Hedera Hashgraph platform. It allo
 
 ## Installation
 
+0. Install Poetry:
+
+```bash
+pipx install poetry
+```
+
+Other installation methods can be found [here](https://python-poetry.org/docs/#installation).
+
 1. Clone this repository:
 
 ```bash
@@ -27,18 +35,21 @@ cd hedera_sdk_python
 
 2. Install dependencies:
 
-```
-pip install -r requirements.txt
+NOTE: On macOS, you may need to set up the .venv first, so it can find python. Mac comes with python 3.9+,
+but under the name `python3` instead of `python`, which `poetry` expects. To fix this, run:
+
+```bash
+python3 -m venv .venv
 ```
 
-3. Install the SDK as a Python Package:
 ```
-pip install .
+poetry install
 ```
 
 ## Environment Setup
 
-Before using the SDK, you need to configure your environment variables for the operator account and other credentials. Create a .env file in the root of your project with the following (replace with your environment variables):
+Before using the SDK, you need to configure your environment variables for the operator account and other credentials.
+Create a .env file in the root of your project with the following (replace with your environment variables):
 
 ```
 OPERATOR_ID=0.0.1234xx
@@ -46,6 +57,10 @@ OPERATOR_KEY=302e020100300506032b657004220420...
 RECIPIENT_ID=0.0.789xx
 TOKEN_ID=0.0.100xx
 ```
+
+A [sample .env](.env.example) file is provided in the root of this project. If you do not have an account on
+the Hedera testnet, you can easily get one from the [Hedera Portal](https://portal.hedera.com/). Learn more about
+testnet [here](https://docs.hedera.com/guides/testnet).
 
 ## Running Tests
 

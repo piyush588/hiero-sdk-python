@@ -1,13 +1,13 @@
 import pytest
 from unittest.mock import MagicMock
-from src.account.account_create_transaction import AccountCreateTransaction
-from src.transaction.transaction_receipt import TransactionReceipt
-from src.account.account_id import AccountId
-from src.crypto.private_key import PrivateKey
-from src.transaction.transaction_id import TransactionId
-from src.client.client import Client
-from src.response_code import ResponseCode
-from src.proto import basic_types_pb2, transaction_receipt_pb2, timestamp_pb2
+from hedera_sdk_python.account.account_create_transaction import AccountCreateTransaction
+from hedera_sdk_python.transaction.transaction_receipt import TransactionReceipt
+from hedera_sdk_python.account.account_id import AccountId
+from hedera_sdk_python.crypto.private_key import PrivateKey
+from hedera_sdk_python.transaction.transaction_id import TransactionId
+from hedera_sdk_python.client.client import Client
+from hedera_sdk_python.response_code import ResponseCode
+from hedera_sdk_python.hapi import basic_types_pb2, transaction_receipt_pb2, timestamp_pb2
 from cryptography.hazmat.primitives import serialization
 
 def generate_transaction_id(account_id_proto):
