@@ -10,6 +10,7 @@ from hedera_sdk_python.tokens.token_create_transaction import TokenCreateTransac
 from hedera_sdk_python.tokens.token_associate_transaction import TokenAssociateTransaction
 from hedera_sdk_python.transaction.transfer_transaction import TransferTransaction
 from hedera_sdk_python.response_code import ResponseCode
+from hedera_sdk_python.consensus.topic_create_transaction import TopicCreateTransaction
 
 load_dotenv()
 
@@ -125,6 +126,31 @@ def transfer_token(client, recipient_id, token_id):
         print(f"Token transfer failed: {str(e)}")
         sys.exit(1)
 
+def create_topic(client):
+    key = client.operator_private_key
+    transaction = (
+        TopicCreateTransaction(
+            memo="Python SDK created topic",
+            admin_key=key.public_key())
+        .freeze_with(client)
+        .sign(key)
+    )
+    try:
+        receipt = transaction.execute(client)
+    except Exception as e:
+        print(f"Topic creation failed: {str(e)}")
+        sys.exit(1)
+
+    if not receipt.topicId:
+        print("Topic creation failed: Topic ID not returned in receipt.")
+        sys.exit(1)
+
+    topic_id = receipt.topicId
+    print(f"Topic creation successful. Topic ID: {topic_id}")
+
+    return topic_id
+
+
 def main():
     operator_id, operator_key = load_operator_credentials()
 
@@ -138,6 +164,8 @@ def main():
     token_id = create_token(client, operator_id)
     associate_token(client, recipient_id, recipient_private_key, token_id)
     transfer_token(client, recipient_id, token_id)
+
+    topic_id = create_topic(client)
 
 if __name__ == "__main__":
     main()
