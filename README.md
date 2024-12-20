@@ -1,7 +1,8 @@
 # Hedera (Mini) SDK in Python
 
-This is a Python SDK for interacting with the Hedera Hashgraph platform. It allows developers to manage Token transactions like CREATE, ASSOCIATE and TRANSFER.
-
+This is a Python SDK for interacting with the Hedera Hashgraph platform. It allows developers to manage Token
+transactions like CREATE, ASSOCIATE and TRANSFER, as well as Consensus transactions like managing topics and
+submitting messages.
 
 ## Table of Contents
 
@@ -14,6 +15,7 @@ This is a Python SDK for interacting with the Hedera Hashgraph platform. It allo
   - [Associating a Token](#associating-a-token)
   - [Transferring Tokens](#transferring-tokens)
   - [Transferring HBAR](#transferring-hbar)
+  - [Creating a Topic](#creating-a-topic)
 - [Contributing](#contributing)
 
 ## Installation
@@ -85,8 +87,6 @@ This is done by running 'Hedera Solo'. Read more about it here:
 
 - [Github Marketplace](https://github.com/marketplace/actions/hedera-solo)
 - [Blog Post by Hendrik Ebbers](https://dev.to/hendrikebbers/ci-for-hedera-based-projects-2nja)
-
-```bash
 
 #### Output:
 ```
@@ -173,6 +173,20 @@ transaction = (
     )
 
     transaction.sign(operator_key)
+    transaction.execute(client)
+```
+
+### Creating a Topic
+
+```
+    transaction = (
+        TopicCreateTransaction(
+            memo="My Super Topic Memo",
+            admin_key=topic_admin_key)
+        .freeze_with(client)
+        .sign(operator_key)
+    )
+
     transaction.execute(client)
 ```
 
