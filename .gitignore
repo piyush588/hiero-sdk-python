@@ -21,3 +21,6 @@ src/hedera_sdk_python/hapi
 
 # VS Code settings
 .vscode/
+
+# Mac OS X Files
+.DS_Store
