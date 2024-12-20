@@ -13,4 +13,5 @@ wheels/
 .env
 
 # Generated protobuf files
+.protos
 src/hedera_sdk_python/hapi
