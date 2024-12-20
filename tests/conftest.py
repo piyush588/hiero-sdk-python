@@ -1,6 +1,6 @@
 import pytest
-from src.account.account_id import AccountId
-from src.tokens.token_id import TokenId
+from hedera_sdk_python.account.account_id import AccountId
+from hedera_sdk_python.tokens.token_id import TokenId
 
 @pytest.fixture
 def mock_account_ids():

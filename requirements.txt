@@ -1,6 +1,0 @@
-protobuf==5.27.2
-grpcio
-grpcio-tools
-cryptography
-python-dotenv
-requests

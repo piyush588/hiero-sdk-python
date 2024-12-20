@@ -1,0 +1,70 @@
+from hedera_sdk_python.response_code import ResponseCode
+from hedera_sdk_python.transaction.transaction import Transaction
+from hedera_sdk_python.hapi import consensus_delete_topic_pb2, duration_pb2
+
+class TopicDeleteTransaction(Transaction):
+    def __init__(self, topic_id=None):
+        super().__init__()
+        self.topic_id = topic_id
+        self.transaction_fee = 10_000_000
+
+    def build_transaction_body(self):
+        """
+        Builds and returns the protobuf transaction body for topic delete.
+
+        Returns:
+            TransactionBody: The protobuf transaction body containing the topic delete details.
+
+        Raises:
+            ValueError: If required fields are missing.
+        """
+        transaction_body = self.build_base_transaction_body()
+        transaction_body.consensusDeleteTopic.CopyFrom(consensus_delete_topic_pb2.ConsensusDeleteTopicTransactionBody(
+            topicID=self.topic_id.to_proto()
+        ))
+
+        return transaction_body
+
+    def _execute_transaction(self, client, transaction_proto):
+        """
+        Executes the topic delete transaction using the provided client.
+
+        Args:
+            client (Client): The client instance to use for execution.
+            transaction_proto (Transaction): The protobuf Transaction message.
+
+        Returns:
+            TransactionReceipt: The receipt from the network after transaction execution.
+
+        Raises:
+            Exception: If the transaction submission fails or receives an error response.
+        """
+        response = client.topic_stub.deleteTopic(transaction_proto)
+
+        if response.nodeTransactionPrecheckCode != ResponseCode.OK:
+            error_code = response.nodeTransactionPrecheckCode
+            error_message = ResponseCode.get_name(error_code)
+            raise Exception(f"Error during transaction submission: {error_code} ({error_message})")
+
+        receipt = self.get_receipt(client)
+        return receipt
+
+    def get_receipt(self, client, timeout=60):
+        """
+        Retrieves the receipt for the transaction.
+
+        Args:
+            client (Client): The client instance.
+            timeout (int): Maximum time in seconds to wait for the receipt.
+
+        Returns:
+            TransactionReceipt: The transaction receipt from the network.
+
+        Raises:
+            Exception: If the transaction ID is not set or if receipt retrieval fails.
+        """
+        if self.transaction_id is None:
+            raise Exception("Transaction ID is not set.")
+
+        receipt = client.get_transaction_receipt(self.transaction_id, timeout)
+        return receipt

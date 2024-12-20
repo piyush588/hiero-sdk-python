@@ -5,12 +5,12 @@ from dotenv import load_dotenv
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.insert(0, project_root)
 
-from src.client.client import Client
-from src.account.account_id import AccountId
-from src.crypto.private_key import PrivateKey
-from src.client.network import Network
-from src.account.account_create_transaction import AccountCreateTransaction
-from src.response_code import ResponseCode
+from hedera_sdk_python.client.client import Client
+from hedera_sdk_python.account.account_id import AccountId
+from hedera_sdk_python.crypto.private_key import PrivateKey
+from hedera_sdk_python.client.network import Network
+from hedera_sdk_python.account.account_create_transaction import AccountCreateTransaction
+from hedera_sdk_python.response_code import ResponseCode
 
 load_dotenv()
 

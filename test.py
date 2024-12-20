@@ -1,16 +1,19 @@
 import os
 import sys
 from dotenv import load_dotenv
-from src.client.network import Network
-from src.client.client import Client
-from src.account.account_id import AccountId
-from src.account.account_create_transaction import AccountCreateTransaction
-from src.crypto.private_key import PrivateKey
-from src.tokens.token_create_transaction import TokenCreateTransaction
-from src.tokens.token_associate_transaction import TokenAssociateTransaction
-from src.tokens.token_id import TokenId
-from src.transaction.transfer_transaction import TransferTransaction
-from src.response_code import ResponseCode
+from hedera_sdk_python.client.network import Network
+from hedera_sdk_python.client.client import Client
+from hedera_sdk_python.account.account_id import AccountId
+from hedera_sdk_python.account.account_create_transaction import AccountCreateTransaction
+from hedera_sdk_python.crypto.private_key import PrivateKey
+from hedera_sdk_python.tokens.token_create_transaction import TokenCreateTransaction
+from hedera_sdk_python.tokens.token_associate_transaction import TokenAssociateTransaction
+from hedera_sdk_python.transaction.transfer_transaction import TransferTransaction
+from hedera_sdk_python.response_code import ResponseCode
+from hedera_sdk_python.consensus.topic_create_transaction import TopicCreateTransaction
+from hedera_sdk_python.consensus.topic_message_submit_transaction import TopicMessageSubmitTransaction
+from hedera_sdk_python.consensus.topic_update_transaction import TopicUpdateTransaction
+from hedera_sdk_python.consensus.topic_delete_transaction import TopicDeleteTransaction
 
 load_dotenv()
 
@@ -126,6 +129,85 @@ def transfer_token(client, recipient_id, token_id):
         print(f"Token transfer failed: {str(e)}")
         sys.exit(1)
 
+def create_topic(client):
+    key = client.operator_private_key
+    transaction = (
+        TopicCreateTransaction(
+            memo="Python SDK created topic",
+            admin_key=key.public_key())
+        .freeze_with(client)
+        .sign(key)
+    )
+    try:
+        receipt = transaction.execute(client)
+    except Exception as e:
+        print(f"Topic creation failed: {str(e)}")
+        sys.exit(1)
+
+    if not receipt.topicId:
+        print("Topic creation failed: Topic ID not returned in receipt.")
+        sys.exit(1)
+
+    topic_id = receipt.topicId
+    print(f"Topic creation successful. Topic ID: {topic_id}")
+
+    return topic_id
+
+def submit_message(client, topic_id):
+    transaction = (
+        TopicMessageSubmitTransaction(topic_id=topic_id, message="Hello, Python SDK!")
+        .freeze_with(client)
+        .sign(client.operator_private_key)
+    )
+    try:
+        receipt = transaction.execute(client)
+    except Exception as e:
+        print(f"Message submission failed: {str(e)}")
+        sys.exit(1)
+
+    if receipt.status != ResponseCode.SUCCESS:
+        status_message = ResponseCode.get_name(receipt.status)
+        raise Exception(f"Message submission failed with status: {status_message}")
+
+    print("Message submitted successfully.")
+
+def update_topic(client, topic_id):
+    key = client.operator_private_key
+    transaction = (
+        TopicUpdateTransaction(topic_id=topic_id, memo="Python SDK updated topic")
+        .freeze_with(client)
+        .sign(key)
+    )
+    try:
+        receipt = transaction.execute(client)
+    except Exception as e:
+        print(f"Topic update failed: {str(e)}")
+        sys.exit(1)
+
+    if receipt.status != ResponseCode.SUCCESS:
+        status_message = ResponseCode.get_name(receipt.status)
+        raise Exception(f"Topic update failed with status: {status_message}")
+
+    print("Topic updated successfully.")
+
+def delete_topic(client, topic_id):
+    transaction = (
+        TopicDeleteTransaction(topic_id=topic_id)
+        .freeze_with(client)
+        .sign(client.operator_private_key)
+    )
+    try:
+        receipt = transaction.execute(client)
+    except Exception as e:
+        print(f"Topic deletion failed: {str(e)}")
+        sys.exit(1)
+
+    if receipt.status != ResponseCode.SUCCESS:
+        status_message = ResponseCode.get_name(receipt.status)
+        raise Exception(f"Topic deletion failed with status: {status_message}")
+
+    print("Topic deleted successfully.")
+
 def main():
     operator_id, operator_key = load_operator_credentials()
 
@@ -139,6 +221,11 @@ def main():
     token_id = create_token(client, operator_id)
     associate_token(client, recipient_id, recipient_private_key, token_id)
     transfer_token(client, recipient_id, token_id)
+
+    topic_id = create_topic(client)
+    submit_message(client, topic_id)
+    update_topic(client, topic_id)
+    delete_topic(client, topic_id)
 
 if __name__ == "__main__":
     main()
