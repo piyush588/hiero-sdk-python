@@ -18,13 +18,22 @@ This is a Python SDK for interacting with the Hedera Hashgraph platform. It allo
 
 ## Installation
 
-0. Install Poetry:
+0. Install `uv`:
+
+`uv` is an ultra-fast Python package and project manager. It replaces `pip`, `pip-tools`, `pipx`, `poetry`, `pyenv`,
+`virtualenv`, and more.
 
 ```bash
-pipx install poetry
+curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
-Other installation methods can be found [here](https://python-poetry.org/docs/#installation).
+If on macOS, you can also install `uv` using Homebrew:
+
+```bash
+brew install uv
+```
+
+Other installation methods can be found [here](https://docs.astral.sh/uv/getting-started/installation/).
 
 1. Clone this repository:
 
@@ -35,16 +44,17 @@ cd hedera_sdk_python
 
 2. Install dependencies:
 
-NOTE: On macOS, you may need to set up the .venv first, so it can find python. Mac comes with python 3.9+,
-but under the name `python3` instead of `python`, which `poetry` expects. To fix this, run:
+One of the really nice features of `uv` is that it will download and manage the correct version of python and build
+with the correct version of python based on the `.python-version`  file in the project. This means you don't have to
+worry about managing multiple versions of python on your machine!
 
 ```bash
-python3 -m venv .venv
+uv sync
+./generate_proto.sh
 ```
 
-```
-poetry install
-```
+To update to a newer version of the protobuf libraries, edit the `generate_proto.sh` file and change the version number
+and then rerun it.
 
 ## Environment Setup
 
@@ -56,6 +66,7 @@ OPERATOR_ID=0.0.1234xx
 OPERATOR_KEY=302e020100300506032b657004220420...
 RECIPIENT_ID=0.0.789xx
 TOKEN_ID=0.0.100xx
+NETWORK=testnet
 ```
 
 A [sample .env](.env.example) file is provided in the root of this project. If you do not have an account on
@@ -66,7 +77,7 @@ testnet [here](https://docs.hedera.com/guides/testnet).
 
 To run the test suite for the SDK, use the following command:
 ```
-pytest ./tests 
+uv run pytest 
 ```
 
 The test file in the root of this project will be automatically run when pushing onto a branch.
@@ -75,7 +86,7 @@ This is done by running 'Hedera Solo'. Read more about it here:
 - [Github Marketplace](https://github.com/marketplace/actions/hedera-solo)
 - [Blog Post by Hendrik Ebbers](https://dev.to/hendrikebbers/ci-for-hedera-based-projects-2nja)
 
-
+```bash
 
 #### Output:
 ```
@@ -86,7 +97,6 @@ Token creation successful. Token ID: 0.0.5025xxx
 Token association successful.
 Token transfer successful.
 ```
-
 
 ## Usage
 
