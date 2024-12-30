@@ -2,7 +2,7 @@
 
 This is a Python SDK for interacting with the Hedera Hashgraph platform. It allows developers to:
 
-- Manage Token Transactions like Create, Associate, Transfer & Delete
+- Manage Token Transactions like Create, Associate, Dissociate, Transfer & Delete
 - Manage Consensus Transactions like Topic Create, Update, Delete
 - Submit Topic Messages
 - Query Account Balance, Transaction Receipts, Topic Infos and Messages
@@ -17,6 +17,7 @@ This is a Python SDK for interacting with the Hedera Hashgraph platform. It allo
   - [Querying Account Balance](#querying-account-balance)
   - [Creating a Token](#creating-a-token)
   - [Associating a Token](#associating-a-token)
+  - [Dissociating a Token](#dissociating-a-token)
   - [Transferring Tokens](#transferring-tokens)
   - [Deleting a Token](#deleting-a-token)
   - [Transferring HBAR](#transferring-hbar)
@@ -107,6 +108,7 @@ New Account Private Key: 228a06c363b0eb328434d51xxx...
 New Account Public Key: 8f444e36e8926def492adxxx...
 Token creation successful. Token ID: 0.0.5025xxx
 Token association successful.
+Token dissociation successful.
 Token transfer successful.
 Token deletion successful.
 Topic creation successful.
@@ -220,6 +222,31 @@ transaction.execute(client)
 ```
 transaction = (
         TokenAssociateTransaction()
+        .set_account_id(recipient_id)
+        .add_token_id(token_id)
+        .freeze_with(client)
+        .sign(recipient_key)
+    )
+
+    transaction.execute(client)
+```
+
+### Dissociating a Token
+
+#### Pythonic Syntax:
+```
+transaction = TokenDissociateTransaction(
+    account_id=recipient_id,
+    token_ids=[token_id]
+).freeze_with(client)
+
+transaction.sign(recipient_key)
+transaction.execute(client)
+```
+#### Method Chaining:
+```
+transaction = (
+        TokenDissociateTransaction()
         .set_account_id(recipient_id)
         .add_token_id(token_id)
         .freeze_with(client)
