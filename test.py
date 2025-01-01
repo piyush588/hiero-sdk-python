@@ -237,11 +237,6 @@ def delete_token(client, token_id, admin_key):
 def main():
     operator_id, operator_key = load_operator_credentials()
     admin_key = PrivateKey.generate()
-    admin_public_key = admin_key.public_key()
-    admin_public_key_bytes = admin_public_key.public_bytes(
-        encoding=serialization.Encoding.Raw,
-        format=serialization.PublicFormat.Raw
-    )
 
     network_type = os.getenv('NETWORK')
     network = Network(network=network_type)
