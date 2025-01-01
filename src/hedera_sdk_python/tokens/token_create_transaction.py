@@ -1,6 +1,7 @@
 from hedera_sdk_python.transaction.transaction import Transaction
-from hedera_sdk_python.hapi import token_create_pb2
+from hedera_sdk_python.hapi import token_create_pb2, basic_types_pb2
 from hedera_sdk_python.response_code import ResponseCode
+from cryptography.hazmat.primitives import serialization
 
 class TokenCreateTransaction(Transaction):
     """
@@ -23,6 +24,7 @@ class TokenCreateTransaction(Transaction):
         self.decimals = None
         self.initial_supply = None
         self.treasury_account_id = None
+        self.admin_key = None
 
         self._default_transaction_fee = 3_000_000_000
 
@@ -50,7 +52,12 @@ class TokenCreateTransaction(Transaction):
         self._require_not_frozen()
         self.treasury_account_id = account_id
         return self
-
+    
+    def set_admin_key(self, admin_key): 
+        self._require_not_frozen()
+        self.admin_key = admin_key
+        return self
+    
     def build_transaction_body(self):
         """
         Builds and returns the protobuf transaction body for token creation.
@@ -70,12 +77,21 @@ class TokenCreateTransaction(Transaction):
         ]):
             raise ValueError("Missing required fields")
 
+        admin_key_proto = None
+        if self.admin_key:
+            admin_public_key_bytes = self.admin_key.public_key().public_bytes(
+                encoding=serialization.Encoding.Raw,
+                format=serialization.PublicFormat.Raw
+            )
+            admin_key_proto = basic_types_pb2.Key(ed25519=admin_public_key_bytes)
+
         token_create_body = token_create_pb2.TokenCreateTransactionBody(
             name=self.token_name,
             symbol=self.token_symbol,
             decimals=self.decimals,
             initialSupply=self.initial_supply,
-            treasury=self.treasury_account_id.to_proto()
+            treasury=self.treasury_account_id.to_proto(),
+            adminKey=admin_key_proto
         )
 
         transaction_body = self.build_base_transaction_body()

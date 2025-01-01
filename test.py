@@ -6,14 +6,17 @@ from hedera_sdk_python.client.client import Client
 from hedera_sdk_python.account.account_id import AccountId
 from hedera_sdk_python.account.account_create_transaction import AccountCreateTransaction
 from hedera_sdk_python.crypto.private_key import PrivateKey
+from hedera_sdk_python.crypto.public_key import PublicKey
 from hedera_sdk_python.tokens.token_create_transaction import TokenCreateTransaction
 from hedera_sdk_python.tokens.token_associate_transaction import TokenAssociateTransaction
 from hedera_sdk_python.transaction.transfer_transaction import TransferTransaction
+from hedera_sdk_python.tokens.token_delete_transaction import TokenDeleteTransaction
 from hedera_sdk_python.response_code import ResponseCode
 from hedera_sdk_python.consensus.topic_create_transaction import TopicCreateTransaction
 from hedera_sdk_python.consensus.topic_message_submit_transaction import TopicMessageSubmitTransaction
 from hedera_sdk_python.consensus.topic_update_transaction import TopicUpdateTransaction
 from hedera_sdk_python.consensus.topic_delete_transaction import TopicDeleteTransaction
+from cryptography.hazmat.primitives import serialization
 
 load_dotenv()
 
@@ -58,7 +61,7 @@ def create_new_account(client, initial_balance=100000000):
 
     return new_account_id, new_account_private_key
 
-def create_token(client, operator_id):
+def create_token(client, operator_id, admin_key):
     """Create a new token and return its TokenId instance."""
 
     transaction = (
@@ -68,10 +71,12 @@ def create_token(client, operator_id):
         .set_decimals(2)
         .set_initial_supply(1000)
         .set_treasury_account_id(operator_id)
+        .set_admin_key(admin_key)
         .freeze_with(client)
     )
-
     transaction.sign(client.operator_private_key)
+    transaction.sign(admin_key)
+
 
     try:
         receipt = transaction.execute(client)
@@ -208,8 +213,35 @@ def delete_topic(client, topic_id):
 
     print("Topic deleted successfully.")
 
+def delete_token(client, token_id, admin_key):
+    """Deletes the specified token on the Hedera network."""
+    transaction = (
+        TokenDeleteTransaction()
+        .set_token_id(token_id)
+        .freeze_with(client)
+    )
+    
+    transaction.sign(client.operator_private_key)
+    transaction.sign(admin_key)
+
+    try:
+        receipt = transaction.execute(client)
+        if receipt.status != ResponseCode.SUCCESS:
+            status_message = ResponseCode.get_name(receipt.status)
+            raise Exception(f"Token deletion failed with status: {status_message}")
+        print("Token deletion successful.")
+    except Exception as e:
+        print(f"Token deletion failed: {str(e)}")
+        sys.exit(1)
+
 def main():
     operator_id, operator_key = load_operator_credentials()
+    admin_key = PrivateKey.generate()
+    admin_public_key = admin_key.public_key()
+    admin_public_key_bytes = admin_public_key.public_bytes(
+        encoding=serialization.Encoding.Raw,
+        format=serialization.PublicFormat.Raw
+    )
 
     network_type = os.getenv('NETWORK')
     network = Network(network=network_type)
@@ -218,9 +250,10 @@ def main():
     client.set_operator(operator_id, operator_key)
 
     recipient_id, recipient_private_key = create_new_account(client)
-    token_id = create_token(client, operator_id)
+    token_id = create_token(client, operator_id, admin_key)
     associate_token(client, recipient_id, recipient_private_key, token_id)
     transfer_token(client, recipient_id, token_id)
+    delete_token(client, token_id, admin_key)
 
     topic_id = create_topic(client)
     submit_message(client, topic_id)

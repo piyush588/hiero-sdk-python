@@ -14,6 +14,7 @@ submitting messages.
   - [Creating a Token](#creating-a-token)
   - [Associating a Token](#associating-a-token)
   - [Transferring Tokens](#transferring-tokens)
+  - [Deleting a Token](#deleting-a-token)
   - [Transferring HBAR](#transferring-hbar)
   - [Creating a Topic](#creating-a-topic)
 - [Contributing](#contributing)
@@ -66,6 +67,7 @@ Create a .env file in the root of your project with the following (replace with 
 ```
 OPERATOR_ID=0.0.1234xx
 OPERATOR_KEY=302e020100300506032b657004220420...
+ADMIN_KEY=302a300506032b65700321009308ecfdf...
 RECIPIENT_ID=0.0.789xx
 TOKEN_ID=0.0.100xx
 NETWORK=testnet
@@ -96,11 +98,12 @@ New Account Public Key: 8f444e36e8926def492adxxx...
 Token creation successful. Token ID: 0.0.5025xxx
 Token association successful.
 Token transfer successful.
+Token deletion successful.
 ```
 
 ## Usage
 
-Below are examples of how to use the SDK for creating tokens, associating them with accounts, and transferring tokens (also see 'examples' directiory)
+Below are examples of how to use the SDK for creating tokens, associating them with accounts, and transferring or deleting tokens (also see 'examples' directiory)
 
 ### Creating an Account
 
@@ -127,9 +130,11 @@ transaction = (
         .set_decimals(2)
         .set_initial_supply(1000)
         .set_treasury_account_id(operator_id)
+        .set_admin_key(admin_key) # Optional to create a token. Necessary for Token Delete or Update.
         .freeze_with(client)
     )
 
+    transaction.sign(admin_key) # If admin key exists.
     transaction.sign(operator_key)
     transaction.execute(client)
 ```
@@ -159,6 +164,20 @@ transaction = (
         .sign(operator_key)
     )
 
+    transaction.execute(client)
+```
+
+### Deleting a Token
+
+```
+    transaction = (
+        TokenDeleteTransaction()
+        .set_token_id(token_id)
+        .freeze_with(client)
+    )
+
+    transaction.sign(admin_key) #Admin key must also have been set in Token Create
+    transaction.sign(operator_key)
     transaction.execute(client)
 ```
 
