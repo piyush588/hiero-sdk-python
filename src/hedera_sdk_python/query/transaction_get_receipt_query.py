@@ -1,5 +1,5 @@
 from hedera_sdk_python.query.query import Query
-from hedera_sdk_python.hapi import transaction_get_receipt_pb2, query_pb2
+from hedera_sdk_python.hapi import transaction_get_receipt_pb2, query_pb2, query_header_pb2
 from hedera_sdk_python.response_code import ResponseCode
 from hedera_sdk_python.transaction.transaction_id import TransactionId
 from hedera_sdk_python.transaction.transaction_receipt import TransactionReceipt
@@ -31,6 +31,13 @@ class TransactionGetReceiptQuery(Query):
         self.transaction_id = transaction_id
         return self
 
+    def _is_payment_required(self):
+        """
+        Override the default in the base Query class:
+        This particular query does NOT require a payment.
+        """
+        return False
+
     def _make_request(self):
         """
         Constructs the protobuf request for the transaction receipt query.
@@ -46,7 +53,9 @@ class TransactionGetReceiptQuery(Query):
             if not self.transaction_id:
                 raise ValueError("Transaction ID must be set before making the request.")
 
-            query_header = self._make_request_header()
+            query_header = query_header_pb2.QueryHeader()
+            query_header.responseType = query_header_pb2.ResponseType.ANSWER_ONLY
+
             transaction_get_receipt = transaction_get_receipt_pb2.TransactionGetReceiptQuery()
             transaction_get_receipt.header.CopyFrom(query_header)
             transaction_get_receipt.transactionID.CopyFrom(self.transaction_id.to_proto())

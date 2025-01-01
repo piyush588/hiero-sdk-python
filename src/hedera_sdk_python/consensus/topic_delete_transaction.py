@@ -18,6 +18,9 @@ class TopicDeleteTransaction(Transaction):
         Raises:
             ValueError: If required fields are missing.
         """
+        if self.topic_id is None:
+            raise ValueError("Missing required fields: topic_id")
+    
         transaction_body = self.build_base_transaction_body()
         transaction_body.consensusDeleteTopic.CopyFrom(consensus_delete_topic_pb2.ConsensusDeleteTopicTransactionBody(
             topicID=self.topic_id.to_proto()

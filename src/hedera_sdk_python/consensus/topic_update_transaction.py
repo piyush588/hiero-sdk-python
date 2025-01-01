@@ -25,6 +25,9 @@ class TopicUpdateTransaction(Transaction):
         Raises:
             ValueError: If required fields are missing.
         """
+        if self.topic_id is None:
+            raise ValueError("Missing required fields: topic_id")
+
         transaction_body = self.build_base_transaction_body()
         transaction_body.consensusUpdateTopic.CopyFrom(consensus_update_topic_pb2.ConsensusUpdateTopicTransactionBody(
             topicID=self.topic_id.to_proto(),
