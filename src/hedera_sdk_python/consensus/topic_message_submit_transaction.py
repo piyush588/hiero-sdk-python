@@ -39,19 +39,20 @@ class TopicMessageSubmitTransaction(Transaction):
     def build_transaction_body(self):
         """
         Builds and returns the protobuf transaction body for message submission.
-
-        Returns:
-            TransactionBody: The protobuf transaction body containing the message submission details.
-
-        Raises:
-            ValueError: If required fields are missing.
+        Raises ValueError if required fields (topic_id, message) are missing.
         """
-        transaction_body = self.build_base_transaction_body()
-        transaction_body.consensusSubmitMessage.CopyFrom(consensus_submit_message_pb2.ConsensusSubmitMessageTransactionBody(
-            topicID=self.topic_id.to_proto(),
-            message=bytes(self.message, 'utf-8')
-        ))
+        if self.topic_id is None:
+            raise ValueError("Missing required fields: topic_id.")
+        if self.message is None:
+            raise ValueError("Missing required fields: message.")
 
+        transaction_body = self.build_base_transaction_body()
+        transaction_body.consensusSubmitMessage.CopyFrom(
+            consensus_submit_message_pb2.ConsensusSubmitMessageTransactionBody(
+                topicID=self.topic_id.to_proto(),
+                message=bytes(self.message, 'utf-8')
+            )
+        )
         return transaction_body
 
     def _execute_transaction(self, client, transaction_proto):

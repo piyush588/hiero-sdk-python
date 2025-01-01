@@ -1,8 +1,8 @@
+from collections import defaultdict
 from hedera_sdk_python.transaction.transaction import Transaction
 from hedera_sdk_python.hapi import crypto_transfer_pb2, basic_types_pb2
 from hedera_sdk_python.account.account_id import AccountId
 from hedera_sdk_python.tokens.token_id import TokenId
-from collections import defaultdict
 from hedera_sdk_python.response_code import ResponseCode
 
 class TransferTransaction(Transaction):
@@ -14,7 +14,6 @@ class TransferTransaction(Transaction):
         super().__init__()
         self.hbar_transfers = defaultdict(int)
         self.token_transfers = defaultdict(lambda: defaultdict(int))
-
         self._default_transaction_fee = 100_000_000
 
     def add_hbar_transfer(self, account_id: AccountId, amount: int) -> 'TransferTransaction':
@@ -81,7 +80,7 @@ class TransferTransaction(Transaction):
                 transfer_list.accountAmounts.append(account_amount)
             crypto_transfer_tx_body.transfers.CopyFrom(transfer_list)
 
-        # Token
+        # Tokens
         for token_id, transfers in self.token_transfers.items():
             token_transfer_list = basic_types_pb2.TokenTransferList()
             token_transfer_list.token.CopyFrom(token_id.to_proto())
@@ -124,7 +123,7 @@ class TransferTransaction(Transaction):
 
         Args:
             client (Client): The client instance.
-            timeout (int): Timeout in seconds.
+            timeout (int): The number of seconds to wait for the receipt.
 
         Returns:
             TransactionReceipt: The transaction receipt.
@@ -132,5 +131,4 @@ class TransferTransaction(Transaction):
         if self.transaction_id is None:
             raise Exception("Transaction ID is not set.")
 
-        receipt = client.get_transaction_receipt(self.transaction_id, timeout)
-        return receipt
+        return client.get_transaction_receipt(self.transaction_id, timeout)

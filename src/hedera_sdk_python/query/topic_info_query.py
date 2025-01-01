@@ -15,7 +15,7 @@ class TopicInfoQuery(Query):
     def set_topic_id(self, topic_id: TopicId):
         self.topic_id = topic_id
         return self
-
+    
     def _make_request(self):
         if not self.topic_id:
             raise ValueError("Topic ID must be set before making the request.")
@@ -28,7 +28,6 @@ class TopicInfoQuery(Query):
 
         query = query_pb2.Query()
         query.consensusGetTopicInfo.CopyFrom(topic_info_query)
-
         return query
 
     def _get_status_from_response(self, response):

@@ -16,7 +16,7 @@ jobs:
         uses: astral-sh/setup-uv@v4
 
       - name: Install setuptools wheel
-        run: pip install --upgrade pip setuptools wheel
+        run: pip install --upgrade pip setuptools wheel grpc_tools
 
       - name: Setup Python
         run: uv python install

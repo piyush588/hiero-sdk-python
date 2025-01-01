@@ -97,7 +97,6 @@ class Transaction:
             Exception: If required IDs are not set.
         """
         if self.transaction_body_bytes is not None:
-            # transaction is already frozen
             return self
 
         if self.transaction_id is None:
@@ -132,7 +131,6 @@ class Transaction:
         if self.operator_account_id is None:
             self.operator_account_id = client.operator_account_id
 
-        # sign with operator's key if not already signed
         if not self.is_signed_by(client.operator_private_key.public_key()):
             self.sign(client.operator_private_key)
 
