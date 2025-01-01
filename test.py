@@ -10,9 +10,12 @@ from hedera_sdk_python.crypto.public_key import PublicKey
 from hedera_sdk_python.tokens.token_create_transaction import TokenCreateTransaction
 from hedera_sdk_python.tokens.token_associate_transaction import TokenAssociateTransaction
 from hedera_sdk_python.transaction.transfer_transaction import TransferTransaction
+from hedera_sdk_python.tokens.token_delete_transaction import TokenDeleteTransaction
 from hedera_sdk_python.response_code import ResponseCode
 from hedera_sdk_python.consensus.topic_create_transaction import TopicCreateTransaction
-from hedera_sdk_python.tokens.token_delete_transaction import TokenDeleteTransaction
+from hedera_sdk_python.consensus.topic_message_submit_transaction import TopicMessageSubmitTransaction
+from hedera_sdk_python.consensus.topic_update_transaction import TopicUpdateTransaction
+from hedera_sdk_python.consensus.topic_delete_transaction import TopicDeleteTransaction
 from cryptography.hazmat.primitives import serialization
 
 load_dotenv()
@@ -155,6 +158,60 @@ def create_topic(client):
 
     return topic_id
 
+def submit_message(client, topic_id):
+    transaction = (
+        TopicMessageSubmitTransaction(topic_id=topic_id, message="Hello, Python SDK!")
+        .freeze_with(client)
+        .sign(client.operator_private_key)
+    )
+    try:
+        receipt = transaction.execute(client)
+    except Exception as e:
+        print(f"Message submission failed: {str(e)}")
+        sys.exit(1)
+
+    if receipt.status != ResponseCode.SUCCESS:
+        status_message = ResponseCode.get_name(receipt.status)
+        raise Exception(f"Message submission failed with status: {status_message}")
+
+    print("Message submitted successfully.")
+
+def update_topic(client, topic_id):
+    key = client.operator_private_key
+    transaction = (
+        TopicUpdateTransaction(topic_id=topic_id, memo="Python SDK updated topic")
+        .freeze_with(client)
+        .sign(key)
+    )
+    try:
+        receipt = transaction.execute(client)
+    except Exception as e:
+        print(f"Topic update failed: {str(e)}")
+        sys.exit(1)
+
+    if receipt.status != ResponseCode.SUCCESS:
+        status_message = ResponseCode.get_name(receipt.status)
+        raise Exception(f"Topic update failed with status: {status_message}")
+
+    print("Topic updated successfully.")
+
+def delete_topic(client, topic_id):
+    transaction = (
+        TopicDeleteTransaction(topic_id=topic_id)
+        .freeze_with(client)
+        .sign(client.operator_private_key)
+    )
+    try:
+        receipt = transaction.execute(client)
+    except Exception as e:
+        print(f"Topic deletion failed: {str(e)}")
+        sys.exit(1)
+
+    if receipt.status != ResponseCode.SUCCESS:
+        status_message = ResponseCode.get_name(receipt.status)
+        raise Exception(f"Topic deletion failed with status: {status_message}")
+
+    print("Topic deleted successfully.")
 
 def delete_token(client, token_id, admin_key):
     """Deletes the specified token on the Hedera network."""
@@ -199,6 +256,9 @@ def main():
     delete_token(client, token_id, admin_key)
 
     topic_id = create_topic(client)
+    submit_message(client, topic_id)
+    update_topic(client, topic_id)
+    delete_topic(client, topic_id)
 
 if __name__ == "__main__":
     main()
