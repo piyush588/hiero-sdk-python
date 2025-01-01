@@ -17,6 +17,9 @@ submitting messages.
   - [Deleting a Token](#deleting-a-token)
   - [Transferring HBAR](#transferring-hbar)
   - [Creating a Topic](#creating-a-topic)
+  - [Submitting a Topic Message](#submitting-a-topic-message)
+  - [Updating a Topic](#updating-a-topic)
+  - [Deleting a Topic](#deleting-a-topic)
 - [Contributing](#contributing)
 
 ## Installation
@@ -70,6 +73,7 @@ OPERATOR_KEY=302e020100300506032b657004220420...
 ADMIN_KEY=302a300506032b65700321009308ecfdf...
 RECIPIENT_ID=0.0.789xx
 TOKEN_ID=0.0.100xx
+TOPIC_ID=0.0.200xx
 NETWORK=testnet
 ```
 
@@ -99,6 +103,10 @@ Token creation successful. Token ID: 0.0.5025xxx
 Token association successful.
 Token transfer successful.
 Token deletion successful.
+Topic creation successful.
+Topic Message submitted.
+Topic update successful.
+Topic deletion successful.
 ```
 
 ## Usage
@@ -208,6 +216,55 @@ transaction = (
 
     transaction.execute(client)
 ```
+
+### Submitting a Topic Message
+
+```
+transaction = (
+    TopicMessageSubmitTransaction(topic_id=topic_id, message="Hello, from Python SDK!")
+    .freeze_with(client)
+    .sign(operator_key)
+)
+
+transaction.execute(client)
+```
+
+### Updating a Topic
+
+```
+transaction = (
+    TopicUpdateTransaction(topic_id=topic_id, memo="Python SDK updated topic")
+    .freeze_with(client)
+    .sign(operator_key)
+)
+
+transaction.execute(client)
+```
+
+### Deleting a Topic
+
+```
+transaction = (
+    TopicDeleteTransaction(topic_id=topic_id)
+    .freeze_with(client)
+    .sign(operator_key)
+)
+
+transaction.execute(client)
+```
+
+### Querying Topic Info
+
+```
+topic_info_query = (
+    TopicInfoQuery()
+    .set_topic_id(topic_id)
+)
+
+topic_info = topic_info_query.execute(client)
+print(topic_info)
+```
+
 
 ## Contributing
 

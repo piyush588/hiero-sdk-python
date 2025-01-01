@@ -16,7 +16,8 @@ from hedera_sdk_python.consensus.topic_create_transaction import TopicCreateTran
 from hedera_sdk_python.consensus.topic_message_submit_transaction import TopicMessageSubmitTransaction
 from hedera_sdk_python.consensus.topic_update_transaction import TopicUpdateTransaction
 from hedera_sdk_python.consensus.topic_delete_transaction import TopicDeleteTransaction
-from cryptography.hazmat.primitives import serialization
+from hedera_sdk_python.consensus.topic_id import TopicId
+from hedera_sdk_python.query.topic_info_query import TopicInfoQuery
 
 load_dotenv()
 
@@ -28,18 +29,16 @@ def load_operator_credentials():
     except Exception as e:
         print(f"Error parsing operator credentials: {e}")
         sys.exit(1)
-
     return operator_id, operator_key
 
 def create_new_account(client, initial_balance=100000000):
-    """Creates a new account on the Hedera network and returns the account ID and private key."""
     new_account_private_key = PrivateKey.generate()
     new_account_public_key = new_account_private_key.public_key()
 
     transaction = (
         AccountCreateTransaction()
         .set_key(new_account_public_key)
-        .set_initial_balance(initial_balance)  # initial balance in tinybars
+        .set_initial_balance(initial_balance)  # in tinybars
         .set_account_memo("Recipient Account")
         .freeze_with(client)
     )
@@ -48,7 +47,6 @@ def create_new_account(client, initial_balance=100000000):
     try:
         receipt = transaction.execute(client)
         new_account_id = receipt.accountId
-
         if new_account_id is not None:
             print(f"Account creation successful. New Account ID: {new_account_id}")
             print(f"New Account Private Key: {new_account_private_key.to_string()}")
@@ -62,8 +60,6 @@ def create_new_account(client, initial_balance=100000000):
     return new_account_id, new_account_private_key
 
 def create_token(client, operator_id, admin_key):
-    """Create a new token and return its TokenId instance."""
-
     transaction = (
         TokenCreateTransaction()
         .set_token_name("ExampleToken")
@@ -77,7 +73,6 @@ def create_token(client, operator_id, admin_key):
     transaction.sign(client.operator_private_key)
     transaction.sign(admin_key)
 
-
     try:
         receipt = transaction.execute(client)
     except Exception as e:
@@ -90,19 +85,17 @@ def create_token(client, operator_id, admin_key):
 
     token_id = receipt.tokenId
     print(f"Token creation successful. Token ID: {token_id}")
-
     return token_id
 
 def associate_token(client, recipient_id, recipient_private_key, token_id):
-    """Associate the specified token with the recipient account."""
     transaction = (
         TokenAssociateTransaction()
         .set_account_id(recipient_id)
         .add_token_id(token_id)
         .freeze_with(client)
     )
-    transaction.sign(client.operator_private_key) # sign with operator's key (payer)
-    transaction.sign(recipient_private_key) # sign with newly created account's key (recipient)
+    transaction.sign(client.operator_private_key) # pay
+    transaction.sign(recipient_private_key)       # recipient signature
 
     try:
         receipt = transaction.execute(client)
@@ -115,7 +108,6 @@ def associate_token(client, recipient_id, recipient_private_key, token_id):
         sys.exit(1)
 
 def transfer_token(client, recipient_id, token_id):
-    """Transfer the specified token to the recipient account."""
     transaction = (
         TransferTransaction()
         .add_token_transfer(token_id, client.operator_account_id, -1)
@@ -134,12 +126,32 @@ def transfer_token(client, recipient_id, token_id):
         print(f"Token transfer failed: {str(e)}")
         sys.exit(1)
 
+def delete_token(client, token_id, admin_key):
+    transaction = (
+        TokenDeleteTransaction()
+        .set_token_id(token_id)
+        .freeze_with(client)
+    )
+    transaction.sign(client.operator_private_key)
+    transaction.sign(admin_key)
+
+    try:
+        receipt = transaction.execute(client)
+        if receipt.status != ResponseCode.SUCCESS:
+            status_message = ResponseCode.get_name(receipt.status)
+            raise Exception(f"Token deletion failed with status: {status_message}")
+        print("Token deletion successful.")
+    except Exception as e:
+        print(f"Token deletion failed: {str(e)}")
+        sys.exit(1)
+
 def create_topic(client):
     key = client.operator_private_key
     transaction = (
         TopicCreateTransaction(
             memo="Python SDK created topic",
-            admin_key=key.public_key())
+            admin_key=key.public_key()
+        )
         .freeze_with(client)
         .sign(key)
     )
@@ -213,26 +225,17 @@ def delete_topic(client, topic_id):
 
     print("Topic deleted successfully.")
 
-def delete_token(client, token_id, admin_key):
-    """Deletes the specified token on the Hedera network."""
-    transaction = (
-        TokenDeleteTransaction()
-        .set_token_id(token_id)
-        .freeze_with(client)
-    )
-    
-    transaction.sign(client.operator_private_key)
-    transaction.sign(admin_key)
-
+def query_topic_info(client, topic_id):
+    """Optional method to show how to query topic info."""
     try:
-        receipt = transaction.execute(client)
-        if receipt.status != ResponseCode.SUCCESS:
-            status_message = ResponseCode.get_name(receipt.status)
-            raise Exception(f"Token deletion failed with status: {status_message}")
-        print("Token deletion successful.")
+        topic_info = (
+            TopicInfoQuery()
+            .set_topic_id(topic_id)
+            .execute(client)
+        )
+        print(f"Topic Info: {topic_info}")
     except Exception as e:
-        print(f"Token deletion failed: {str(e)}")
-        sys.exit(1)
+        print(f"Failed to retrieve topic info: {str(e)}")
 
 def main():
     operator_id, operator_key = load_operator_credentials()
@@ -240,11 +243,11 @@ def main():
 
     network_type = os.getenv('NETWORK')
     network = Network(network=network_type)
-
     client = Client(network)
     client.set_operator(operator_id, operator_key)
 
     recipient_id, recipient_private_key = create_new_account(client)
+
     token_id = create_token(client, operator_id, admin_key)
     associate_token(client, recipient_id, recipient_private_key, token_id)
     transfer_token(client, recipient_id, token_id)
@@ -253,6 +256,7 @@ def main():
     topic_id = create_topic(client)
     submit_message(client, topic_id)
     update_topic(client, topic_id)
+    # query_topic_info(client, topic_id)
     delete_topic(client, topic_id)
 
 if __name__ == "__main__":

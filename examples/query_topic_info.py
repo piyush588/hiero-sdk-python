@@ -10,7 +10,7 @@ from hedera_sdk_python.crypto.private_key import PrivateKey
 def query_topic_info():
     operator_id = AccountId.from_string(os.getenv('OPERATOR_ID'))
     operator_key = PrivateKey.from_string(os.getenv('OPERATOR_KEY'))
-    topic_id = TopicId.from_string(os.getenv('TOPIC_ID'))
+    topic_id = TopicId.from_string("0.0.5336794")
 
     network = Network(network='testnet')
     client = Client(network)
