@@ -2,7 +2,7 @@ import time
 import threading
 from datetime import datetime
 from typing import Optional, Callable, Union
-
+from hedera_sdk_python.consensus.topic_message import TopicMessage
 from hedera_sdk_python.hapi.mirror import consensus_service_pb2 as mirror_proto
 from hedera_sdk_python.hapi.services import basic_types_pb2, timestamp_pb2
 from hedera_sdk_python.consensus.topic_message import TopicMessage
@@ -83,7 +83,7 @@ class TopicMessageQuery:
     def subscribe(
         self,
         client,
-        on_message: Callable[[TopicMessage], None],
+        on_message: Callable[[TopicMessage], None], 
         on_error: Optional[Callable[[Exception], None]] = None,
     ):
         """
@@ -108,7 +108,7 @@ class TopicMessageQuery:
             try:
                 message_stream = client.mirror_stub.subscribeTopic(request)
                 for response in message_stream:
-                    msg_obj = TopicMessage.from_proto(response)
+                    msg_obj = TopicMessage.from_proto(response) 
                     on_message(msg_obj)
             except Exception as e:
                 if on_error:
@@ -116,3 +116,4 @@ class TopicMessageQuery:
 
         thread = threading.Thread(target=run_stream, daemon=True)
         thread.start()
+

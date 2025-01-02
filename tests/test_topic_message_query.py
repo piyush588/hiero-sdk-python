@@ -39,22 +39,17 @@ def test_topic_message_query_subscription(mock_client, mock_topic_id, mock_subsc
     """
     query = TopicMessageQuery().set_topic_id(mock_topic_id).set_start_time(datetime.utcnow())
 
-    # Mock the gRPC subscribe functionality
     with patch("hedera_sdk_python.query.topic_message_query.TopicMessageQuery.subscribe") as mock_subscribe:
-        # Set up the mock to call the on_message callback with the mock response
         def side_effect(client, on_message, on_error):
             on_message(mock_subscription_response)
 
         mock_subscribe.side_effect = side_effect
 
-        # Define the handlers
         on_message = MagicMock()
         on_error = MagicMock()
 
-        # Execute the subscription
         query.subscribe(mock_client, on_message=on_message, on_error=on_error)
 
-        # Validate that the on_message handler was called with the correct response
         on_message.assert_called_once()
         called_args = on_message.call_args[0][0]
         assert called_args.consensusTimestamp.seconds == 12345
@@ -62,7 +57,6 @@ def test_topic_message_query_subscription(mock_client, mock_topic_id, mock_subsc
         assert called_args.message == b"Hello, world!"
         assert called_args.sequenceNumber == 1
 
-        # Ensure on_error was not called
         on_error.assert_not_called()
 
     print("Test passed: Subscription handled messages correctly.")
