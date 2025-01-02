@@ -20,6 +20,8 @@ submitting messages.
   - [Submitting a Topic Message](#submitting-a-topic-message)
   - [Updating a Topic](#updating-a-topic)
   - [Deleting a Topic](#deleting-a-topic)
+  - [Querying Topic](#querying-topic)
+  - [Querying Topic Message](#querying-topic-message)
 - [Contributing](#contributing)
 
 ## Installation
@@ -265,6 +267,19 @@ topic_info = topic_info_query.execute(client)
 print(topic_info)
 ```
 
+### Querying Topic Message
+
+```
+query = (
+    TopicMessageQuery()
+    .set_topic_id(topic_id) 
+    .set_start_time(datetime.utcnow()) 
+    .set_chunking_enabled(True) 
+    .set_limit(0) 
+    )
+
+query.subscribe(client)
+```
 
 ## Contributing
 

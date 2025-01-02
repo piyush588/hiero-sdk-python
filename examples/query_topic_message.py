@@ -24,7 +24,7 @@ def query_topic_messages():
 
     query = (
         TopicMessageQuery()
-        .set_topic_id("0.0.5337028")
+        .set_topic_id(os.getenv('TOPIC_ID'))
         .set_start_time(datetime.utcnow())
         .set_chunking_enabled(True)
         .set_limit(0)  
