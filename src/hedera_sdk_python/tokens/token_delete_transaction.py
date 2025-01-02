@@ -7,6 +7,9 @@ class TokenDeleteTransaction(Transaction):
     Represents a token deletion transaction on the Hedera network.
 
     This transaction deletes a specified token, rendering it inactive.
+
+    Inherits from the base Transaction class and implements the required methods
+    to build and execute a token deletion transaction.
     """
 
     def __init__(self, token_id=None):

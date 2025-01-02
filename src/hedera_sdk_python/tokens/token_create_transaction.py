@@ -6,6 +6,12 @@ from cryptography.hazmat.primitives import serialization
 class TokenCreateTransaction(Transaction):
     """
     Represents a token creation transaction on the Hedera network.
+
+    This transaction creates a new token with specified properties, such as
+    name, symbol, decimals, initial supply, and treasury account.
+    
+    Inherits from the base Transaction class and implements the required methods
+    to build and execute a token creation transaction.
     """
 
     def __init__(self, token_name=None, token_symbol=None, decimals=None, initial_supply=None, 

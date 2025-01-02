@@ -5,6 +5,12 @@ from hedera_sdk_python.response_code import ResponseCode
 class TokenAssociateTransaction(Transaction):
     """
     Represents a token associate transaction on the Hedera network.
+
+    This transaction associates the specified tokens with an account,
+    allowing the account to hold and transact with those tokens.
+    
+    Inherits from the base Transaction class and implements the required methods
+    to build and execute a token association transaction.
     """
 
     def __init__(self, account_id=None, token_ids=None):
