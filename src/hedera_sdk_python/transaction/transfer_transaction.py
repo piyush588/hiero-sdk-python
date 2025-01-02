@@ -1,6 +1,6 @@
 from collections import defaultdict
 from hedera_sdk_python.transaction.transaction import Transaction
-from hedera_sdk_python.hapi import crypto_transfer_pb2, basic_types_pb2
+from hedera_sdk_python.hapi.services import crypto_transfer_pb2, basic_types_pb2
 from hedera_sdk_python.account.account_id import AccountId
 from hedera_sdk_python.tokens.token_id import TokenId
 from hedera_sdk_python.response_code import ResponseCode

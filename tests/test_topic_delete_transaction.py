@@ -6,10 +6,10 @@ from hedera_sdk_python.account.account_id import AccountId
 from hedera_sdk_python.crypto.private_key import PrivateKey
 from hedera_sdk_python.client.client import Client
 from hedera_sdk_python.response_code import ResponseCode
-from hedera_sdk_python.hapi import transaction_receipt_pb2
+from hedera_sdk_python.hapi.services import transaction_receipt_pb2
 from hedera_sdk_python.transaction.transaction_receipt import TransactionReceipt
 from hedera_sdk_python.transaction.transaction_id import TransactionId
-from hedera_sdk_python.hapi import timestamp_pb2 as hapi_timestamp_pb2
+from hedera_sdk_python.hapi.services import timestamp_pb2 as hapi_timestamp_pb2
 
 @pytest.mark.usefixtures("mock_account_ids")
 def test_build_topic_delete_transaction_body(mock_account_ids):
@@ -84,10 +84,8 @@ def test_execute_topic_delete_transaction(mock_account_ids):
     real_receipt = TransactionReceipt.from_proto(proto_receipt)
     client.get_transaction_receipt.return_value = real_receipt
 
-    # Act
     receipt = tx.execute(client)
 
-    # Assert
     client.topic_stub.deleteTopic.assert_called_once()
     assert receipt is not None
     assert receipt.status == ResponseCode.OK

@@ -1,5 +1,5 @@
 from hedera_sdk_python.query.query import Query
-from hedera_sdk_python.hapi import transaction_get_receipt_pb2, query_pb2, query_header_pb2
+from hedera_sdk_python.hapi.services import transaction_get_receipt_pb2, query_pb2, query_header_pb2
 from hedera_sdk_python.response_code import ResponseCode
 from hedera_sdk_python.transaction.transaction_id import TransactionId
 from hedera_sdk_python.transaction.transaction_receipt import TransactionReceipt

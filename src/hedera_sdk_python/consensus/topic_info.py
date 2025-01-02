@@ -1,7 +1,7 @@
 from datetime import datetime
-from hedera_sdk_python.hapi.basic_types_pb2 import Key, AccountID
-from hedera_sdk_python.hapi.timestamp_pb2 import Timestamp
-from hedera_sdk_python.hapi.duration_pb2 import Duration
+from hedera_sdk_python.hapi.services.basic_types_pb2 import Key, AccountID
+from hedera_sdk_python.hapi.services.timestamp_pb2 import Timestamp
+from hedera_sdk_python.hapi.services.duration_pb2 import Duration
 from hedera_sdk_python.utils.key_format import format_key
 
 class TopicInfo:

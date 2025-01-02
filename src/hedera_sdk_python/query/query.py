@@ -1,5 +1,5 @@
 import time
-from hedera_sdk_python.hapi import query_header_pb2
+from hedera_sdk_python.hapi.services import query_header_pb2
 from hedera_sdk_python.response_code import ResponseCode
 from hedera_sdk_python.hbar import Hbar
 from hedera_sdk_python.transaction.transfer_transaction import TransferTransaction

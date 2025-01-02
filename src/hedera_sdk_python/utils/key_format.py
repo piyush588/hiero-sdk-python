@@ -1,4 +1,4 @@
-from hedera_sdk_python.hapi.basic_types_pb2 import Key
+from hedera_sdk_python.hapi.services.basic_types_pb2 import Key
 
 def format_key(key: Key) -> str:
     """

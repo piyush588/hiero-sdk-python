@@ -5,12 +5,12 @@ from hedera_sdk_python.account.account_id import AccountId
 from hedera_sdk_python.crypto.private_key import PrivateKey
 from hedera_sdk_python.client.client import Client
 from hedera_sdk_python.response_code import ResponseCode
-from hedera_sdk_python.hapi import (
+from hedera_sdk_python.hapi.services import (
     transaction_receipt_pb2
 )
 from hedera_sdk_python.transaction.transaction_receipt import TransactionReceipt
 from hedera_sdk_python.transaction.transaction_id import TransactionId
-from hedera_sdk_python.hapi import timestamp_pb2 as hapi_timestamp_pb2
+from hedera_sdk_python.hapi.services import timestamp_pb2 as hapi_timestamp_pb2
 
 @pytest.mark.usefixtures("mock_account_ids")
 def test_build_topic_create_transaction_body(mock_account_ids):

@@ -1,5 +1,5 @@
 from hedera_sdk_python.query.query import Query
-from hedera_sdk_python.hapi import crypto_get_account_balance_pb2, query_pb2
+from hedera_sdk_python.hapi.services import crypto_get_account_balance_pb2, query_pb2
 from hedera_sdk_python.account.account_id import AccountId
 from hedera_sdk_python.account.account_balance import AccountBalance
 

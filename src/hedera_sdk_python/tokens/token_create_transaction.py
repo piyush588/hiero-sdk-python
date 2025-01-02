@@ -1,5 +1,5 @@
 from hedera_sdk_python.transaction.transaction import Transaction
-from hedera_sdk_python.hapi import token_create_pb2, basic_types_pb2
+from hedera_sdk_python.hapi.services import token_create_pb2, basic_types_pb2
 from hedera_sdk_python.response_code import ResponseCode
 from cryptography.hazmat.primitives import serialization
 

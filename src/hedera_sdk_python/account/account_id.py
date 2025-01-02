@@ -1,4 +1,4 @@
-from hedera_sdk_python.hapi import basic_types_pb2
+from hedera_sdk_python.hapi.services import basic_types_pb2
 
 class AccountId:
     def __init__(self, shard=0, realm=0, num=0):

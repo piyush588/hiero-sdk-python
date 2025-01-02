@@ -1,6 +1,6 @@
 from hedera_sdk_python.response_code import ResponseCode
 from hedera_sdk_python.transaction.transaction import Transaction
-from hedera_sdk_python.hapi import consensus_delete_topic_pb2, duration_pb2
+from hedera_sdk_python.hapi.services import consensus_delete_topic_pb2, duration_pb2
 
 class TopicDeleteTransaction(Transaction):
     def __init__(self, topic_id=None):

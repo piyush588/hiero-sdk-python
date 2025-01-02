@@ -1,5 +1,5 @@
 from hedera_sdk_python.query.query import Query
-from hedera_sdk_python.hapi import query_pb2, consensus_get_topic_info_pb2
+from hedera_sdk_python.hapi.services import query_pb2, consensus_get_topic_info_pb2
 from hedera_sdk_python.consensus.topic_id import TopicId
 from hedera_sdk_python.consensus.topic_info import TopicInfo 
 

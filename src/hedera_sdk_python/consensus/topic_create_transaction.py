@@ -1,6 +1,6 @@
 from hedera_sdk_python.response_code import ResponseCode
 from hedera_sdk_python.transaction.transaction import Transaction
-from hedera_sdk_python.hapi import consensus_create_topic_pb2, duration_pb2
+from hedera_sdk_python.hapi.services import consensus_create_topic_pb2, duration_pb2
 
 class TopicCreateTransaction(Transaction):
     def __init__(self, memo="", admin_key=None, submit_key=None, auto_renew_period=7890000, auto_renew_account=None):

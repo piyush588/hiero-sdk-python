@@ -1,11 +1,18 @@
 import grpc
 import time
 from collections import namedtuple
-from hedera_sdk_python.hapi import (
+
+from hedera_sdk_python.hapi.services import (
     consensus_service_pb2_grpc,
     token_service_pb2_grpc,
     crypto_service_pb2_grpc
 )
+
+from hedera_sdk_python.hapi.mirror import (
+    consensus_service_pb2_grpc as mirror_consensus_grpc,
+    mirror_network_service_pb2_grpc as mirror_network_grpc
+)
+
 from .network import Network
 from hedera_sdk_python.response_code import ResponseCode
 from hedera_sdk_python.query.transaction_get_receipt_query import TransactionGetReceiptQuery
@@ -24,14 +31,29 @@ class Client:
         if network is None:
             network = Network()
         self.network = network
-        self.channel = None 
+
+        self.channel = None
         self.token_stub = None
         self.crypto_stub = None
         self.topic_stub = None
+        self.mirror_channel = None
+        self.mirror_stub = None
+
         self.max_attempts = 10 
 
         initial_node_id = self.get_node_account_ids()[0]
         self._switch_node(initial_node_id)
+        self._init_mirror_stub()
+
+    def _init_mirror_stub(self):
+        """
+        Connect to a mirror node for topic message subscriptions.
+        For testnet, we can use a known address like:
+            hcs.testnet.mirrornode.hedera.com:5600
+        """
+        mirror_address = "hcs.testnet.mirrornode.hedera.com:5600"
+        self.mirror_channel = grpc.insecure_channel(mirror_address)
+        self.mirror_stub = mirror_consensus_grpc.ConsensusServiceStub(self.mirror_channel)
 
     def set_operator(self, account_id, private_key):
         self.operator_account_id = account_id
