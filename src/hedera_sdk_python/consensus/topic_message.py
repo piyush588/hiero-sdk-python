@@ -1,4 +1,5 @@
 from hedera_sdk_python.hapi.mirror import consensus_service_pb2 as mirror_proto
+from datetime import datetime
 
 class TopicMessage:
     """
@@ -6,7 +7,7 @@ class TopicMessage:
     """
 
     def __init__(self, consensus_timestamp, message, running_hash, sequence_number):
-        self.consensus_timestamp = consensus_timestamp 
+        self.consensus_timestamp = consensus_timestamp
         self.message = message or b""
         self.running_hash = running_hash or b""
         self.sequence_number = sequence_number or 0
@@ -20,15 +21,21 @@ class TopicMessage:
             consensus_timestamp=response.consensusTimestamp,
             message=response.message,
             running_hash=response.runningHash,
-            sequence_number=response.sequenceNumber
+            sequence_number=response.sequenceNumber,
         )
 
     def __str__(self):
+        """
+        Returns a nicely formatted string representation of the topic message.
+        """
+        timestamp = datetime.utcfromtimestamp(self.consensus_timestamp.seconds).strftime('%Y-%m-%d %H:%M:%S UTC')
+        message = self.message.decode('utf-8', errors='ignore')
+        running_hash = self.running_hash.hex()
+
         return (
-            f"TopicMessage("
-            f"timestamp={self.consensus_timestamp}, "
-            f"sequence={self.sequence_number}, "
-            f"message={self.message}, "
-            f"running_hash={self.running_hash}"
-            f")"
+            f"Received Topic Message:\n"
+            f"  - Timestamp: {timestamp}\n"
+            f"  - Sequence Number: {self.sequence_number}\n"
+            f"  - Message: {message}\n"
+            f"  - Running Hash: {running_hash}\n"
         )

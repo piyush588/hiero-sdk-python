@@ -6,6 +6,7 @@ from typing import Optional, Callable, Union
 from hedera_sdk_python.hapi.mirror import consensus_service_pb2 as mirror_proto
 from hedera_sdk_python.hapi.services import basic_types_pb2, timestamp_pb2
 from hedera_sdk_python.consensus.topic_message import TopicMessage
+from hedera_sdk_python.consensus.topic_id import TopicId
 
 class TopicMessageQuery:
     """
@@ -25,7 +26,9 @@ class TopicMessageQuery:
           parse it into (shard, realm, topic).
         Otherwise, accept (shard, realm, topic) as three separate ints.
         """
-        if isinstance(shard_or_str, str):
+        if isinstance(shard_or_str, TopicId):
+            self._topic_id = shard_or_str.to_proto()
+        elif isinstance(shard_or_str, str):
             parts = shard_or_str.strip().split(".")
             if len(parts) != 3:
                 raise ValueError(f"Invalid topic ID string: {shard_or_str}")
