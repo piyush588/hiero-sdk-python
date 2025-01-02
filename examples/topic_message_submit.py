@@ -17,7 +17,7 @@ def submit_message(message):
 
     operator_id = AccountId.from_string(os.getenv('OPERATOR_ID'))
     operator_key = PrivateKey.from_string(os.getenv('OPERATOR_KEY'))
-    topic_id = TopicId.from_string(os.getenv('TOPIC_ID'))
+    topic_id = TopicId.from_string("0.0.5337028")
 
     client.set_operator(operator_id, operator_key)
 
@@ -35,4 +35,4 @@ def submit_message(message):
         sys.exit(1)
 
 if __name__ == "__main__":
-    submit_message("Hello, Hedera!")
+    submit_message("four")

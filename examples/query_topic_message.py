@@ -14,17 +14,20 @@ def query_topic_messages():
     client = Client(network)
 
     def on_message_handler(topic_message):
-        print("Received topic message:", topic_message)
+        print(f"Received topic message: {topic_message}")
 
     def on_error_handler(e):
-        print("Subscription error:", e)
+        print(f"Subscription error: {e}")
+        if "Stream removed" in str(e):
+            print("Reconnecting due to stream removal...")
+            query_topic_messages()
 
     query = (
         TopicMessageQuery()
-        .set_topic_id("0.0.5337028") 
+        .set_topic_id("0.0.5337028")
         .set_start_time(datetime.utcnow())
         .set_chunking_enabled(True)
-        .set_limit(5)
+        .set_limit(0)  
     )
 
     query.subscribe(
@@ -33,8 +36,9 @@ def query_topic_messages():
         on_error=on_error_handler
     )
 
-    time.sleep(10)
-    print("Done waiting. Exiting.")
+    print("Subscription started. Waiting for messages...")
+    while True:
+        time.sleep(10)  
 
 if __name__ == "__main__":
     query_topic_messages()
