@@ -5,7 +5,7 @@ from hedera_sdk_python.transaction.transaction_id import TransactionId
 from hedera_sdk_python.client.client import Client
 from hedera_sdk_python.account.account_id import AccountId
 from hedera_sdk_python.response_code import ResponseCode
-from hedera_sdk_python.hapi import (
+from hedera_sdk_python.hapi.services import (
     response_pb2,
     transaction_receipt_pb2,
     transaction_get_receipt_pb2,

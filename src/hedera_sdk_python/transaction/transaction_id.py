@@ -1,5 +1,5 @@
 import time
-from hedera_sdk_python.hapi import basic_types_pb2, timestamp_pb2
+from hedera_sdk_python.hapi.services import basic_types_pb2, timestamp_pb2
 from hedera_sdk_python.account.account_id import AccountId
 import random
 

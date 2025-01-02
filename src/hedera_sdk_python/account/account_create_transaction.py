@@ -1,5 +1,5 @@
 from hedera_sdk_python.transaction.transaction import Transaction
-from hedera_sdk_python.hapi import crypto_create_pb2, duration_pb2
+from hedera_sdk_python.hapi.services import crypto_create_pb2, duration_pb2
 from hedera_sdk_python.response_code import ResponseCode
 from hedera_sdk_python.crypto.public_key import PublicKey
 from hedera_sdk_python.hbar import Hbar

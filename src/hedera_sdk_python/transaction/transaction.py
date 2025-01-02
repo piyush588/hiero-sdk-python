@@ -1,4 +1,4 @@
-from hedera_sdk_python.hapi import (
+from hedera_sdk_python.hapi.services import (
     transaction_pb2, transaction_body_pb2, basic_types_pb2,
     transaction_contents_pb2, duration_pb2
 )
@@ -97,7 +97,6 @@ class Transaction:
             Exception: If required IDs are not set.
         """
         if self.transaction_body_bytes is not None:
-            # transaction is already frozen
             return self
 
         if self.transaction_id is None:
@@ -132,7 +131,6 @@ class Transaction:
         if self.operator_account_id is None:
             self.operator_account_id = client.operator_account_id
 
-        # sign with operator's key if not already signed
         if not self.is_signed_by(client.operator_private_key.public_key()):
             self.sign(client.operator_private_key)
 
@@ -187,23 +185,24 @@ class Transaction:
             ValueError: If required IDs are not set.
         """
         if self.transaction_id is None:
-            if self.operator_account_id is None:
-                raise ValueError("Operator account ID is not set.")
-            self.transaction_id = TransactionId.generate(self.operator_account_id)
+                if self.operator_account_id is None:
+                    raise ValueError("Operator account ID is not set.")
+                self.transaction_id = TransactionId.generate(self.operator_account_id)
 
         transaction_id_proto = self.transaction_id.to_proto()
 
         if self.node_account_id is None:
             raise ValueError("Node account ID is not set.")
 
-        transaction_body = transaction_body_pb2.TransactionBody(
-            transactionID=transaction_id_proto,  
-            nodeAccountID=self.node_account_id.to_proto(),
-            transactionFee=self.transaction_fee or self._default_transaction_fee,
-            transactionValidDuration=duration_pb2.Duration(seconds=self.transaction_valid_duration),
-            generateRecord=self.generate_record,
-            memo=self.memo
-        )
+        transaction_body = transaction_body_pb2.TransactionBody()
+        transaction_body.transactionID.CopyFrom(transaction_id_proto)
+        transaction_body.nodeAccountID.CopyFrom(self.node_account_id.to_proto())
+
+        transaction_body.transactionFee = self.transaction_fee or self._default_transaction_fee
+
+        transaction_body.transactionValidDuration.seconds = self.transaction_valid_duration
+        transaction_body.generateRecord = self.generate_record
+        transaction_body.memo = self.memo
 
         return transaction_body
 

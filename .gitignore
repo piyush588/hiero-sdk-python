@@ -24,3 +24,11 @@ src/hedera_sdk_python/hapi
 
 # Mac OS X Files
 .DS_Store
+
+# Intellij
+.idea
+
+# Pytest
+.pytest_cache
+
+uv.lock

@@ -3,9 +3,6 @@ import sys
 import time
 from dotenv import load_dotenv
 
-project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-sys.path.insert(0, project_root)
-
 from hedera_sdk_python.account.account_id import AccountId
 from hedera_sdk_python.crypto.private_key import PrivateKey
 from hedera_sdk_python.client.network import Network
