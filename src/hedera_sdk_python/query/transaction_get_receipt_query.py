@@ -13,10 +13,23 @@ class TransactionGetReceiptQuery(Query):
     which includes the transaction's status and other pertinent information.
     """
 
-    def __init__(self):
-        """Initializes a new instance of the TransactionGetReceiptQuery class."""
+    def __init__(self, transaction_id=None):
+        """
+        Initializes a new instance of the TransactionGetReceiptQuery class.
+
+        Args:
+            transaction_id (TransactionId, optional): The ID of the transaction.
+        """
         super().__init__()
-        self.transaction_id = None
+        self.transaction_id = transaction_id
+        self._frozen = False
+
+    def _require_not_frozen(self):
+        """
+        Ensures the query is not frozen before making changes.
+        """
+        if self._frozen:
+            raise ValueError("This query is frozen and cannot be modified.")
 
     def set_transaction_id(self, transaction_id: TransactionId):
         """
@@ -28,7 +41,18 @@ class TransactionGetReceiptQuery(Query):
         Returns:
             TransactionGetReceiptQuery: The current instance for method chaining.
         """
+        self._require_not_frozen()
         self.transaction_id = transaction_id
+        return self
+
+    def freeze(self):
+        """
+        Marks the query as frozen, preventing further modification.
+
+        Returns:
+            TransactionGetReceiptQuery: The current instance for method chaining.
+        """
+        self._frozen = True
         return self
 
     def _is_payment_required(self):

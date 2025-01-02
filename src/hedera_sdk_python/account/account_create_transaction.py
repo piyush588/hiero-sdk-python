@@ -8,24 +8,25 @@ from hedera_sdk_python.hbar import Hbar
 class AccountCreateTransaction(Transaction):
     """
     Represents an account creation transaction on the Hedera network.
-
-    This transaction creates a new account with specified properties,
-    such as initial balance and public key.
-
-    Inherits from the base Transaction class and implements the required methods
-    to build and execute an account creation transaction.
     """
 
-    def __init__(self):
+    def __init__(self, key=None, initial_balance=0, receiver_signature_required=False, auto_renew_period=7890000, memo=""):
         """
-        Initializes a new AccountCreateTransaction instance with default values.
+        Initializes a new AccountCreateTransaction instance with default values or keyword arguments.
+
+        Args:
+            key (PublicKey, optional): The public key for the new account.
+            initial_balance (int or Hbar, optional): Initial balance in tinybars or as an Hbar instance.
+            receiver_signature_required (bool, optional): Whether receiver signature is required.
+            auto_renew_period (int, optional): Auto-renew period in seconds (default is 90 days).
+            memo (str, optional): Memo for the account.
         """
         super().__init__()
-        self.initial_balance = 0
-        self.key = None
-        self.receiver_signature_required = False
-        self.auto_renew_period = 7890000  # default auto-renew period in seconds (90 days)
-        self.account_memo = ""
+        self.key = key
+        self.initial_balance = initial_balance
+        self.receiver_signature_required = receiver_signature_required
+        self.auto_renew_period = auto_renew_period
+        self.account_memo = memo
 
         self._default_transaction_fee = 300_000_000
 

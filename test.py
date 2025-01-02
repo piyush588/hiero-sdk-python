@@ -6,7 +6,6 @@ from hedera_sdk_python.client.client import Client
 from hedera_sdk_python.account.account_id import AccountId
 from hedera_sdk_python.account.account_create_transaction import AccountCreateTransaction
 from hedera_sdk_python.crypto.private_key import PrivateKey
-from hedera_sdk_python.crypto.public_key import PublicKey
 from hedera_sdk_python.tokens.token_create_transaction import TokenCreateTransaction
 from hedera_sdk_python.tokens.token_associate_transaction import TokenAssociateTransaction
 from hedera_sdk_python.transaction.transfer_transaction import TransferTransaction
@@ -35,13 +34,12 @@ def create_new_account(client, initial_balance=100000000):
     new_account_private_key = PrivateKey.generate()
     new_account_public_key = new_account_private_key.public_key()
 
-    transaction = (
-        AccountCreateTransaction()
-        .set_key(new_account_public_key)
-        .set_initial_balance(initial_balance)  # in tinybars
-        .set_account_memo("Recipient Account")
-        .freeze_with(client)
+    transaction = AccountCreateTransaction(
+        key=new_account_public_key,
+        initial_balance=initial_balance,
+        memo="Recipient Account"
     )
+    transaction.freeze_with(client)
     transaction.sign(client.operator_private_key)
 
     try:
@@ -60,16 +58,15 @@ def create_new_account(client, initial_balance=100000000):
     return new_account_id, new_account_private_key
 
 def create_token(client, operator_id, admin_key):
-    transaction = (
-        TokenCreateTransaction()
-        .set_token_name("ExampleToken")
-        .set_token_symbol("EXT")
-        .set_decimals(2)
-        .set_initial_supply(1000)
-        .set_treasury_account_id(operator_id)
-        .set_admin_key(admin_key)
-        .freeze_with(client)
+    transaction = TokenCreateTransaction(
+        token_name="ExampleToken",
+        token_symbol="EXT",
+        decimals=2,
+        initial_supply=1000,
+        treasury_account_id=operator_id,
+        admin_key=admin_key
     )
+    transaction.freeze_with(client)
     transaction.sign(client.operator_private_key)
     transaction.sign(admin_key)
 
@@ -88,14 +85,13 @@ def create_token(client, operator_id, admin_key):
     return token_id
 
 def associate_token(client, recipient_id, recipient_private_key, token_id):
-    transaction = (
-        TokenAssociateTransaction()
-        .set_account_id(recipient_id)
-        .add_token_id(token_id)
-        .freeze_with(client)
+    transaction = TokenAssociateTransaction(
+        account_id=recipient_id,
+        token_ids=[token_id]
     )
-    transaction.sign(client.operator_private_key) # pay
-    transaction.sign(recipient_private_key)       # recipient signature
+    transaction.freeze_with(client)
+    transaction.sign(client.operator_private_key)
+    transaction.sign(recipient_private_key)
 
     try:
         receipt = transaction.execute(client)
@@ -108,12 +104,14 @@ def associate_token(client, recipient_id, recipient_private_key, token_id):
         sys.exit(1)
 
 def transfer_token(client, recipient_id, token_id):
-    transaction = (
-        TransferTransaction()
-        .add_token_transfer(token_id, client.operator_account_id, -1)
-        .add_token_transfer(token_id, recipient_id, 1)
-        .freeze_with(client)
-    )
+    transaction = TransferTransaction(
+        token_transfers={
+            token_id: {
+                client.operator_account_id: -1,
+                recipient_id: 1,
+            }
+        }
+    ).freeze_with(client)
     transaction.sign(client.operator_private_key)
 
     try:
@@ -127,11 +125,8 @@ def transfer_token(client, recipient_id, token_id):
         sys.exit(1)
 
 def delete_token(client, token_id, admin_key):
-    transaction = (
-        TokenDeleteTransaction()
-        .set_token_id(token_id)
-        .freeze_with(client)
-    )
+    transaction = TokenDeleteTransaction(token_id=token_id)
+    transaction.freeze_with(client)
     transaction.sign(client.operator_private_key)
     transaction.sign(admin_key)
 
@@ -147,14 +142,13 @@ def delete_token(client, token_id, admin_key):
 
 def create_topic(client):
     key = client.operator_private_key
-    transaction = (
-        TopicCreateTransaction(
-            memo="Python SDK created topic",
-            admin_key=key.public_key()
-        )
-        .freeze_with(client)
-        .sign(key)
+    transaction = TopicCreateTransaction(
+        memo="Python SDK created topic",
+        admin_key=key.public_key()
     )
+    transaction.freeze_with(client)
+    transaction.sign(key)
+
     try:
         receipt = transaction.execute(client)
     except Exception as e:
@@ -171,11 +165,13 @@ def create_topic(client):
     return topic_id
 
 def submit_message(client, topic_id):
-    transaction = (
-        TopicMessageSubmitTransaction(topic_id=topic_id, message="Hello, Python SDK!")
-        .freeze_with(client)
-        .sign(client.operator_private_key)
+    transaction = TopicMessageSubmitTransaction(
+        topic_id=topic_id,
+        message="Hello, Python SDK!"
     )
+    transaction.freeze_with(client)
+    transaction.sign(client.operator_private_key)
+
     try:
         receipt = transaction.execute(client)
     except Exception as e:
@@ -190,11 +186,13 @@ def submit_message(client, topic_id):
 
 def update_topic(client, topic_id):
     key = client.operator_private_key
-    transaction = (
-        TopicUpdateTransaction(topic_id=topic_id, memo="Python SDK updated topic")
-        .freeze_with(client)
-        .sign(key)
+    transaction = TopicUpdateTransaction(
+        topic_id=topic_id,
+        memo="Python SDK updated topic"
     )
+    transaction.freeze_with(client)
+    transaction.sign(key)
+
     try:
         receipt = transaction.execute(client)
     except Exception as e:
@@ -208,11 +206,10 @@ def update_topic(client, topic_id):
     print("Topic updated successfully.")
 
 def delete_topic(client, topic_id):
-    transaction = (
-        TopicDeleteTransaction(topic_id=topic_id)
-        .freeze_with(client)
-        .sign(client.operator_private_key)
-    )
+    transaction = TopicDeleteTransaction(topic_id=topic_id)
+    transaction.freeze_with(client)
+    transaction.sign(client.operator_private_key)
+
     try:
         receipt = transaction.execute(client)
     except Exception as e:
@@ -228,11 +225,7 @@ def delete_topic(client, topic_id):
 def query_topic_info(client, topic_id):
     """Optional method to show how to query topic info."""
     try:
-        topic_info = (
-            TopicInfoQuery()
-            .set_topic_id(topic_id)
-            .execute(client)
-        )
+        topic_info = TopicInfoQuery(topic_id=topic_id).execute(client)
         print(f"Topic Info: {topic_info}")
     except Exception as e:
         print(f"Failed to retrieve topic info: {str(e)}")

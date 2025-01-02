@@ -6,25 +6,28 @@ from cryptography.hazmat.primitives import serialization
 class TokenCreateTransaction(Transaction):
     """
     Represents a token creation transaction on the Hedera network.
-
-    This transaction creates a new token with specified properties, such as
-    name, symbol, decimals, initial supply, and treasury account.
-
-    Inherits from the base Transaction class and implements the required methods
-    to build and execute a token creation transaction.
     """
 
-    def __init__(self):
+    def __init__(self, token_name=None, token_symbol=None, decimals=None, initial_supply=None, 
+                 treasury_account_id=None, admin_key=None):
         """
-        Initializes a new TokenCreateTransaction instance with default values.
+        Initializes a new TokenCreateTransaction instance with optional keyword arguments.
+
+        Args:
+            token_name (str, optional): The name of the token.
+            token_symbol (str, optional): The symbol of the token.
+            decimals (int, optional): The number of decimals for the token.
+            initial_supply (int, optional): The initial supply of the token.
+            treasury_account_id (AccountId, optional): The treasury account ID.
+            admin_key (PrivateKey, optional): The admin key for the token.
         """
         super().__init__()
-        self.token_name = None
-        self.token_symbol = None
-        self.decimals = None
-        self.initial_supply = None
-        self.treasury_account_id = None
-        self.admin_key = None
+        self.token_name = token_name
+        self.token_symbol = token_symbol
+        self.decimals = decimals
+        self.initial_supply = initial_supply
+        self.treasury_account_id = treasury_account_id
+        self.admin_key = admin_key
 
         self._default_transaction_fee = 3_000_000_000
 
@@ -52,7 +55,7 @@ class TokenCreateTransaction(Transaction):
         self._require_not_frozen()
         self.treasury_account_id = account_id
         return self
-    
+
     def set_admin_key(self, admin_key): 
         self._require_not_frozen()
         self.admin_key = admin_key

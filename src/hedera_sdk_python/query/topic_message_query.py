@@ -1,11 +1,9 @@
-import time
-import threading
 from datetime import datetime
 from typing import Optional, Callable, Union
+import threading
 from hedera_sdk_python.consensus.topic_message import TopicMessage
 from hedera_sdk_python.hapi.mirror import consensus_service_pb2 as mirror_proto
 from hedera_sdk_python.hapi.services import basic_types_pb2, timestamp_pb2
-from hedera_sdk_python.consensus.topic_message import TopicMessage
 from hedera_sdk_python.consensus.topic_id import TopicId
 
 class TopicMessageQuery:
@@ -13,84 +11,73 @@ class TopicMessageQuery:
     A query to subscribe to messages from a specific HCS topic, via a mirror node.
     """
 
-    def __init__(self):
-        self._topic_id = None
-        self._start_time = None
-        self._end_time = None
-        self._limit = None
-        self._chunking_enabled = False
+    def __init__(
+        self,
+        topic_id: Optional[Union[str, TopicId]] = None,
+        start_time: Optional[datetime] = None,
+        end_time: Optional[datetime] = None,
+        limit: Optional[int] = None,
+        chunking_enabled: bool = False,
+    ):
+        """
+        Initializes a new TopicMessageQuery instance.
 
-    def set_topic_id(self, shard_or_str: Union[int, str], realm: int = None, topic: int = None):
+        Args:
+            topic_id (str or TopicId, optional): The ID of the topic to subscribe to.
+            start_time (datetime, optional): Start time for the subscription.
+            end_time (datetime, optional): End time for the subscription.
+            limit (int, optional): Maximum number of messages to retrieve.
+            chunking_enabled (bool, optional): Whether to enable chunking.
         """
-        If called with a string like "0.0.12345":
-          parse it into (shard, realm, topic).
-        Otherwise, accept (shard, realm, topic) as three separate ints.
-        """
-        if isinstance(shard_or_str, TopicId):
-            self._topic_id = shard_or_str.to_proto()
-        elif isinstance(shard_or_str, str):
-            parts = shard_or_str.strip().split(".")
+        self._topic_id = self._parse_topic_id(topic_id) if topic_id else None
+        self._start_time = self._parse_timestamp(start_time) if start_time else None
+        self._end_time = self._parse_timestamp(end_time) if end_time else None
+        self._limit = limit
+        self._chunking_enabled = chunking_enabled
+
+    def _parse_topic_id(self, topic_id: Union[str, TopicId]):
+        if isinstance(topic_id, str):
+            parts = topic_id.strip().split(".")
             if len(parts) != 3:
-                raise ValueError(f"Invalid topic ID string: {shard_or_str}")
-            shard_num, realm_num, topic_num = map(int, parts)
-            self._topic_id = basic_types_pb2.TopicID(
-                shardNum=shard_num,
-                realmNum=realm_num,
-                topicNum=topic_num
-            )
+                raise ValueError(f"Invalid topic ID string: {topic_id}")
+            shard, realm, topic = map(int, parts)
+            return basic_types_pb2.TopicID(shardNum=shard, realmNum=realm, topicNum=topic)
+        elif isinstance(topic_id, TopicId):
+            return topic_id.to_proto()
         else:
-            if realm is None or topic is None:
-                raise TypeError("set_topic_id() missing realm/topic arguments")
-            self._topic_id = basic_types_pb2.TopicID(
-                shardNum=shard_or_str,
-                realmNum=realm,
-                topicNum=topic
-            )
+            raise TypeError("Invalid topic_id format. Must be a string or TopicId.")
+
+    def _parse_timestamp(self, dt: datetime):
+        seconds = int(dt.timestamp())
+        nanos = int((dt.timestamp() - seconds) * 1e9)
+        return timestamp_pb2.Timestamp(seconds=seconds, nanos=nanos)
+
+    def set_topic_id(self, topic_id: Union[str, TopicId]):
+        self._topic_id = self._parse_topic_id(topic_id)
         return self
 
     def set_start_time(self, dt: datetime):
-        """
-        Only receive messages with a consensus timestamp >= dt.
-        """
-        seconds = int(dt.timestamp())
-        nanos = int((dt.timestamp() - seconds) * 1e9)
-        self._start_time = timestamp_pb2.Timestamp(seconds=seconds, nanos=nanos)
+        self._start_time = self._parse_timestamp(dt)
         return self
 
     def set_end_time(self, dt: datetime):
-        """
-        Only receive messages with a consensus timestamp < dt.
-        """
-        seconds = int(dt.timestamp())
-        nanos = int((dt.timestamp() - seconds) * 1e9)
-        self._end_time = timestamp_pb2.Timestamp(seconds=seconds, nanos=nanos)
+        self._end_time = self._parse_timestamp(dt)
         return self
 
     def set_limit(self, limit: int):
-        """
-        Receive at most `limit` messages, then end the subscription.
-        """
         self._limit = limit
         return self
 
     def set_chunking_enabled(self, enabled: bool):
-        """
-        For compatibility. Currently a no-op in this example.
-        """
         self._chunking_enabled = enabled
         return self
 
     def subscribe(
         self,
         client,
-        on_message: Callable[[TopicMessage], None], 
+        on_message: Callable[[TopicMessage], None],
         on_error: Optional[Callable[[Exception], None]] = None,
     ):
-        """
-        Opens a streaming subscription to the mirror node in the given client, calling on_message()
-        for each received message. Returns immediately, streaming in a background thread.
-        """
-
         if not self._topic_id:
             raise ValueError("Topic ID must be set before subscribing.")
         if not client.mirror_stub:
@@ -108,7 +95,7 @@ class TopicMessageQuery:
             try:
                 message_stream = client.mirror_stub.subscribeTopic(request)
                 for response in message_stream:
-                    msg_obj = TopicMessage.from_proto(response) 
+                    msg_obj = TopicMessage.from_proto(response)
                     on_message(msg_obj)
             except Exception as e:
                 if on_error:
@@ -116,4 +103,3 @@ class TopicMessageQuery:
 
         thread = threading.Thread(target=run_stream, daemon=True)
         thread.start()
-

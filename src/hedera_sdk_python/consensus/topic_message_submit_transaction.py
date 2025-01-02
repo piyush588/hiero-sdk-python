@@ -1,9 +1,16 @@
 from hedera_sdk_python.response_code import ResponseCode
 from hedera_sdk_python.transaction.transaction import Transaction
-from hedera_sdk_python.hapi.services import consensus_submit_message_pb2, duration_pb2
+from hedera_sdk_python.hapi.services import consensus_submit_message_pb2
 
 class TopicMessageSubmitTransaction(Transaction):
-    def __init__(self, topic_id, message):
+    def __init__(self, topic_id=None, message=None):
+        """
+        Initializes a new TopicMessageSubmitTransaction instance.
+        
+        Args:
+            topic_id (TopicId, optional): The ID of the topic.
+            message (str, optional): The message to submit.
+        """
         super().__init__()
         self.topic_id = topic_id
         self.message = message

@@ -10,25 +10,33 @@ class TransferTransaction(Transaction):
     Represents a transaction to transfer HBAR or tokens between accounts.
     """
 
-    def __init__(self):
+    def __init__(self, hbar_transfers=None, token_transfers=None):
+        """
+        Initializes a new TransferTransaction instance.
+
+        Args:
+            hbar_transfers (dict[AccountId, int], optional): Initial HBAR transfers.
+            token_transfers (dict[TokenId, dict[AccountId, int]], optional): Initial token transfers.
+        """
         super().__init__()
         self.hbar_transfers = defaultdict(int)
         self.token_transfers = defaultdict(lambda: defaultdict(int))
         self._default_transaction_fee = 100_000_000
 
-    def add_hbar_transfer(self, account_id: AccountId, amount: int) -> 'TransferTransaction':
+        if hbar_transfers:
+            for account_id, amount in hbar_transfers.items():
+                self.add_hbar_transfer(account_id, amount)
+
+        if token_transfers:
+            for token_id, account_transfers in token_transfers.items():
+                for account_id, amount in account_transfers.items():
+                    self.add_token_transfer(token_id, account_id, amount)
+
+    def add_hbar_transfer(self, account_id: AccountId, amount: int) -> "TransferTransaction":
         """
         Adds a HBAR transfer to the transaction.
-
-        Args:
-            account_id (AccountId): The account ID.
-            amount (int): The amount to transfer (positive or negative).
-
-        Returns:
-            TransferTransaction: The instance of the transaction for chaining.
         """
         self._require_not_frozen()
-
         if not isinstance(account_id, AccountId):
             raise TypeError("account_id must be an AccountId instance.")
         if not isinstance(amount, int) or amount == 0:
@@ -37,20 +45,11 @@ class TransferTransaction(Transaction):
         self.hbar_transfers[account_id] += amount
         return self
 
-    def add_token_transfer(self, token_id: TokenId, account_id: AccountId, amount: int) -> 'TransferTransaction':
+    def add_token_transfer(self, token_id: TokenId, account_id: AccountId, amount: int) -> "TransferTransaction":
         """
         Adds a token transfer to the transaction.
-
-        Args:
-            token_id (TokenId): The token ID.
-            account_id (AccountId): The account ID.
-            amount (int): The amount to transfer (positive or negative).
-
-        Returns:
-            TransferTransaction: The instance of the transaction for chaining.
         """
         self._require_not_frozen()
-
         if not isinstance(token_id, TokenId):
             raise TypeError("token_id must be a TokenId instance.")
         if not isinstance(account_id, AccountId):
@@ -64,9 +63,6 @@ class TransferTransaction(Transaction):
     def build_transaction_body(self):
         """
         Builds and returns the protobuf transaction body for a transfer transaction.
-
-        Returns:
-            TransactionBody: The protobuf transaction body.
         """
         crypto_transfer_tx_body = crypto_transfer_pb2.CryptoTransferTransactionBody()
 
@@ -74,21 +70,26 @@ class TransferTransaction(Transaction):
         if self.hbar_transfers:
             transfer_list = basic_types_pb2.TransferList()
             for account_id, amount in self.hbar_transfers.items():
-                account_amount = basic_types_pb2.AccountAmount()
-                account_amount.accountID.CopyFrom(account_id.to_proto())
-                account_amount.amount = amount
-                transfer_list.accountAmounts.append(account_amount)
+                transfer_list.accountAmounts.append(
+                    basic_types_pb2.AccountAmount(
+                        accountID=account_id.to_proto(),
+                        amount=amount,
+                    )
+                )
             crypto_transfer_tx_body.transfers.CopyFrom(transfer_list)
 
         # Tokens
         for token_id, transfers in self.token_transfers.items():
-            token_transfer_list = basic_types_pb2.TokenTransferList()
-            token_transfer_list.token.CopyFrom(token_id.to_proto())
+            token_transfer_list = basic_types_pb2.TokenTransferList(
+                token=token_id.to_proto()
+            )
             for account_id, amount in transfers.items():
-                account_amount = basic_types_pb2.AccountAmount()
-                account_amount.accountID.CopyFrom(account_id.to_proto())
-                account_amount.amount = amount
-                token_transfer_list.transfers.append(account_amount)
+                token_transfer_list.transfers.append(
+                    basic_types_pb2.AccountAmount(
+                        accountID=account_id.to_proto(),
+                        amount=amount,
+                    )
+                )
             crypto_transfer_tx_body.tokenTransfers.append(token_transfer_list)
 
         transaction_body = self.build_base_transaction_body()

@@ -2,7 +2,6 @@ import os
 import time
 from datetime import datetime
 from dotenv import load_dotenv
-
 from hedera_sdk_python.client.network import Network
 from hedera_sdk_python.client.client import Client
 from hedera_sdk_python.query.topic_message_query import TopicMessageQuery
@@ -22,12 +21,11 @@ def query_topic_messages():
             print("Reconnecting due to stream removal...")
             query_topic_messages()
 
-    query = (
-        TopicMessageQuery()
-        .set_topic_id(os.getenv('TOPIC_ID'))
-        .set_start_time(datetime.utcnow())
-        .set_chunking_enabled(True)
-        .set_limit(0)  
+    query = TopicMessageQuery(
+        topic_id=os.getenv('TOPIC_ID'),
+        start_time=datetime.utcnow(),
+        limit=0,
+        chunking_enabled=True
     )
 
     query.subscribe(
@@ -38,7 +36,7 @@ def query_topic_messages():
 
     print("Subscription started. Waiting for messages...")
     while True:
-        time.sleep(10)  
+        time.sleep(10)
 
 if __name__ == "__main__":
     query_topic_messages()

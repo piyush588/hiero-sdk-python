@@ -8,6 +8,20 @@ class TopicDeleteTransaction(Transaction):
         self.topic_id = topic_id
         self.transaction_fee = 10_000_000
 
+    def set_topic_id(self, topic_id):
+        """
+        Sets the topic ID for the transaction.
+        
+        Args:
+            topic_id: The topic ID to delete.
+
+        Returns:
+            TopicDeleteTransaction: Returns the instance for method chaining.
+        """
+        self._require_not_frozen()
+        self.topic_id = topic_id
+        return self
+
     def build_transaction_body(self):
         """
         Builds and returns the protobuf transaction body for topic delete.

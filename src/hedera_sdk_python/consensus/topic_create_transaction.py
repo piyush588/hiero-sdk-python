@@ -3,12 +3,12 @@ from hedera_sdk_python.transaction.transaction import Transaction
 from hedera_sdk_python.hapi.services import consensus_create_topic_pb2, duration_pb2
 
 class TopicCreateTransaction(Transaction):
-    def __init__(self, memo="", admin_key=None, submit_key=None, auto_renew_period=7890000, auto_renew_account=None):
+    def __init__(self, memo=None, admin_key=None, submit_key=None, auto_renew_period=None, auto_renew_account=None):
         super().__init__()
-        self.memo = memo
+        self.memo = memo or ""
         self.admin_key = admin_key
         self.submit_key = submit_key
-        self.auto_renew_period = auto_renew_period
+        self.auto_renew_period = auto_renew_period or 7890000 
         self.auto_renew_account = auto_renew_account
         self.transaction_fee = 10_000_000
 
