@@ -1,8 +1,11 @@
 # Hedera (Mini) SDK in Python
 
-This is a Python SDK for interacting with the Hedera Hashgraph platform. It allows developers to manage Token
-transactions like CREATE, ASSOCIATE and TRANSFER, as well as Consensus transactions like managing topics and
-submitting messages.
+This is a Python SDK for interacting with the Hedera Hashgraph platform. It allows developers to:
+
+- Manage Token Transactions like Create, Associate, Transfer & Delete
+- Manage Consensus Transactions like Topic Create, Update, Delete
+- Submit Topic Messages
+- Query Account Balance, Transaction Receipts, Topic Infos and Messages
 
 ## Table of Contents
 
