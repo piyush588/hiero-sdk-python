@@ -50,7 +50,7 @@ def test_sign_transaction(mock_account_ids):
 
     private_key = MagicMock()
     private_key.sign.return_value = b'signature'
-    private_key.public_key().public_bytes.return_value = b'public_key'
+    private_key.public_key().to_bytes_raw.return_value = b'public_key'
 
     delete_tx.sign(private_key)
 
@@ -70,7 +70,7 @@ def test_to_proto(mock_account_ids):
 
     private_key = MagicMock()
     private_key.sign.return_value = b'signature'
-    private_key.public_key().public_bytes.return_value = b'public_key'
+    private_key.public_key().to_bytes_raw.return_value = b'public_key'
 
     delete_tx.sign(private_key)
     proto = delete_tx.to_proto()

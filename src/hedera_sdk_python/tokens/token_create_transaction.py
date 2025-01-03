@@ -88,10 +88,7 @@ class TokenCreateTransaction(Transaction):
 
         admin_key_proto = None
         if self.admin_key:
-            admin_public_key_bytes = self.admin_key.public_key().public_bytes(
-                encoding=serialization.Encoding.Raw,
-                format=serialization.PublicFormat.Raw
-            )
+            admin_public_key_bytes = self.admin_key.public_key().to_bytes_raw()
             admin_key_proto = basic_types_pb2.Key(ed25519=admin_public_key_bytes)
 
         token_create_body = token_create_pb2.TokenCreateTransactionBody(

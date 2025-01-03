@@ -47,10 +47,7 @@ class Transaction:
 
         signature = private_key.sign(self.transaction_body_bytes)
 
-        public_key_bytes = private_key.public_key().public_bytes(
-            encoding=Encoding.Raw,
-            format=PublicFormat.Raw
-        )
+        public_key_bytes = private_key.public_key().to_bytes_raw()
 
         sig_pair = basic_types_pb2.SignaturePair(
             pubKeyPrefix=public_key_bytes,
@@ -149,10 +146,7 @@ class Transaction:
         Returns:
             bool: True if signed by the given public key, False otherwise.
         """
-        public_key_bytes = public_key.public_bytes(
-            encoding=Encoding.Raw,
-            format=PublicFormat.Raw
-        )
+        public_key_bytes = public_key.to_bytes_raw()
 
         for sig_pair in self.signature_map.sigPair:
             if sig_pair.pubKeyPrefix == public_key_bytes:

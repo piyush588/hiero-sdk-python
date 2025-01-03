@@ -43,10 +43,7 @@ def test_account_create_transaction_build(mock_account_ids):
 
     transaction_body = account_tx.build_transaction_body()
 
-    expected_public_key_bytes = new_public_key.public_bytes(
-        encoding=serialization.Encoding.Raw,
-        format=serialization.PublicFormat.Raw
-    )
+    expected_public_key_bytes = new_public_key.to_bytes_raw()
 
     assert transaction_body.cryptoCreateAccount.key.ed25519 == expected_public_key_bytes
     assert transaction_body.cryptoCreateAccount.initialBalance == 100000000

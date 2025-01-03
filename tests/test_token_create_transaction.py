@@ -47,7 +47,7 @@ def test_build_transaction_body(mock_account_ids):
 
     private_key_admin = MagicMock()
     private_key_admin.sign.return_value = b'admin_signature'
-    private_key_admin.public_key().public_bytes.return_value = b'admin_public_key'
+    private_key_admin.public_key().to_bytes_raw.return_value = b'admin_public_key'
 
     token_tx = TokenCreateTransaction()
     token_tx.set_token_name("MyToken")
@@ -88,11 +88,11 @@ def test_sign_transaction(mock_account_ids):
 
     private_key = MagicMock()
     private_key.sign.return_value = b'signature'
-    private_key.public_key().public_bytes.return_value = b'public_key'
+    private_key.public_key().to_bytes_raw.return_value = b'public_key'
 
     private_key_admin = MagicMock()
     private_key_admin.sign.return_value = b'admin_signature'
-    private_key_admin.public_key().public_bytes.return_value = b'admin_public_key'
+    private_key_admin.public_key().to_bytes_raw.return_value = b'admin_public_key'
 
     token_tx.sign(private_key)
     token_tx.sign(private_key_admin)
@@ -122,7 +122,7 @@ def test_to_proto_without_admin_key(mock_account_ids):
 
     private_key = MagicMock()
     private_key.sign.return_value = b'signature'
-    private_key.public_key().public_bytes.return_value = b'public_key'
+    private_key.public_key().to_bytes_raw.return_value = b'public_key'
 
     token_tx.sign(private_key)
     proto = token_tx.to_proto()
@@ -140,11 +140,11 @@ def test_to_proto(mock_account_ids):
 
     private_key = MagicMock()
     private_key.sign.return_value = b'signature'
-    private_key.public_key().public_bytes.return_value = b'public_key'
+    private_key.public_key().to_bytes_raw.return_value = b'public_key'
 
     private_key_admin = MagicMock()
     private_key_admin.sign.return_value = b'admin_signature'
-    private_key_admin.public_key().public_bytes.return_value = b'admin_public_key'
+    private_key_admin.public_key().to_bytes_raw.return_value = b'admin_public_key'
 
     token_tx = TokenCreateTransaction()
     token_tx.set_token_name("MyToken")
