@@ -17,6 +17,7 @@ from hedera_sdk_python.consensus.topic_update_transaction import TopicUpdateTran
 from hedera_sdk_python.consensus.topic_delete_transaction import TopicDeleteTransaction
 from hedera_sdk_python.consensus.topic_id import TopicId
 from hedera_sdk_python.query.topic_info_query import TopicInfoQuery
+from hedera_sdk_python.query.account_balance_query import CryptoGetAccountBalanceQuery
 
 load_dotenv()
 
@@ -56,6 +57,11 @@ def create_new_account(client, initial_balance=100000000):
         sys.exit(1)
 
     return new_account_id, new_account_private_key
+
+def query_balance(client, account_id):
+    balance = CryptoGetAccountBalanceQuery(account_id=account_id).execute(client)
+    print(f"Account {account_id} balance: {balance.hbars}")
+    return balance
 
 def create_token(client, operator_id, admin_key):
     transaction = TokenCreateTransaction(
@@ -240,6 +246,7 @@ def main():
     client.set_operator(operator_id, operator_key)
 
     recipient_id, recipient_private_key = create_new_account(client)
+    query_balance(client, recipient_id)
 
     token_id = create_token(client, operator_id, admin_key)
     associate_token(client, recipient_id, recipient_private_key, token_id)
@@ -249,7 +256,7 @@ def main():
     topic_id = create_topic(client)
     submit_message(client, topic_id)
     update_topic(client, topic_id)
-    # query_topic_info(client, topic_id)
+    query_topic_info(client, topic_id)
     delete_topic(client, topic_id)
 
 if __name__ == "__main__":

@@ -14,6 +14,7 @@ This is a Python SDK for interacting with the Hedera Hashgraph platform. It allo
 - [Running Tests](#running-tests)
 - [Usage](#usage)
   - [Creating an Account](#creating-an-account)
+  - [Querying Account Balance](#querying-account-balance)
   - [Creating a Token](#creating-a-token)
   - [Associating a Token](#associating-a-token)
   - [Transferring Tokens](#transferring-tokens)
@@ -155,6 +156,17 @@ transaction = (
     transaction.execute(client)
 ```
 
+### Querying Account Balance
+
+#### Pythonic Syntax:
+```
+balance = CryptoGetAccountBalanceQuery(account_id=some_account_id).execute(client) print(f"Account balance: {balance.hbars} hbars")
+```
+
+#### Method Chaining:
+```
+balance = ( CryptoGetAccountBalanceQuery() .set_account_id(some_account_id) .execute(client) ) print(f"Account balance: {balance.hbars} hbars")
+```
 
 ### Creating a Token
 

@@ -12,10 +12,15 @@ class CryptoGetAccountBalanceQuery(Query):
     including hbars and tokens.
     """
 
-    def __init__(self):
-        """Initializes a new instance of the CryptoGetAccountBalanceQuery class."""
+    def __init__(self, account_id: AccountId = None):
+        """
+        Initializes a new instance of the CryptoGetAccountBalanceQuery class.
+
+        Args:
+            account_id (AccountId, optional): The ID of the account to retrieve the balance for.
+        """
         super().__init__()
-        self.account_id = None
+        self.account_id = account_id
 
     def set_account_id(self, account_id: AccountId):
         """
