@@ -32,7 +32,7 @@ class Client:
         if network is None:
             network = Network()
         self.network = network
-
+        
         self.channel = None
         self.token_stub = None
         self.crypto_stub = None

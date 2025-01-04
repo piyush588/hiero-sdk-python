@@ -13,6 +13,7 @@ from hedera_sdk_python import (
     TokenDissociateTransaction,
     TransferTransaction,
     TokenDeleteTransaction,
+    TokenMintTransaction,
     ResponseCode,
     TopicCreateTransaction,
     TopicMessageSubmitTransaction,
@@ -70,15 +71,15 @@ def query_balance(client, account_id):
     print(f"Account {account_id} balance: {balance.hbars}")
     return balance
 
-
-def create_token(client, operator_id, admin_key):
+def create_token(client, operator_id, admin_key, supply_key):
     transaction = TokenCreateTransaction(
         token_name="ExampleToken",
         token_symbol="EXT",
         decimals=2,
         initial_supply=1000,
         treasury_account_id=operator_id,
-        admin_key=admin_key
+        admin_key=admin_key,
+        supply_key=supply_key
     )
     transaction.freeze_with(client)
     transaction.sign(client.operator_private_key)
@@ -172,6 +173,72 @@ def delete_token(client, token_id, admin_key):
     except Exception as e:
         print(f"Token deletion failed: {str(e)}")
         sys.exit(1)
+
+
+def mint_fungible_token(client, token_id, supply_key, amount=2000):
+    transaction = TokenMintTransaction(token_id=token_id, amount=amount)
+    transaction.freeze_with(client)
+    transaction.sign(client.operator_private_key)
+    transaction.sign(supply_key)
+
+    try:
+        receipt = transaction.execute(client)
+        if receipt.status != ResponseCode.SUCCESS:
+            status_message = ResponseCode.get_name(receipt.status)
+            raise Exception(f"Token minting failed with status: {status_message}")
+        print("Token minting successful.")
+    except Exception as e:
+        print(f"Token minting failed: {str(e)}")
+        sys.exit(1)
+
+def mint_nft_token(client, token_id, supply_key, metadata=[b"Token A"]):
+    transaction = TokenMintTransaction(token_id=token_id, metadata=metadata  )
+    transaction.freeze_with(client)
+    transaction.sign(client.operator_private_key)
+    transaction.sign(supply_key)
+
+    try:
+        receipt = transaction.execute(client)
+        if receipt.status != ResponseCode.SUCCESS:
+            status_message = ResponseCode.get_name(receipt.status)
+            raise Exception(f"Token minting failed with status: {status_message}")
+        print("Token minting successful.")
+    except Exception as e:
+        print(f"Token minting failed: {str(e)}")
+        sys.exit(1)        
+
+def mint_fungible_token(client, token_id, supply_key, amount=2000):
+    transaction = TokenMintTransaction(token_id=token_id, amount=amount)
+    transaction.freeze_with(client)
+    transaction.sign(client.operator_private_key)
+    transaction.sign(supply_key)
+
+    try:
+        receipt = transaction.execute(client)
+        if receipt.status != ResponseCode.SUCCESS:
+            status_message = ResponseCode.get_name(receipt.status)
+            raise Exception(f"Token minting failed with status: {status_message}")
+        print("Token minting successful.")
+    except Exception as e:
+        print(f"Token minting failed: {str(e)}")
+        sys.exit(1)
+
+def mint_nft_token(client, token_id, supply_key, metadata=[b"Token A"]):
+    transaction = TokenMintTransaction(token_id=token_id, metadata=metadata  )
+    transaction.freeze_with(client)
+    transaction.sign(client.operator_private_key)
+    transaction.sign(supply_key)
+
+    try:
+        receipt = transaction.execute(client)
+        if receipt.status != ResponseCode.SUCCESS:
+            status_message = ResponseCode.get_name(receipt.status)
+            raise Exception(f"Token minting failed with status: {status_message}")
+        print("Token minting successful.")
+    except Exception as e:
+        print(f"Token minting failed: {str(e)}")
+        sys.exit(1)        
+
 
 
 def create_topic(client):
@@ -272,6 +339,7 @@ def query_topic_info(client, topic_id):
 def main():
     operator_id, operator_key = load_operator_credentials()
     admin_key = PrivateKey.generate()
+    supply_key = PrivateKey.generate()
 
     network_type = os.getenv('NETWORK')
     network = Network(network=network_type)
@@ -281,8 +349,11 @@ def main():
     recipient_id, recipient_private_key = create_new_account(client)
     query_balance(client, recipient_id)
 
-    token_id_1 = create_token(client, operator_id, admin_key)
-    token_id_2 = create_token(client, operator_id, admin_key)
+    token_id_1 = create_token(client, operator_id, admin_key, supply_key)
+    token_id_2 = create_token(client, operator_id, admin_key, supply_key)
+
+    mint_fungible_token(client, token_id_1, supply_key)
+    mint_nft_token(client, token_id_1, supply_key)
 
     associate_token(client, recipient_id, recipient_private_key, [token_id_1, token_id_2])
     transfer_token(client, operator_id, operator_key, recipient_id, token_id_1)
