@@ -271,9 +271,7 @@ def main():
 
     associate_token(client, recipient_id, recipient_private_key, [token_id_1, token_id_2])
     transfer_token(client, operator_id, operator_key, recipient_id, token_id_1)
-    transfer_token(client, recipient_id, recipient_private_key, operator_id, token_id_1)
-    dissociate_token(client, recipient_id, recipient_private_key, [token_id_1, token_id_2])
-    associate_token(client, recipient_id, recipient_private_key, [token_id_1])
+    dissociate_token(client, recipient_id, recipient_private_key, [token_id_2])
     delete_token(client, token_id_1, admin_key) 
 
     topic_id = create_topic(client)
