@@ -62,7 +62,7 @@ worry about managing multiple versions of python on your machine!
 
 ```bash
 uv sync
-./generate_proto.sh
+uv run generate_proto.py
 ```
 
 To update to a newer version of the protobuf libraries, edit the `generate_proto.sh` file and change the version number
