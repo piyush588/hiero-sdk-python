@@ -25,7 +25,7 @@ jobs:
         run: uv sync --all-extras --dev
 
       - name: Generate Proto Files
-        run: bash ./generate_proto.sh
+        run: uv run generate_proto.py
 
       - name: Prepare Hedera Solo
         id: solo
