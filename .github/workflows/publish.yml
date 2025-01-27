@@ -3,7 +3,7 @@ name: Publish to PyPI
 on:
   push:
     tags:
-    - v0.1.1dev
+    - v0.1.2dev
       # - 'v*.*.*'
 
 jobs:
@@ -20,8 +20,8 @@ jobs:
       - name: Upgrade pip
         run: pip install --upgrade pip
 
-      - name: Install PDM & pdm-backend
-        run: pip install pdm pdm-backend
+      - name: Install build & pdm-backend
+        run: pip install build pdm-backend
 
       - name: Install project dependencies
         run: pdm install --prod
