@@ -3,7 +3,7 @@ name: Publish to PyPI
 on:
   push:
     tags:
-    - v0.1.3dev
+    - v0.1.4dev
       # - 'v*.*.*'
 
 jobs:
@@ -20,19 +20,22 @@ jobs:
       - name: Upgrade pip
         run: pip install --upgrade pip
 
-      - name: Install build & pdm-backend
-        run: pip install build pdm-backend
+      - name: Install PDM & pdm-backend
+        run: pip install pdm pdm-backend
 
-      - name: Install project dependencies
+      - name: Verify pdm path
+        run: which pdm
+
+      - name: pdm install
         run: pdm install --prod
 
-      - name: Generate Proto Files
+      - name: Generate Proto
         run: bash ./generate_proto.sh
 
-      - name: Build
-        run: python -m build
+      - name: pdm build
+        run: pdm build --no-isolation
 
-      - name: Publish to PyPI
+      - name: Publish
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           user: __token__
