@@ -13,6 +13,7 @@ from .crypto.public_key import PublicKey
 # Tokens
 from .tokens.token_create_transaction import TokenCreateTransaction
 from .tokens.token_associate_transaction import TokenAssociateTransaction
+from .tokens.token_dissociate_transaction import TokenDissociateTransaction
 from .tokens.token_delete_transaction import TokenDeleteTransaction
 from .tokens.token_id import TokenId
 
@@ -59,6 +60,7 @@ __all__ = [
     # Tokens
     "TokenCreateTransaction",
     "TokenAssociateTransaction",
+    "TokenDissociateTransaction",
     "TokenDeleteTransaction",
     "TokenId",
 

@@ -10,6 +10,7 @@ from hedera_sdk_python import (
     PrivateKey,
     TokenCreateTransaction,
     TokenAssociateTransaction,
+    TokenDissociateTransaction,
     TransferTransaction,
     TokenDeleteTransaction,
     ResponseCode,
@@ -97,11 +98,10 @@ def create_token(client, operator_id, admin_key):
     print(f"Token creation successful. Token ID: {token_id}")
     return token_id
 
-
-def associate_token(client, recipient_id, recipient_private_key, token_id):
+def associate_token(client, recipient_id, recipient_private_key, token_ids):
     transaction = TokenAssociateTransaction(
         account_id=recipient_id,
-        token_ids=[token_id]
+        token_ids=token_ids
     )
     transaction.freeze_with(client)
     transaction.sign(client.operator_private_key)
@@ -117,17 +117,34 @@ def associate_token(client, recipient_id, recipient_private_key, token_id):
         print(f"Token association failed: {str(e)}")
         sys.exit(1)
 
+def dissociate_token(client, recipient_id, recipient_private_key, token_id):
+    """Dissociate the specified token with the recipient account."""
+    transaction =  TokenDissociateTransaction(
+        account_id = recipient_id, 
+        token_ids = token_id)
+    transaction.freeze_with(client)
+    transaction.sign(client.operator_private_key) 
+    transaction.sign(recipient_private_key) 
 
-def transfer_token(client, recipient_id, token_id):
-    transaction = TransferTransaction(
-        token_transfers={
-            token_id: {
-                client.operator_account_id: -1,
-                recipient_id: 1,
-            }
-        }
-    ).freeze_with(client)
-    transaction.sign(client.operator_private_key)
+    try:
+        receipt = transaction.execute(client)
+        if receipt.status != ResponseCode.SUCCESS:
+            status_message = ResponseCode.get_name(receipt.status)
+            raise Exception(f"Token dissociation failed with status: {status_message}")
+        print("Token dissociation successful.")
+    except Exception as e:
+        print(f"Token dissociation failed: {str(e)}")
+        sys.exit(1)
+
+def transfer_token(client, source_id, source_private_key, recipient_id, token_id):
+    """Transfer the specified token to the recipient account."""
+    transaction = (
+        TransferTransaction()
+        .add_token_transfer(token_id, source_id, -1)
+        .add_token_transfer(token_id, recipient_id, 1)
+        .freeze_with(client)
+    )
+    transaction.sign(source_private_key)
 
     try:
         receipt = transaction.execute(client)
@@ -264,10 +281,13 @@ def main():
     recipient_id, recipient_private_key = create_new_account(client)
     query_balance(client, recipient_id)
 
-    token_id = create_token(client, operator_id, admin_key)
-    associate_token(client, recipient_id, recipient_private_key, token_id)
-    transfer_token(client, recipient_id, token_id)
-    delete_token(client, token_id, admin_key)
+    token_id_1 = create_token(client, operator_id, admin_key)
+    token_id_2 = create_token(client, operator_id, admin_key)
+
+    associate_token(client, recipient_id, recipient_private_key, [token_id_1, token_id_2])
+    transfer_token(client, operator_id, operator_key, recipient_id, token_id_1)
+    dissociate_token(client, recipient_id, recipient_private_key, [token_id_2])
+    delete_token(client, token_id_1, admin_key) 
 
     topic_id = create_topic(client)
     submit_message(client, topic_id)
