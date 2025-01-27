@@ -31,4 +31,6 @@ src/hedera_sdk_python/hapi
 # Pytest
 .pytest_cache
 
+# Lock files
 uv.lock
+pdm.lock

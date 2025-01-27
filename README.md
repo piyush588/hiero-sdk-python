@@ -10,6 +10,9 @@ This is a Python SDK for interacting with the Hedera Hashgraph platform. It allo
 ## Table of Contents
 
 - [Installation](#installation)
+  - [Installing from PyPI](#installing-from-pypi)
+  - [Installing from Source](#installing-from-source)
+  - [Local Editable Installation](#local-editable-installation)
 - [Environment Setup](#environment-setup)
 - [Running Tests](#running-tests)
 - [Usage](#usage)
@@ -30,7 +33,23 @@ This is a Python SDK for interacting with the Hedera Hashgraph platform. It allo
 
 ## Installation
 
-0. Install `uv`:
+### Installing from PyPI
+
+The latest release of this SDK is published to PyPI. You can install it with:
+
+```
+pip install --upgrade pip
+pip install hedera-sdk-python
+```
+
+This will pull down a stable release along with the required dependencies.
+
+
+### Installing from Source
+
+You can also clone the repo and install dependencies using uv:
+
+1. Install `uv`:
 
 `uv` is an ultra-fast Python package and project manager. It replaces `pip`, `pip-tools`, `pipx`, `poetry`, `pyenv`,
 `virtualenv`, and more.
@@ -47,14 +66,14 @@ brew install uv
 
 Other installation methods can be found [here](https://docs.astral.sh/uv/getting-started/installation/).
 
-1. Clone this repository:
+2. Clone this repository:
 
 ```bash
 git clone https://github.com/nadineloepfe/hedera_sdk_python.git
 cd hedera_sdk_python
 ```
 
-2. Install dependencies:
+3. Install dependencies:
 
 One of the really nice features of `uv` is that it will download and manage the correct version of python and build
 with the correct version of python based on the `.python-version`  file in the project. This means you don't have to
@@ -62,11 +81,26 @@ worry about managing multiple versions of python on your machine!
 
 ```bash
 uv sync
-./generate_proto.sh
+./generate_proto.sh # if needed
 ```
 
 To update to a newer version of the protobuf libraries, edit the `generate_proto.sh` file and change the version number
 and then rerun it.
+
+
+### Local Editable Installation
+
+For active development, you can install the repo in editable mode. That way, changes in your local code are immediately reflected when you import:
+
+```
+git clone https://github.com/nadineloepfe/hedera_sdk_python.git
+cd hedera_sdk_python
+pip install --upgrade pip
+pip install -e .
+```
+
+Now you can run example scripts like python `examples/account_create.py`, and it will import from your local hedera_sdk_python code.
+
 
 ## Environment Setup
 
