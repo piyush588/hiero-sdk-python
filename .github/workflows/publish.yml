@@ -3,7 +3,8 @@ name: Publish to PyPI
 on:
   push:
     tags:
-      - 'v*.*.*' 
+    - v0.1.0dev
+      # - 'v*.*.*'
 
 jobs:
   build-and-publish:
@@ -20,14 +21,14 @@ jobs:
         run: pip install --upgrade pip
 
       - name: Install PDM & pdm-backend
-        run: pip install "pdm==2.6.2" "pdm-backend==2.4.3"
+        run: pip install pdm pdm-backend
 
       - name: Install project dependencies
         run: pdm install --prod
 
       - name: Generate Proto Files
         run: bash ./generate_proto.sh
-      
+
       - name: Build wheel and sdist
         run: pdm build --no-isolation
 
