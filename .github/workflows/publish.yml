@@ -3,7 +3,7 @@ name: Publish to PyPI
 on:
   push:
     tags:
-      - 'v*.*.*'  
+      - 'v*.*.*' 
 
 jobs:
   build-and-publish:
@@ -14,20 +14,23 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.9'
+          python-version: "3.9"
+
+      - name: Upgrade pip
+        run: pip install --upgrade pip
 
       - name: Install PDM & pdm-backend
-        run: pip install pdm==2.5.2 pdm-backend==0.1.4
+        run: pip install "pdm==2.6.2" "pdm-backend==2.4.3"
 
-      - name: Install or Update Dependencies
+      - name: Install project dependencies
         run: pdm install --prod
 
       - name: Generate Proto Files
         run: bash ./generate_proto.sh
-        
+      
       - name: Build wheel and sdist
         run: pdm build --no-isolation
-      
+
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
