@@ -1,7 +1,7 @@
 import pytest
 from unittest.mock import MagicMock
 from hedera_sdk_python.tokens.token_dissociate_transaction import TokenDissociateTransaction
-from hedera_sdk_python.hapi import timestamp_pb2
+from hedera_sdk_python.hapi.services import timestamp_pb2
 from hedera_sdk_python.transaction.transaction_id import TransactionId
 
 def generate_transaction_id(account_id_proto):

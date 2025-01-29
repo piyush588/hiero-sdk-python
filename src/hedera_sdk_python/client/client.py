@@ -85,23 +85,19 @@ class Client:
 
     def get_transaction_receipt(self, transaction_id, max_attempts=10, sleep_seconds=2):
         for attempt in range(max_attempts):
-            try:
-                receipt_query = TransactionGetReceiptQuery()
-                receipt_query.set_transaction_id(transaction_id)
-                receipt = receipt_query.execute(self)
-                status = receipt.status
+            receipt_query = TransactionGetReceiptQuery()
+            receipt_query.set_transaction_id(transaction_id)
+            receipt = receipt_query.execute(self)
+            status = receipt.status
 
-                if status == ResponseCode.SUCCESS:
-                    return receipt
-                elif status in (ResponseCode.UNKNOWN, ResponseCode.RECEIPT_NOT_FOUND):
-                    time.sleep(sleep_seconds)
-                    continue
-                else:
-                    status_message = ResponseCode.get_name(status)
-                    raise Exception(f"Transaction failed with status: {status_message}")
-            except Exception as e:
-                print(f"Error retrieving transaction receipt: {e}")
+            if status == ResponseCode.SUCCESS:
+                return receipt
+            elif status in (ResponseCode.UNKNOWN, ResponseCode.BUSY, ResponseCode.RECEIPT_NOT_FOUND, ResponseCode.RECORD_NOT_FOUND, ResponseCode.PLATFORM_NOT_ACTIVE):
                 time.sleep(sleep_seconds)
+                continue
+            else:
+                status_message = ResponseCode.get_name(status)
+                raise Exception(f"Error retrieving transaction receipt: {status_message}")
         raise Exception("Exceeded maximum attempts to fetch transaction receipt.")
 
     def send_query(self, query, node_account_id, timeout=60):

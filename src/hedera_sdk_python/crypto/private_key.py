@@ -122,7 +122,6 @@ class PrivateKey:
 
         return cls.from_bytes(key_bytes)
 
-
     def sign(self, data: bytes) -> bytes:
         """
         Signs the given data using this private key (Ed25519 or ECDSA).
