@@ -1,6 +1,8 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import random
 import time
+
+from hedera_sdk_python.hapi.services.timestamp_pb2 import Timestamp as TimestampProto
 
 
 class Timestamp:
@@ -72,7 +74,7 @@ class Timestamp:
         Returns:
             datetime: A `datetime` instance.
         """
-        return datetime.fromtimestamp(self.seconds) + timedelta(
+        return datetime.fromtimestamp(self.seconds, tz=timezone.utc) + timedelta(
             microseconds=self.nanos // 1000
         )
 
@@ -92,29 +94,28 @@ class Timestamp:
 
         return Timestamp(new_seconds, new_nanos)
 
-    def to_protobuf(self) -> dict:
+    def to_protobuf(self) -> TimestampProto:
         """
-        Convert the `Timestamp` to a protobuf-compatible dictionary.
+        Convert the `Timestamp` to corresponding protobuf object.
 
         Returns:
-            dict: A dictionary representation of the `Timestamp`.
+            dict: A protobuf representation of the `Timestamp`.
         """
-        return {"seconds": self.seconds, "nanos": self.nanos}
+        return TimestampProto(seconds=self.seconds, nanos=self.nanos)
 
     @staticmethod
-    def from_protobuf(pb_obj) -> "Timestamp":
+    def from_protobuf(pb_obj: TimestampProto) -> "Timestamp":
         """
         Create a `Timestamp` from a protobuf object.
 
         Args:
-            pb_obj (dict): A protobuf-like dictionary with `seconds` and `nanos`.
+            pb_obj (timestamp_pb2.Timestamp): A protobuf Timestamp object.
 
         Returns:
             Timestamp: A `Timestamp` instance.
         """
-        seconds = pb_obj.get("seconds", 0)
-        nanos = pb_obj.get("nanos", 0)
-        return Timestamp(seconds, nanos)
+
+        return Timestamp(pb_obj.seconds, pb_obj.nanos)
 
     def __str__(self) -> str:
         """

@@ -6,11 +6,75 @@ class PublicKey:
     Represents a public key that can be either Ed25519 or ECDSA (secp256k1).
     """
 
-    def __init__(self, public_key):
+    def __init__(self, public_key: ec.EllipticCurvePublicKey | ed25519.Ed25519PublicKey):
         """
         Initializes a PublicKey from a cryptography PublicKey object.
         """
         self._public_key = public_key
+
+    @classmethod
+    def from_bytes(cls, key_bytes: bytes):
+        """
+        Load a public key from bytes.
+        For Ed25519, expects 32 bytes. Raw bytes for ECDSA are not supported for now.
+        If the key is DER-encoded, tries to parse and detect Ed25519 vs ECDSA.
+
+        Args:
+            key_bytes (bytes): Public key bytes.
+
+        Returns:
+            PublicKey: A new instance of PublicKey.
+
+        Raises:
+            ValueError: If the key is invalid or unsupported.
+        """
+
+        if len(key_bytes) == 32:
+            ed_public = ed25519.Ed25519PublicKey.from_public_bytes(key_bytes)
+            return cls(ed_public)
+        # TODO: Consider adding support for creating ECDSA public key instance from raw encoded point
+        # Java SDK example: https://github.com/hiero-ledger/hiero-sdk-java/blob/main/sdk-java/src/main/java/org/hiero/sdk/java/PublicKeyECDSA.java#L46
+        #
+        # Potential approach for Python:
+        # ec_public = ec.EllipticCurvePublicKey.from_encoded_point(ec.SECP256K1(), key_bytes)
+
+        try:
+            public_key = serialization.load_der_public_key(key_bytes)
+        except Exception as e:
+            raise ValueError(f"Failed to load public key (DER): {e}")
+
+        if isinstance(public_key, ed25519.Ed25519PublicKey):
+            return cls(public_key)
+
+        if isinstance(public_key, ec.EllipticCurvePublicKey):
+            if not isinstance(public_key.curve, ec.SECP256K1):
+                raise ValueError("Only secp256k1 ECDSA is supported.")
+            return cls(public_key)
+
+        raise ValueError("Unsupported public key type.")
+
+    @classmethod
+    def from_string(cls, key_str):
+        """
+        Load a public key from a hex-encoded string.
+        For Ed25519, expects 32 bytes. Raw bytes string for ECDSA is not supported for now.
+        If the key is DER-encoded, tries to parse and detect Ed25519 vs ECDSA.
+
+        Args:
+            key_str (str): The hex-encoded public key string.
+
+        Returns:
+            PublicKey: A new instance of PublicKey.
+
+        Raises:
+            ValueError: If the key is invalid or unsupported.
+        """
+        try:
+            key_bytes = bytes.fromhex(key_str.removeprefix("0x"))
+        except ValueError:
+            raise ValueError("Invalid hex-encoded public key string.")
+
+        return cls.from_bytes(key_bytes)
 
     def verify(self, signature: bytes, data: bytes) -> None:
         """
