@@ -2,7 +2,7 @@
 
 This is a Python SDK for interacting with the Hedera Hashgraph platform. It allows developers to:
 
-- Manage Token Transactions like Create, Mint, Associate, Dissociate, Transfer & Delete
+- Manage Token Transactions like Create, Mint Fungible, Mint Non-Fungible, Associate, Dissociate, Transfer & Delete
 - Manage Consensus Transactions like Topic Create, Update, Delete
 - Submit Topic Messages
 - Query Account Balance, Transaction Receipts, Topic Infos and Messages
@@ -19,7 +19,8 @@ This is a Python SDK for interacting with the Hedera Hashgraph platform. It allo
   - [Creating an Account](#creating-an-account)
   - [Querying Account Balance](#querying-account-balance)
   - [Creating a Token](#creating-a-token)
-  - [Minting a Token](#minting-a-token)
+  - [Minting a Fungible Token](#minting-a-fungible-token)
+  - [Minting a Non-Fungible Token](#minting-a-non-fungible-token)
   - [Associating a Token](#associating-a-token)
   - [Dissociating a Token](#dissociating-a-token)
   - [Transferring Tokens](#transferring-tokens)
@@ -246,14 +247,13 @@ transaction = (
 ```
 
 
-### Minting a Token
+### Minting a Fungible Token
 
 #### Pythonic Syntax:
 ```
 transaction = TokenMintTransaction(
     token_id=token_id,
-    amount=amount,  # For fungible tokens
-    metadata=metadata  # For non-fungible tokens (NFTs)
+    amount=amount,  # lowest denomination, must be positive and not zero
 ).freeze_with(client)
 
 transaction.sign(operator_key)  
@@ -265,8 +265,7 @@ transaction.execute(client)
 transaction = (
     TokenMintTransaction()
     .set_token_id(token_id)
-    .set_amount(amount)  # For fungible tokens
-    .set_metadata(metadata)  # For NFTs, set metadata
+    .set_amount(amount) # lowest denomination, must be positive and not zero
     .freeze_with(client)
 )
 transaction.sign(operator_key)  
@@ -274,6 +273,31 @@ transaction.sign(admin_key)
 transaction.execute(client)
 ```
 
+### Minting a Non-Fungible Token
+
+#### Pythonic Syntax:
+```
+transaction = TokenMintTransaction(
+    token_id=token_id,
+    metadata=metadata  # Bytes for non-fungible tokens (NFTs)
+).freeze_with(client)
+
+transaction.sign(operator_key)  
+transaction.sign(supply_key)  
+transaction.execute(client)
+```
+#### Method Chaining:
+```
+transaction = (
+    TokenMintTransaction()
+    .set_token_id(token_id)
+    .set_metadata(metadata)  # Bytes for non-fungible tokens (NFTs)
+    .freeze_with(client)
+)
+transaction.sign(operator_key)  
+transaction.sign(admin_key)  
+transaction.execute(client)
+```
 
 ### Associating a Token
 

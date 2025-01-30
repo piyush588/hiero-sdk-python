@@ -23,7 +23,6 @@ def nft_token_mint(metadata):
     Submits the transaction and prints the result.
     """
 
-    # Set up the client and operator
     network = Network(network='testnet')
     client = Client(network)
 
@@ -45,7 +44,6 @@ def nft_token_mint(metadata):
     )
     
     try:
-        # Execute the transaction and fetch the receipt
         receipt = transaction.execute(client)
         if receipt and receipt.tokenId:
             print(f"NFT minting successful")

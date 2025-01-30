@@ -16,15 +16,13 @@ load_dotenv()
 def fungible_token_mint():
     """
     Mint fungible tokens to increase the total supply of the token.
-    The new supply must be lower than 2^63-1.
+    The new supply must be lower than 2^63-1 (within the range that can be safely stored in a signed 64-bit integer).
 
     Loads environment variables for OPERATOR_ID, OPERATOR_KEY, SUPPLY_KEY, TOKEN_ID.
     Creates and signs a TokenMintTransaction for a fungible token.
     Submits the transaction and prints the result.
-    
-    Note: The 'amount' is given in the lowest denomination, based on the token's decimals.
     """
-    # Set up the client and operator
+
     network = Network(network='testnet')
     client = Client(network)
 
@@ -46,7 +44,6 @@ def fungible_token_mint():
     )
     
     try:
-        # Execute the transaction and fetch the receipt
         receipt = transaction.execute(client)
         if receipt and receipt.tokenId:
             print(f"Fungible token minting successful")
