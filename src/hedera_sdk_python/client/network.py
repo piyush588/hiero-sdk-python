@@ -7,11 +7,18 @@ class Network:
     Manages the network configuration for connecting to the Hedera network.
     """
 
+    MIRROR_ADDRESS_DEFAULT = {
+        'mainnet': 'hcs.mainnet.mirrornode.hedera.com:5600',
+        'testnet': 'hcs.testnet.mirrornode.hedera.com:5600',
+        'previewnet': 'hcs.previewnet.mirrornode.hedera.com:5600',
+        'solo': 'localhost:5600'
+    }
+
     MIRROR_NODE_URLS = {
         'mainnet': 'https://mainnet-public.mirrornode.hedera.com',
         'testnet': 'https://testnet.mirrornode.hedera.com',
         'previewnet': 'https://previewnet.mirrornode.hedera.com',
-        'solo': 'localhost:8080'
+        'solo': 'http://localhost:8080'  
     }
 
     DEFAULT_NODES = {
@@ -46,33 +53,47 @@ class Network:
         ],
     }
 
-    def __init__(self, node_address=None, node_account_id=None, network='testnet'):
+    def __init__(
+        self,
+        network: str = 'testnet',
+        nodes: list = None,
+        mirror_address: str = None,
+    ):
         """
-        Initializes the Network with the specified network name.
+        Initializes the Network with the specified network name or custom config.
 
         Args:
-            network (str): The network to connect to ('mainnet', 'testnet', 'previewnet').
+            network (str): One of 'mainnet', 'testnet', 'previewnet', 'solo', or a custom name if you prefer.
+            nodes (list, optional): A list of (node_address, AccountId) pairs. If provided, we skip fetching from the mirror.
+            mirror_address (str, optional): A mirror node address (host:port) for topic queries.
+                                            If not provided, we'll use a default from MIRROR_ADDRESS_DEFAULT[network].
         """
-        if node_address and node_account_id:
-            self.nodes = [(node_address, node_account_id)]
-        else:
-            self.network = network
-            self.nodes = self._fetch_nodes_from_mirror_node()
-            
-            if not self.nodes:
-                # default nodes if fetching from the mirror node API fails
-                self.nodes = self.DEFAULT_NODES[self.network]
+        self.network = network
+        self.mirror_address = mirror_address or self.MIRROR_ADDRESS_DEFAULT.get(network, 'localhost:5600')
 
-            self.select_node()
+        if nodes is not None:
+            self.nodes = nodes
+        else:
+            self.nodes = self._fetch_nodes_from_mirror_node()
+            if not self.nodes:
+                if self.network in self.DEFAULT_NODES:
+                    self.nodes = self.DEFAULT_NODES[self.network]
+                else:
+                    raise ValueError(f"No default nodes for network='{self.network}'")
+
+        self._select_node()
 
     def _fetch_nodes_from_mirror_node(self):
         """
-        Fetches the list of nodes from the Hedera Mirror Node API.
-
+        Fetches the list of nodes from the Hedera Mirror Node REST API.
         Returns:
-            list: A list of tuples containing the node address and AccountId.
+            list: A list of tuples [(node_address, AccountId), ...].
         """
-        base_url = self.MIRROR_NODE_URLS[self.network]
+        base_url = self.MIRROR_NODE_URLS.get(self.network)
+        if not base_url:
+            print(f"No known mirror node URL for network='{self.network}'. Skipping fetch.")
+            return []
+
         url = f"{base_url}/api/v1/network/nodes?limit=100&order=desc"
 
         try:
@@ -96,15 +117,27 @@ class Network:
             print(f"Error fetching nodes from mirror node API: {e}")
             return []
 
-    def select_node(self):
+    def _select_node(self):
         """
-        Selects a node at random from the available nodes and updates instance variables.
+        Select a random node from self.nodes and store it if you want to track a 'current' node.
+        This is optional. The client can still pick or switch nodes as needed.
         """
+        if not self.nodes:
+            raise ValueError("No nodes available to select.")
         self.node_address, self.node_account_id = random.choice(self.nodes)
         # print(f"Selected node: {self.node_address} (Account ID: {self.node_account_id})")
 
     def get_node_address(self, node_account_id):
-            for address, account_id in self.nodes:
-                if account_id == node_account_id:
-                    return address
-            return None
+        """
+        Return the gRPC address (host:port) for the given node_account_id, or None if not found.
+        """
+        for address, acct_id in self.nodes:
+            if acct_id == node_account_id:
+                return address
+        return None
+
+    def get_mirror_address(self) -> str:
+        """
+        Return the configured mirror node address used for mirror queries.
+        """
+        return self.mirror_address

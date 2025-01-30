@@ -1,25 +1,21 @@
 from hedera_sdk_python.transaction.transaction import Transaction
-from hedera_sdk_python.hapi.services import token_associate_pb2
+from hedera_sdk_python.hapi.services import token_dissociate_pb2
 from hedera_sdk_python.response_code import ResponseCode
 
-class TokenAssociateTransaction(Transaction):
+class TokenDissociateTransaction(Transaction):
     """
-    Represents a token associate transaction on the Hedera network.
+    Represents a token dissociate transaction on the Hedera network.
 
-    This transaction associates the specified tokens with an account,
-    allowing the account to hold and transact with those tokens.
-    
+    This transaction dissociates the specified tokens with an account,
+    meaning the account can no longer hold or transact with those tokens.
+
     Inherits from the base Transaction class and implements the required methods
-    to build and execute a token association transaction.
+    to build and execute a token dissociate transaction.
     """
 
     def __init__(self, account_id=None, token_ids=None):
         """
-        Initializes a new TokenAssociateTransaction instance with optional keyword arguments.
-
-        Args:
-            account_id (AccountId, optional): The account to associate tokens with.
-            token_ids (list of TokenId, optional): The tokens to associate with the account.
+        Initializes a new TokenDissociateTransaction instance with default values.
         """
         super().__init__()
         self.account_id = account_id
@@ -39,10 +35,10 @@ class TokenAssociateTransaction(Transaction):
 
     def build_transaction_body(self):
         """
-        Builds and returns the protobuf transaction body for token association.
+        Builds and returns the protobuf transaction body for token dissociation.
 
         Returns:
-            TransactionBody: The protobuf transaction body containing the token association details.
+            TransactionBody: The protobuf transaction body containing the token dissociation details.
 
         Raises:
             ValueError: If account ID or token IDs are not set.
@@ -50,19 +46,19 @@ class TokenAssociateTransaction(Transaction):
         if not self.account_id or not self.token_ids:
             raise ValueError("Account ID and token IDs must be set.")
 
-        token_associate_body = token_associate_pb2.TokenAssociateTransactionBody(
+        token_dissociate_body = token_dissociate_pb2.TokenDissociateTransactionBody(
             account=self.account_id.to_proto(),
             tokens=[token_id.to_proto() for token_id in self.token_ids]
         )
 
         transaction_body = self.build_base_transaction_body()
-        transaction_body.tokenAssociate.CopyFrom(token_associate_body)
+        transaction_body.tokenDissociate.CopyFrom(token_dissociate_body)
 
         return transaction_body
-
+    
     def _execute_transaction(self, client, transaction_proto):
         """
-        Executes the token association transaction using the provided client.
+        Executes the token dissociation transaction using the provided client.
 
         Args:
             client (Client): The client instance to use for execution.
@@ -74,7 +70,7 @@ class TokenAssociateTransaction(Transaction):
         Raises:
             Exception: If the transaction submission fails or receives an error response.
         """
-        response = client.token_stub.associateTokens(transaction_proto)
+        response = client.token_stub.dissociateTokens(transaction_proto)
 
         if response.nodeTransactionPrecheckCode != ResponseCode.OK:
             error_code = response.nodeTransactionPrecheckCode

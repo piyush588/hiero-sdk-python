@@ -2,9 +2,12 @@ import os
 import time
 from datetime import datetime
 from dotenv import load_dotenv
-from hedera_sdk_python.client.network import Network
-from hedera_sdk_python.client.client import Client
-from hedera_sdk_python.query.topic_message_query import TopicMessageQuery
+
+from hedera_sdk_python import (
+    Network,
+    Client,
+    TopicMessageQuery,
+)
 
 load_dotenv()
 
