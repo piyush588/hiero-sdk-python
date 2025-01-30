@@ -3,15 +3,17 @@ import sys
 import time
 from dotenv import load_dotenv
 
-from hedera_sdk_python.account.account_id import AccountId
-from hedera_sdk_python.crypto.private_key import PrivateKey
-from hedera_sdk_python.client.network import Network
-from hedera_sdk_python.client.client import Client
-from hedera_sdk_python.account.account_create_transaction import AccountCreateTransaction
-from hedera_sdk_python.transaction.transfer_transaction import TransferTransaction
-from hedera_sdk_python.query.account_balance_query import CryptoGetAccountBalanceQuery
-from hedera_sdk_python.hbar import Hbar
-from hedera_sdk_python.response_code import ResponseCode
+from hedera_sdk_python import (
+    Network,
+    Client,
+    AccountId,
+    PrivateKey,
+    AccountCreateTransaction,
+    TransferTransaction,
+    CryptoGetAccountBalanceQuery,
+    ResponseCode,
+    Hbar,
+)
 
 load_dotenv()
 
@@ -23,21 +25,24 @@ def create_account_and_transfer():
     operator_key = PrivateKey.from_string(os.getenv('OPERATOR_KEY'))
     client.set_operator(operator_id, operator_key)
 
+    # Create new account
     new_account_private_key = PrivateKey.generate()
     new_account_public_key = new_account_private_key.public_key()
     transaction = AccountCreateTransaction(
         key=new_account_public_key,
-        initial_balance=Hbar(10),
+        initial_balance=Hbar(10),  # 10 HBAR
         memo="New Account"
     ).freeze_with(client)
     transaction.sign(operator_key)
     receipt = transaction.execute(client)
     new_account_id = receipt.accountId
 
+    # Check balance
     balance_query = CryptoGetAccountBalanceQuery().set_account_id(new_account_id)
     balance = balance_query.execute(client)
     print(f"Initial balance of new account: {balance.hbars} hbars")
 
+    # Transfer 5 HBAR from operator to new account
     transfer_amount = Hbar(5)
     transfer_transaction = (
         TransferTransaction()
@@ -51,6 +56,7 @@ def create_account_and_transfer():
 
     time.sleep(2)
 
+    # Check updated balance
     updated_balance_query = CryptoGetAccountBalanceQuery().set_account_id(new_account_id)
     updated_balance = updated_balance_query.execute(client)
     print(f"Updated balance of new account: {updated_balance.hbars} hbars")

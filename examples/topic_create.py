@@ -2,11 +2,13 @@ import os
 import sys
 from dotenv import load_dotenv
 
-from hedera_sdk_python.client.client import Client
-from hedera_sdk_python.account.account_id import AccountId
-from hedera_sdk_python.crypto.private_key import PrivateKey
-from hedera_sdk_python.client.network import Network
-from hedera_sdk_python.consensus.topic_create_transaction import TopicCreateTransaction
+from hedera_sdk_python import (
+    Client,
+    AccountId,
+    PrivateKey,
+    TopicCreateTransaction,
+    Network,
+)
 
 load_dotenv()
 
@@ -22,7 +24,8 @@ def create_topic():
     transaction = (
         TopicCreateTransaction(
             memo="Python SDK created topic",
-            admin_key=operator_key.public_key())
+            admin_key=operator_key.public_key()
+        )
         .freeze_with(client)
         .sign(operator_key)
     )
