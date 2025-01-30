@@ -2,12 +2,14 @@ import os
 import sys
 from dotenv import load_dotenv
 
-from hedera_sdk_python.client.client import Client
-from hedera_sdk_python.account.account_id import AccountId
-from hedera_sdk_python.crypto.private_key import PrivateKey
-from hedera_sdk_python.client.network import Network
-from hedera_sdk_python.tokens.token_id import TokenId
-from hedera_sdk_python.tokens.token_associate_transaction import TokenAssociateTransaction
+from hedera_sdk_python import (
+    Client,
+    AccountId,
+    PrivateKey,
+    Network,
+    TokenId,
+    TokenAssociateTransaction,
+)
 
 load_dotenv()
 
@@ -17,7 +19,7 @@ def associate_token():
 
     recipient_id = AccountId.from_string(os.getenv('OPERATOR_ID'))
     recipient_key = PrivateKey.from_string(os.getenv('OPERATOR_KEY'))
-    token_id = TokenId.from_string('TOKEN_ID')
+    token_id = TokenId.from_string('TOKEN_ID')  # Update as needed
 
     client.set_operator(recipient_id, recipient_key)
 
