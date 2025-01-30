@@ -81,23 +81,3 @@ class TopicCreateTransaction(Transaction):
 
         receipt = self.get_receipt(client)
         return receipt
-
-    def get_receipt(self, client, timeout=60):
-        """
-        Retrieves the receipt for the transaction.
-
-        Args:
-            client (Client): The client instance.
-            timeout (int): Maximum time in seconds to wait for the receipt.
-
-        Returns:
-            TransactionReceipt: The transaction receipt from the network.
-
-        Raises:
-            Exception: If the transaction ID is not set or if receipt retrieval fails.
-        """
-        if self.transaction_id is None:
-            raise Exception("Transaction ID is not set.")
-
-        receipt = client.get_transaction_receipt(self.transaction_id, timeout)
-        return receipt

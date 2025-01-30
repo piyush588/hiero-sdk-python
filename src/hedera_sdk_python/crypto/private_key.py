@@ -9,7 +9,7 @@ class PrivateKey:
     Represents a private key that can be either Ed25519 or ECDSA (secp256k1).
     """
 
-    def __init__(self, private_key):
+    def __init__(self, private_key: ec.EllipticCurvePrivateKey | ed25519.Ed25519PrivateKey):
         """
         Initializes a PrivateKey from a cryptography PrivateKey object.
         """
@@ -56,14 +56,14 @@ class PrivateKey:
         return cls(private_key)
 
     @classmethod
-    def from_string(cls, key_str):
+    def from_bytes(cls, key_bytes: bytes):
         """
-        Load a private key from a hex-encoded string. For Ed25519, expects 32 bytes.
+        Load a private key from bytes. For Ed25519, expects 32 bytes.
         For ECDSA (secp256k1), also expects 32 bytes (raw scalar).
-        If it's DER-encoded, tries to parse and detect Ed25519 vs ECDSA.
+        If the key is DER-encoded, tries to parse and detect Ed25519 vs ECDSA.
 
         Args:
-            key_str (str): The hex-encoded private key string.
+            key_bytes (bytes): Private key bytes.
 
         Returns:
             PrivateKey: A new instance of PrivateKey.
@@ -71,11 +71,6 @@ class PrivateKey:
         Raises:
             ValueError: If the key is invalid or unsupported.
         """
-        try:
-            key_bytes = bytes.fromhex(key_str)
-        except ValueError:
-            raise ValueError("Invalid hex-encoded private key string.")
-
         if len(key_bytes) == 32:
             try:
                 ed_priv = ed25519.Ed25519PrivateKey.from_private_bytes(key_bytes)
@@ -103,6 +98,29 @@ class PrivateKey:
             return cls(private_key)
 
         raise ValueError("Unsupported private key type.")
+
+    @classmethod
+    def from_string(cls, key_str):
+        """
+        Load a private key from a hex-encoded string. For Ed25519, expects 32 bytes.
+        For ECDSA (secp256k1), also expects 32 bytes (raw scalar).
+        If the key is DER-encoded, tries to parse and detect Ed25519 vs ECDSA.
+
+        Args:
+            key_str (str): The hex-encoded private key string.
+
+        Returns:
+            PrivateKey: A new instance of PrivateKey.
+
+        Raises:
+            ValueError: If the key is invalid or unsupported.
+        """
+        try:
+            key_bytes = bytes.fromhex(key_str.removeprefix("0x"))
+        except ValueError:
+            raise ValueError("Invalid hex-encoded private key string.")
+
+        return cls.from_bytes(key_bytes)
 
     def sign(self, data: bytes) -> bytes:
         """
