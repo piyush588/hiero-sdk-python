@@ -1,10 +1,10 @@
 import pytest
 from unittest.mock import MagicMock
-from hedera_sdk_python.account.account_id import AccountId
-from hedera_sdk_python.tokens.token_id import TokenId
-from hedera_sdk_python.crypto.private_key import PrivateKey
+from hiero_sdk_python.account.account_id import AccountId
+from hiero_sdk_python.tokens.token_id import TokenId
+from hiero_sdk_python.crypto.private_key import PrivateKey
 from cryptography.hazmat.primitives import serialization
-from hedera_sdk_python.hapi import basic_types_pb2
+from hiero_sdk_python.hapi import basic_types_pb2
 
 @pytest.fixture
 def mock_account_ids():

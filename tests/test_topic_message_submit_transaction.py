@@ -1,14 +1,14 @@
 import pytest
 from unittest.mock import MagicMock
-from hedera_sdk_python.consensus.topic_id import TopicId
-from hedera_sdk_python.consensus.topic_message_submit_transaction import TopicMessageSubmitTransaction
-from hedera_sdk_python.transaction.transaction_id import TransactionId
-from hedera_sdk_python.transaction.transaction_receipt import TransactionReceipt
-from hedera_sdk_python.account.account_id import AccountId
-from hedera_sdk_python.crypto.private_key import PrivateKey
-from hedera_sdk_python.client.client import Client
-from hedera_sdk_python.response_code import ResponseCode
-from hedera_sdk_python.hapi.services import (
+from hiero_sdk_python.consensus.topic_id import TopicId
+from hiero_sdk_python.consensus.topic_message_submit_transaction import TopicMessageSubmitTransaction
+from hiero_sdk_python.transaction.transaction_id import TransactionId
+from hiero_sdk_python.transaction.transaction_receipt import TransactionReceipt
+from hiero_sdk_python.account.account_id import AccountId
+from hiero_sdk_python.crypto.private_key import PrivateKey
+from hiero_sdk_python.client.client import Client
+from hiero_sdk_python.response_code import ResponseCode
+from hiero_sdk_python.hapi.services import (
     response_pb2,
     transaction_receipt_pb2,
     timestamp_pb2 as hapi_timestamp_pb2

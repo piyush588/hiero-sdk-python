@@ -1,5 +1,5 @@
 [project]
-name = "hedera_sdk_python"
+name = "hiero-sdk-python"
 dynamic = ["version"]
 description = "A Hiero SDK in pure Python"
 maintainers = [

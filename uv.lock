@@ -320,8 +320,8 @@ wheels = [
 ]
 
 [[package]]
-name = "hedera-sdk-python"
-version = "0.1.dev95+gbdaffef.d20241230"
+name = "hiero-sdk-python"
+version = "0.0.2.dev3+d20250131"
 source = { editable = "." }
 dependencies = [
     { name = "cryptography" },

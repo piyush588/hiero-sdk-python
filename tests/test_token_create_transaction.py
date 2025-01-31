@@ -1,8 +1,8 @@
 import pytest
 from unittest.mock import MagicMock
-from hedera_sdk_python.tokens.token_create_transaction import TokenCreateTransaction
-from hedera_sdk_python.hapi.services import basic_types_pb2, timestamp_pb2, transaction_pb2, transaction_body_pb2
-from hedera_sdk_python.transaction.transaction_id import TransactionId
+from hiero_sdk_python.tokens.token_create_transaction import TokenCreateTransaction
+from hiero_sdk_python.hapi.services import basic_types_pb2, timestamp_pb2, transaction_pb2, transaction_body_pb2
+from hiero_sdk_python.transaction.transaction_id import TransactionId
 from cryptography.hazmat.primitives import serialization
 
 def generate_transaction_id(account_id_proto):

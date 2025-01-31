@@ -3,7 +3,7 @@ import time
 from datetime import datetime
 from dotenv import load_dotenv
 
-from hedera_sdk_python import (
+from hiero_sdk_python import (
     Network,
     Client,
     TopicMessageQuery,
