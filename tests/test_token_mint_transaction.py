@@ -1,11 +1,11 @@
 import pytest
 from unittest.mock import MagicMock
-from hedera_sdk_python.tokens.token_mint_transaction import TokenMintTransaction
-from hedera_sdk_python.hapi import basic_types_pb2, timestamp_pb2, transaction_pb2, transaction_body_pb2
-from hedera_sdk_python.transaction.transaction_id import TransactionId
+from hiero_sdk_python.tokens.token_mint_transaction import TokenMintTransaction
+from hiero_sdk_python.hapi import basic_types_pb2, timestamp_pb2, transaction_pb2, transaction_body_pb2
+from hiero_sdk_python.transaction.transaction_id import TransactionId
 from cryptography.hazmat.primitives import serialization
-from hedera_sdk_python.response_code import ResponseCode
-from hedera_sdk_python.hapi import token_mint_pb2
+from hiero_sdk_python.response_code import ResponseCode
+from hiero_sdk_python.hapi import token_mint_pb2
 
 def generate_transaction_id(account_id_proto):
     """Generate a unique transaction ID based on the account ID and the current timestamp."""

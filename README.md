@@ -42,7 +42,7 @@ The latest release of this SDK is published to PyPI. You can install it with:
 
 ```
 pip install --upgrade pip
-pip install hedera-sdk-python
+pip install hiero_sdk_python
 ```
 
 This will pull down a stable release along with the required dependencies.
@@ -72,8 +72,8 @@ Other installation methods can be found [here](https://docs.astral.sh/uv/getting
 2. Clone this repository:
 
 ```bash
-git clone https://github.com/nadineloepfe/hedera_sdk_python.git
-cd hedera_sdk_python
+git clone https://github.com/hiero-ledger/hiero_sdk_python.git
+cd hiero-sdk-python
 ```
 
 3. Install dependencies:
@@ -84,7 +84,7 @@ worry about managing multiple versions of python on your machine!
 
 ```bash
 uv sync
-uv run generate_proto.py
+sh generate_proto.sh
 ```
 
 To update to a newer version of the protobuf libraries, edit the `generate_proto.py` file and change the version number
@@ -96,13 +96,13 @@ and then rerun it.
 For active development, you can install the repo in editable mode. That way, changes in your local code are immediately reflected when you import:
 
 ```
-git clone https://github.com/nadineloepfe/hedera_sdk_python.git
-cd hedera_sdk_python
+git clone https://github.com/hiero-ledger/hiero-sdk-python.git
+cd hiero-sdk-python
 pip install --upgrade pip
 pip install -e .
 ```
 
-Now you can run example scripts like python `examples/account_create.py`, and it will import from your local hedera_sdk_python code.
+Now you can run example scripts like python `examples/account_create.py`, and it will import from your local hiero_sdk_python code.
 
 
 ## Environment Setup

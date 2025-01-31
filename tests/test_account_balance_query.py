@@ -1,11 +1,11 @@
 import pytest
 from unittest.mock import MagicMock
-from hedera_sdk_python.query.account_balance_query import CryptoGetAccountBalanceQuery
-from hedera_sdk_python.account.account_id import AccountId
-from hedera_sdk_python.account.account_balance import AccountBalance
-from hedera_sdk_python.client.client import Client
-from hedera_sdk_python.hbar import Hbar
-from hedera_sdk_python.response_code import ResponseCode
+from hiero_sdk_python.query.account_balance_query import CryptoGetAccountBalanceQuery
+from hiero_sdk_python.account.account_id import AccountId
+from hiero_sdk_python.account.account_balance import AccountBalance
+from hiero_sdk_python.client.client import Client
+from hiero_sdk_python.hbar import Hbar
+from hiero_sdk_python.response_code import ResponseCode
 
 @pytest.mark.usefixtures("mock_account_ids")
 def test_build_account_balance_query(mock_account_ids):

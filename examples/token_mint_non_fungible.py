@@ -3,7 +3,7 @@ import sys
 import json
 from dotenv import load_dotenv
 
-from hedera_sdk_python import (
+from hiero_sdk_python import (
     Client,
     AccountId,
     PrivateKey,

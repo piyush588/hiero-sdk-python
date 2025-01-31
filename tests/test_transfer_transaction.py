@@ -1,5 +1,5 @@
 import pytest
-from hedera_sdk_python.transaction.transfer_transaction import TransferTransaction
+from hiero_sdk_python.transaction.transfer_transaction import TransferTransaction
 
 def test_add_token_transfer(mock_account_ids):
     """Test adding token transfers and ensure amounts are correctly added."""

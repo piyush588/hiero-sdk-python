@@ -1,11 +1,11 @@
 import pytest
 from unittest.mock import MagicMock
-from hedera_sdk_python.query.topic_info_query import TopicInfoQuery
-from hedera_sdk_python.client.client import Client
-from hedera_sdk_python.consensus.topic_id import TopicId
-from hedera_sdk_python.hapi.services import basic_types_pb2, consensus_get_topic_info_pb2
-from hedera_sdk_python.hapi.services.consensus_topic_info_pb2 import ConsensusTopicInfo
-from hedera_sdk_python.hapi.services.response_header_pb2 import ResponseHeader
+from hiero_sdk_python.query.topic_info_query import TopicInfoQuery
+from hiero_sdk_python.client.client import Client
+from hiero_sdk_python.consensus.topic_id import TopicId
+from hiero_sdk_python.hapi.services import basic_types_pb2, consensus_get_topic_info_pb2
+from hiero_sdk_python.hapi.services.consensus_topic_info_pb2 import ConsensusTopicInfo
+from hiero_sdk_python.hapi.services.response_header_pb2 import ResponseHeader
 
 
 @pytest.fixture

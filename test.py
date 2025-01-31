@@ -1,28 +1,25 @@
 import os
 import sys
 from dotenv import load_dotenv
-
-from hedera_sdk_python import (
-    Network,
-    Client,
-    AccountId,
-    AccountCreateTransaction,
-    PrivateKey,
-    TokenCreateTransaction,
-    TokenAssociateTransaction,
-    TokenDissociateTransaction,
-    TransferTransaction,
-    TokenDeleteTransaction,
-    TokenMintTransaction,
-    ResponseCode,
-    TopicCreateTransaction,
-    TopicMessageSubmitTransaction,
-    TopicUpdateTransaction,
-    TopicDeleteTransaction,
-    TopicId,
-    TopicInfoQuery,
-    CryptoGetAccountBalanceQuery,
-)
+from hiero_sdk_python.client.network import Network
+from hiero_sdk_python.client.client import Client
+from hiero_sdk_python.account.account_id import AccountId
+from hiero_sdk_python.account.account_create_transaction import AccountCreateTransaction
+from hiero_sdk_python.crypto.private_key import PrivateKey
+from hiero_sdk_python.tokens.token_create_transaction import TokenCreateTransaction
+from hiero_sdk_python.tokens.token_associate_transaction import TokenAssociateTransaction
+from hiero_sdk_python.tokens.token_dissociate_transaction import TokenDissociateTransaction
+from hiero_sdk_python.tokens.token_mint_transaction import TokenMintTransaction
+from hiero_sdk_python.transaction.transfer_transaction import TransferTransaction
+from hiero_sdk_python.tokens.token_delete_transaction import TokenDeleteTransaction
+from hiero_sdk_python.response_code import ResponseCode
+from hiero_sdk_python.consensus.topic_create_transaction import TopicCreateTransaction
+from hiero_sdk_python.consensus.topic_message_submit_transaction import TopicMessageSubmitTransaction
+from hiero_sdk_python.consensus.topic_update_transaction import TopicUpdateTransaction
+from hiero_sdk_python.consensus.topic_delete_transaction import TopicDeleteTransaction
+from hiero_sdk_python.consensus.topic_id import TopicId
+from hiero_sdk_python.query.topic_info_query import TopicInfoQuery
+from hiero_sdk_python.query.account_balance_query import CryptoGetAccountBalanceQuery
 
 load_dotenv()
 
@@ -238,8 +235,6 @@ def mint_nft_token(client, token_id, supply_key, metadata=[b"Token A"]):
     except Exception as e:
         print(f"Token minting failed: {str(e)}")
         sys.exit(1)        
-
-
 
 def create_topic(client):
     key = client.operator_private_key
