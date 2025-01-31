@@ -2,7 +2,7 @@
 
 This is a Python SDK for interacting with the Hedera Hashgraph platform. It allows developers to:
 
-- Manage Token Transactions like Create, Associate, Dissociate, Transfer & Delete
+- Manage Token Transactions like Create, Mint Fungible, Mint Non-Fungible, Associate, Dissociate, Transfer & Delete
 - Manage Consensus Transactions like Topic Create, Update, Delete
 - Submit Topic Messages
 - Query Account Balance, Transaction Receipts, Topic Infos and Messages
@@ -19,6 +19,8 @@ This is a Python SDK for interacting with the Hedera Hashgraph platform. It allo
   - [Creating an Account](#creating-an-account)
   - [Querying Account Balance](#querying-account-balance)
   - [Creating a Token](#creating-a-token)
+  - [Minting a Fungible Token](#minting-a-fungible-token)
+  - [Minting a Non-Fungible Token](#minting-a-non-fungible-token)
   - [Associating a Token](#associating-a-token)
   - [Dissociating a Token](#dissociating-a-token)
   - [Transferring Tokens](#transferring-tokens)
@@ -112,6 +114,7 @@ Create a .env file in the root of your project with the following (replace with 
 OPERATOR_ID=0.0.1234xx
 OPERATOR_KEY=302e020100300506032b657004220420...
 ADMIN_KEY=302a300506032b65700321009308ecfdf...
+SUPPLY_KEY =302a300506032b6570032100c5e4af5..."
 RECIPIENT_ID=0.0.789xx
 TOKEN_ID=0.0.100xx
 TOPIC_ID=0.0.200xx
@@ -143,6 +146,7 @@ New Account Public Key: 8f444e36e8926def492adxxx...
 Token creation successful. Token ID: 0.0.5025xxx
 Token association successful.
 Token dissociation successful.
+Token minting successful.
 Token transfer successful.
 Token deletion successful.
 Topic creation successful.
@@ -215,6 +219,7 @@ transaction = TokenCreateTransaction(
     initial_supply=1000,
     treasury_account_id=operator_id,
     admin_key=admin_key
+    supply_key=supply_key
 ).freeze_with(client)
 
 transaction.sign(admin_key)
@@ -232,12 +237,66 @@ transaction = (
         .set_initial_supply(1000)
         .set_treasury_account_id(operator_id)
         .set_admin_key(admin_key) # Optional to create a token. Necessary for Token Delete or Update.
+        .set_supply_key(supply_key) # Optional to change token supply. Necessary for Token Mint or Burn.
         .freeze_with(client)
     )
 
     transaction.sign(admin_key) # If admin key exists.
     transaction.sign(operator_key)
     transaction.execute(client)
+```
+
+
+### Minting a Fungible Token
+
+#### Pythonic Syntax:
+```
+transaction = TokenMintTransaction(
+    token_id=token_id,
+    amount=amount,  # lowest denomination, must be positive and not zero
+).freeze_with(client)
+
+transaction.sign(operator_key)  
+transaction.sign(supply_key)  
+transaction.execute(client)
+```
+#### Method Chaining:
+```
+transaction = (
+    TokenMintTransaction()
+    .set_token_id(token_id)
+    .set_amount(amount) # lowest denomination, must be positive and not zero
+    .freeze_with(client)
+)
+transaction.sign(operator_key)  
+transaction.sign(admin_key)  
+transaction.execute(client)
+```
+
+### Minting a Non-Fungible Token
+
+#### Pythonic Syntax:
+```
+transaction = TokenMintTransaction(
+    token_id=token_id,
+    metadata=metadata  # Bytes for non-fungible tokens (NFTs)
+).freeze_with(client)
+
+transaction.sign(operator_key)  
+transaction.sign(supply_key)  
+transaction.execute(client)
+```
+#### Method Chaining:
+```
+transaction = (
+    TokenMintTransaction()
+    .set_token_id(token_id)
+    .set_metadata(metadata)  # Bytes for non-fungible tokens (NFTs)
+    .freeze_with(client)
+)
+transaction.sign(operator_key)  
+transaction.sign(admin_key)  
+transaction.execute(client)
 ```
 
 ### Associating a Token
