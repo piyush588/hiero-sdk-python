@@ -19,8 +19,8 @@ jobs:
       - name: Upgrade pip
         run: pip install --upgrade pip
 
-      - name: Install build & pdm-backend
-        run: pip install build pdm-backend
+      - name: Install build, pdm-backend, and grpcio-tools
+        run: pip install build pdm-backend grpcio-tools
 
       - name: Generate Protobuf (if needed)
         run: bash ./generate_proto.sh
