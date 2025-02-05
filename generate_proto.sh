@@ -21,7 +21,7 @@ touch $services_dir/__init__.py
 touch $mirror_dir/__init__.py
 
 # Step 2: Download and extract protobuf files
-echo "Downloading Hedera protobufs version $hapi_version..."
+echo "Downloading Hiero protobufs version $hapi_version..."
 curl -sL "https://github.com/hashgraph/hedera-protobufs/archive/refs/tags/${hapi_version}.tar.gz" | tar -xz -C $protos_dir --strip-components=1
 # Keep 'platform', 'services', and 'mirror', remove everything else
 find "$protos_dir" -mindepth 1 -maxdepth 1 ! -name platform ! -name services ! -name mirror -exec rm -r {} +
