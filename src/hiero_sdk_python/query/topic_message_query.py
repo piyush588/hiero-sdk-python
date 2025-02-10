@@ -1,10 +1,12 @@
 from datetime import datetime
 from typing import Optional, Callable, Union
 import threading
+
 from hiero_sdk_python.consensus.topic_message import TopicMessage
 from hiero_sdk_python.hapi.mirror import consensus_service_pb2 as mirror_proto
 from hiero_sdk_python.hapi.services import basic_types_pb2, timestamp_pb2
 from hiero_sdk_python.consensus.topic_id import TopicId
+
 
 class TopicMessageQuery:
     """
@@ -19,21 +21,20 @@ class TopicMessageQuery:
         limit: Optional[int] = None,
         chunking_enabled: bool = False,
     ):
-        """
-        Initializes a new TopicMessageQuery instance.
-
-        Args:
-            topic_id (str or TopicId, optional): The ID of the topic to subscribe to.
-            start_time (datetime, optional): Start time for the subscription.
-            end_time (datetime, optional): End time for the subscription.
-            limit (int, optional): Maximum number of messages to retrieve.
-            chunking_enabled (bool, optional): Whether to enable chunking.
-        """
         self._topic_id = self._parse_topic_id(topic_id) if topic_id else None
         self._start_time = self._parse_timestamp(start_time) if start_time else None
         self._end_time = self._parse_timestamp(end_time) if end_time else None
         self._limit = limit
         self._chunking_enabled = chunking_enabled
+        self._completion_handler: Optional[Callable[[], None]] = None
+
+    def set_completion_handler(self, handler: Callable[[], None]):
+        """
+        Assign a callback that will be invoked when the subscription
+        completes (i.e., the mirror node closes the stream).
+        """
+        self._completion_handler = handler
+        return self
 
     def _parse_topic_id(self, topic_id: Union[str, TopicId]):
         if isinstance(topic_id, str):
@@ -78,6 +79,12 @@ class TopicMessageQuery:
         on_message: Callable[[TopicMessage], None],
         on_error: Optional[Callable[[Exception], None]] = None,
     ):
+        """
+        Subscribes to the given topic on the mirror node via client.mirror_stub.
+        The on_message callback is invoked for each received TopicMessage.
+        The optional on_error callback is invoked if an exception occurs in the subscription thread.
+        If a completion handler has been set (via set_completion_handler), it is called when the stream ends.
+        """
         if not self._topic_id:
             raise ValueError("Topic ID must be set before subscribing.")
         if not client.mirror_stub:
@@ -97,6 +104,8 @@ class TopicMessageQuery:
                 for response in message_stream:
                     msg_obj = TopicMessage.from_proto(response)
                     on_message(msg_obj)
+                if self._completion_handler:
+                    self._completion_handler()
             except Exception as e:
                 if on_error:
                     on_error(e)
