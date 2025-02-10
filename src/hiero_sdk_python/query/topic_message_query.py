@@ -1,6 +1,7 @@
 from datetime import datetime
 from typing import Optional, Callable, Union
 import threading
+import time
 
 from hiero_sdk_python.consensus.topic_message import TopicMessage
 from hiero_sdk_python.hapi.mirror import consensus_service_pb2 as mirror_proto
@@ -28,11 +29,18 @@ class TopicMessageQuery:
         self._chunking_enabled = chunking_enabled
         self._completion_handler: Optional[Callable[[], None]] = None
 
+        self._max_attempts = 10
+        self._max_backoff = 8.0
+
+    def set_max_attempts(self, attempts: int):
+        self._max_attempts = attempts
+        return self
+
+    def set_max_backoff(self, backoff: float):
+        self._max_backoff = backoff
+        return self
+
     def set_completion_handler(self, handler: Callable[[], None]):
-        """
-        Assign a callback that will be invoked when the subscription
-        completes (i.e., the mirror node closes the stream).
-        """
         self._completion_handler = handler
         return self
 
@@ -79,12 +87,6 @@ class TopicMessageQuery:
         on_message: Callable[[TopicMessage], None],
         on_error: Optional[Callable[[Exception], None]] = None,
     ):
-        """
-        Subscribes to the given topic on the mirror node via client.mirror_stub.
-        The on_message callback is invoked for each received TopicMessage.
-        The optional on_error callback is invoked if an exception occurs in the subscription thread.
-        If a completion handler has been set (via set_completion_handler), it is called when the stream ends.
-        """
         if not self._topic_id:
             raise ValueError("Topic ID must be set before subscribing.")
         if not client.mirror_stub:
@@ -99,16 +101,24 @@ class TopicMessageQuery:
             request.limit = self._limit
 
         def run_stream():
-            try:
-                message_stream = client.mirror_stub.subscribeTopic(request)
-                for response in message_stream:
-                    msg_obj = TopicMessage.from_proto(response)
-                    on_message(msg_obj)
-                if self._completion_handler:
-                    self._completion_handler()
-            except Exception as e:
-                if on_error:
-                    on_error(e)
+            attempt = 0
+            while attempt < self._max_attempts:
+                try:
+                    message_stream = client.mirror_stub.subscribeTopic(request)
+                    for response in message_stream:
+                        msg_obj = TopicMessage.from_proto(response)
+                        on_message(msg_obj)
+                    if self._completion_handler:
+                        self._completion_handler()
+                    return
+                except Exception as e:
+                    attempt += 1
+                    if attempt >= self._max_attempts:
+                        if on_error:
+                            on_error(e)
+                        return
+                    delay = min(0.5 * (2 ** (attempt - 1)), self._max_backoff)
+                    time.sleep(delay)
 
         thread = threading.Thread(target=run_stream, daemon=True)
         thread.start()
