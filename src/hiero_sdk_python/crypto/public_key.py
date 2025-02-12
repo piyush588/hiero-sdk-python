@@ -59,6 +59,26 @@ class PublicKey:
         except Exception as e:
             raise ValueError(f"Failed to load public key (DER): {e}")
 
+    @classmethod
+    def from_string(cls, key_str):
+        """
+        Load a public key from a hex-encoded string.
+        For Ed25519, expects 32 bytes. Raw bytes string for ECDSA is not supported for now.
+        If the key is DER-encoded, tries to parse and detect Ed25519 vs ECDSA.
+        Args:
+            key_str (str): The hex-encoded public key string.
+        Returns:
+            PublicKey: A new instance of PublicKey.
+        Raises:
+            ValueError: If the key is invalid or unsupported.
+        """
+        try:
+            key_bytes = bytes.fromhex(key_str.removeprefix("0x"))
+        except ValueError:
+            raise ValueError("Invalid hex-encoded public key string.")
+
+        return cls.from_bytes(key_bytes)
+
     def verify(self, signature: bytes, data: bytes) -> None:
         """
         Verifies a signature for the given data using this public key.
