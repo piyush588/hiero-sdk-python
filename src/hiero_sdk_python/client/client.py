@@ -10,17 +10,12 @@ from hiero_sdk_python.hapi.services import (
 
 from hiero_sdk_python.hapi.mirror import (
     consensus_service_pb2_grpc as mirror_consensus_grpc,
-    mirror_network_service_pb2_grpc as mirror_network_grpc
 )
 
 from .network import Network
 from hiero_sdk_python.response_code import ResponseCode
 from hiero_sdk_python.query.transaction_get_receipt_query import TransactionGetReceiptQuery
 from hiero_sdk_python.transaction.transaction_id import TransactionId
-
-import random
-import requests
-from hiero_sdk_python.account.account_id import AccountId
 
 Operator = namedtuple('Operator', ['account_id', 'private_key'])
 

@@ -97,7 +97,6 @@ class Network:
         url = f"{base_url}/api/v1/network/nodes?limit=100&order=desc"
 
         try:
-            import requests
             response = requests.get(url)
             response.raise_for_status()
             data = response.json()
