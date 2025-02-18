@@ -10,9 +10,10 @@ class PrivateKey:
     """
 
     def __init__(
-        self,
-        private_key: Union[ec.EllipticCurvePrivateKey, ed25519.Ed25519PrivateKey]
-    ):
+        self, private_key: Union[ec.EllipticCurvePrivateKey, ed25519.Ed25519PrivateKey]):
+        """
+        Initializes a PrivateKey from a cryptography PrivateKey object.
+        """
         self._private_key = private_key
 
     @classmethod
