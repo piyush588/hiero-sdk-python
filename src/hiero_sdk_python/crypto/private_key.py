@@ -1,7 +1,7 @@
 from cryptography.hazmat.primitives.asymmetric import ed25519, ec
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.backends import default_backend
-from typing import Union
+from typing import Optional, Union
 from hiero_sdk_python.crypto.public_key import PublicKey
 
 class PrivateKey:
@@ -60,30 +60,48 @@ class PrivateKey:
         If the key is DER-encoded, tries to parse Ed25519 vs ECDSA.
         """
         if len(key_bytes) == 32:
-            try:
-                ed_priv = ed25519.Ed25519PrivateKey.from_private_bytes(key_bytes)
+            ed_priv = cls._try_load_ed25519(key_bytes)
+            if ed_priv:
                 return cls(ed_priv)
-            except Exception:
-                pass
 
-            try:
-                private_int = int.from_bytes(key_bytes, "big")
-                ec_priv = ec.derive_private_key(private_int, ec.SECP256K1(), default_backend())
+            ec_priv = cls._try_load_ecdsa(key_bytes)
+            if ec_priv:
                 return cls(ec_priv)
-            except Exception:
-                pass
 
+        der_key = cls._try_load_der(key_bytes)
+        if der_key:
+            return cls(der_key)
+
+        raise ValueError("Failed to load private key from bytes.")
+
+    @staticmethod
+    def _try_load_ed25519(key_bytes: bytes) -> Optional[ed25519.Ed25519PrivateKey]:
+        try:
+            return ed25519.Ed25519PrivateKey.from_private_bytes(key_bytes)
+        except Exception:
+            return None
+
+    @staticmethod
+    def _try_load_ecdsa(key_bytes: bytes) -> Optional[ec.EllipticCurvePrivateKey]:
+        try:
+            private_int = int.from_bytes(key_bytes, "big")
+            return ec.derive_private_key(private_int, ec.SECP256K1(), default_backend())
+        except Exception:
+            return None
+
+    @staticmethod
+    def _try_load_der(key_bytes: bytes) -> Optional[Union[ed25519.Ed25519PrivateKey, ec.EllipticCurvePrivateKey]]:
         try:
             private_key = serialization.load_der_private_key(key_bytes, password=None)
             if isinstance(private_key, ed25519.Ed25519PrivateKey):
-                return cls(private_key)
+                return private_key
             if isinstance(private_key, ec.EllipticCurvePrivateKey):
                 if not isinstance(private_key.curve, ec.SECP256K1):
                     raise ValueError("Only secp256k1 ECDSA is supported.")
-                return cls(private_key)
-            raise ValueError("Unsupported private key type.")
-        except Exception as e:
-            raise ValueError(f"Failed to load private key (DER): {e}")
+                return private_key
+            return None
+        except Exception:
+            return None
 
     def sign(self, data: bytes) -> bytes:
         return self._private_key.sign(data)

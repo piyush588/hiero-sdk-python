@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional, List, Union
+from typing import Optional, List, Union, Dict
 from hiero_sdk_python.hapi.mirror import consensus_service_pb2 as mirror_proto
 
 def _to_datetime(ts_proto) -> datetime:
@@ -30,16 +30,26 @@ class TopicMessage:
     def __init__(
         self,
         consensus_timestamp: datetime,
-        contents: bytes,
-        running_hash: bytes,
-        sequence_number: int,
+        message_data: Dict[str, Union[bytes, int]],
         chunks: List[TopicMessageChunk],
         transaction_id: Optional[str] = None,
     ):
+        """
+        Args:
+            consensus_timestamp: The final consensus timestamp.
+            message_data: Dict with required fields:
+                          {
+                              "contents": bytes,
+                              "running_hash": bytes,
+                              "sequence_number": int
+                          }
+            chunks: All individual chunks that form this message.
+            transaction_id: The transaction ID string if available.
+        """
         self.consensus_timestamp = consensus_timestamp
-        self.contents = contents
-        self.running_hash = running_hash
-        self.sequence_number = sequence_number
+        self.contents = message_data["contents"]
+        self.running_hash = message_data["running_hash"]
+        self.sequence_number = message_data["sequence_number"]
         self.chunks = chunks
         self.transaction_id = transaction_id
 
@@ -52,7 +62,7 @@ class TopicMessage:
         consensus_timestamp = chunk.consensus_timestamp
         contents = response.message
         running_hash = response.runningHash
-        sequence_number = response.sequence_number
+        sequence_number = chunk.sequence_number
 
         transaction_id = None
         if response.HasField("chunkInfo") and response.chunkInfo.HasField("initialTransactionID"):
@@ -64,9 +74,11 @@ class TopicMessage:
 
         return cls(
             consensus_timestamp,
-            contents,
-            running_hash,
-            sequence_number,
+            {
+                "contents": contents,
+                "running_hash": running_hash,
+                "sequence_number": sequence_number,
+            },
             [chunk],
             transaction_id
         )
@@ -87,9 +99,11 @@ class TopicMessage:
             chunks.append(c)
             total_size += len(r.message)
 
-            if (transaction_id is None
+            if (
+                transaction_id is None
                 and r.HasField("chunkInfo")
-                and r.chunkInfo.HasField("initialTransactionID")):
+                and r.chunkInfo.HasField("initialTransactionID")
+            ):
                 tx_id = r.chunkInfo.initialTransactionID
                 transaction_id = (
                     f"{tx_id.shardNum}.{tx_id.realmNum}.{tx_id.accountNum}-"
@@ -110,9 +124,11 @@ class TopicMessage:
 
         return cls(
             consensus_timestamp,
-            bytes(contents),
-            running_hash,
-            sequence_number,
+            {
+                "contents": bytes(contents),
+                "running_hash": running_hash,
+                "sequence_number": sequence_number,
+            },
             chunks,
             transaction_id
         )
@@ -131,14 +147,7 @@ class TopicMessage:
         If chunking is enabled and multiple chunks are detected, they are reassembled
         into one combined TopicMessage. Otherwise, a single chunk is returned as-is.
         """
-        if isinstance(response_or_responses, mirror_proto.ConsensusTopicResponse):
-            response = response_or_responses
-            if chunking_enabled and response.HasField("chunkInfo") and response.chunkInfo.total > 1:
-                raise ValueError(
-                    "Cannot handle multi-chunk in a single response. Pass all chunk responses in a list."
-                )
-            return cls.of_single(response)
-        else:
+        if not isinstance(response_or_responses, mirror_proto.ConsensusTopicResponse):
             if not response_or_responses:
                 raise ValueError("Empty response list provided to from_proto().")
 
@@ -146,6 +155,13 @@ class TopicMessage:
                 return cls.of_single(response_or_responses[0])
 
             return cls.of_many(response_or_responses)
+
+        response = response_or_responses
+        if chunking_enabled and response.HasField("chunkInfo") and response.chunkInfo.total > 1:
+            raise ValueError(
+                "Cannot handle multi-chunk in a single response. Pass all chunk responses in a list."
+            )
+        return cls.of_single(response)
 
     def __str__(self):
         contents_str = self.contents.decode("utf-8", errors="replace")
