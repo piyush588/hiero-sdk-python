@@ -193,6 +193,7 @@ git commit -s -S -m "meaningful commit message"
 
 Squashing makes the commit history more concise, and signing ensures that commits are verified. Contributors are encouraged to follow these practices.
 
+
 ## License
 
 This project is licensed under the MIT License.
