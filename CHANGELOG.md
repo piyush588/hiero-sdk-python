@@ -13,10 +13,8 @@ This changelog is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.
 - README now split into root README for project overview and /examples README for transaction types and syntax.
 - Python version incremented from 3.9 to 3.10
 
-### Fixed
-
 ### Removed
-- pdm + uv .lock files
+- pdm.lock & uv.lock file
 
 ## [0.1.0] - 2025-02-19
 ### Added
