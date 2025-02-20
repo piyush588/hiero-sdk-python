@@ -143,56 +143,7 @@ Topic deletion successful.
 
 ## Contributing
 
-Contributions are welcome! Please follow these steps:
-
-    1. Fork this repository.
-    2. Create a new branch with your feature or fix.
-    3. Make your changes and ensure the tests pass.
-    3. Submit a pull request.
-
-Please ensure all new code is covered by unit tests.
-
-## Versioning and Release Strategy
-
-We use semantic versioning for this project, following the format:
-
-```
-MAJOR.MINOR.PATCH
-```
-    MAJOR: Breaking changes
-    MINOR: New features, but backwards-compatible
-    PATCH: Bug fixes and other minor changes
-
-Releases to PyPI should ideally increment the version according to these guidelines.
-Branching, Committing, and Merging
-Branching
-
-We follow a trunk-based development approach. Branches are usually named to reflect the intent:
-
-`feature/...` for new features
-`fix/...` for bug fixes
-
-The main branch should always be stable and production-ready.
-Committing
-
-We use commit types like feat, fix, docs, chore, test, refactor, style to categorize changes.
-
-Pull Request titles should include:
-
-`feat: ...`, `fix: ...`, etc.
-
-Individual commit messages within those PRs can be more descriptive and do not necessarily need the prefix, as long as they are clear and meaningful.
-
-## Merging
-
-We recommend squash and merge for PRs, along with GPG key signing. An example of a signed commit might look like:
-
-```
-git commit -s -S -m "meaningful commit message"
-```
-
-Squashing makes the commit history more concise, and signing ensures that commits are verified. Contributors are encouraged to follow these practices.
-
+We appreciate your interest in improving the Hiero Python SDK! Please see CONTRIBUTING.md for details about our contribution process, including bug reports, feature requests, and code contributions.
 
 ## License
 
