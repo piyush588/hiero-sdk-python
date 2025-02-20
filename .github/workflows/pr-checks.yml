@@ -4,43 +4,25 @@ on:
   push:
   pull_request:
 
-  pull_request_target:
-    types:
-      - assigned
-      - unassigned
-      - labeled
-      - unlabeled
-      - opened
-      - reopened
-      - edited
-      - converted_to_draft
-      - ready_for_review
-      - review_requested
-      - review_request_removed
-      - locked
-      - unlocked
-      - synchronize
-
 permissions:
   statuses: write
   contents: write
 
 jobs:
-
   title-check:
     name: "PR Title Check"
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'pull_request_target' }}
+    if: github.event_name == 'pull_request'
     steps:
       - name: Check PR Title
-        uses: step-security/conventional-pr-title-action@19fb561b33015fd2184055a05ce5a3bcf2ba3f54
+        uses: step-security/conventional-pr-title-action@v3.2.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   assignee-check:
     name: "Assignee Check"
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'pull_request_target' }}
+    if: github.event_name == 'pull_request'
     steps:
       - name: Check Assignee
         if: ${{ github.event.pull_request.assignees == null || github.event.pull_request.assignees[0] == null }}
@@ -54,7 +36,7 @@ jobs:
     if: github.event_name == 'pull_request'
     steps:
       - name: Semantic PR Title/Commit
-        uses: amannn/action-semantic-pull-request@0723387faaf9b38adef4775cd42cfd5155ed6017
+        uses: amannn/action-semantic-pull-request@v5.5.3
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
