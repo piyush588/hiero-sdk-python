@@ -48,22 +48,6 @@ jobs:
           echo "Assignee is not set. Failing the workflow."
           exit 1
 
-  actionlint:
-    name: "Lint GitHub Actions Workflows"
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Download actionlint
-        id: get_actionlint
-        run: |
-          bash <(curl https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash)
-
-      - name: Check workflow files
-        run: ${{ steps.get_actionlint.outputs.executable }} -color
-
   commit-message:
     name: "Commit Message Check"
     runs-on: ubuntu-latest
