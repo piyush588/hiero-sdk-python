@@ -30,7 +30,16 @@ class IntegrationTestEnv:
         self.client.close()
     
 
-def create_fungible_token(env):
+def create_fungible_token(env, opts=[]):
+    """
+    Create a fungible token with the given options.
+
+    Args:
+        env: The environment object containing the client and operator account.
+        opts: List of optional functions that can modify the token creation transaction before execution.
+             Example opt function:
+             lambda tx: tx.set_treasury_account_id(custom_treasury_id).freeze_with(client)
+    """
     token_params = TokenParams(
             token_name="PTokenTest34",
             token_symbol="PTT34",
@@ -50,14 +59,27 @@ def create_fungible_token(env):
         )
         
     token_transaction = TokenCreateTransaction(token_params, token_keys)
-    token_transaction.freeze_with(env.client)
+    
+    # Apply optional functions to the token creation transaction
+    for opt in opts:
+        opt(token_transaction)
+    
     token_receipt = token_transaction.execute(env.client)
     
     assert token_receipt.status == ResponseCode.SUCCESS, f"Token creation failed with status: {ResponseCode.get_name(token_receipt.status)}"
     
     return token_receipt.tokenId
 
-def create_nft_token(env):
+def create_nft_token(env, opts=[]):
+    """
+    Create a non-fungible token (NFT) with the given options.
+
+    Args:
+        env: The environment object containing the client and operator account.
+        opts: List of optional functions that can modify the token creation transaction before execution.
+             Example opt function:
+             lambda tx: tx.set_treasury_account_id(custom_treasury_id).freeze_with(client)
+    """
     token_params = TokenParams(
         token_name="PythonNFTToken",
         token_symbol="PNFT",
@@ -76,7 +98,11 @@ def create_nft_token(env):
     )
 
     transaction = TokenCreateTransaction(token_params, token_keys)
-    transaction.freeze_with(env.client)
+
+    # Apply optional functions to the token creation transaction
+    for opt in opts:
+        opt(transaction)
+
     token_receipt = transaction.execute(env.client)
     
     assert token_receipt.status == ResponseCode.SUCCESS, f"Token creation failed with status: {ResponseCode.get_name(token_receipt.status)}"
