@@ -1,12 +1,14 @@
+import warnings 
 from hiero_sdk_python.file.file_id import FileId
 from hiero_sdk_python.tokens.token_id import TokenId
 from hiero_sdk_python.consensus.topic_id import TopicId
 from hiero_sdk_python.account.account_id import AccountId
+from hiero_sdk_python._deprecated import _DeprecatedAliasesMixin
 
-
-class TransactionReceipt:
+class TransactionReceipt(_DeprecatedAliasesMixin):
     """
     Represents the receipt of a transaction.
+    Imports deprecated aliases for tokenId, topicId and accountId.
 
     The receipt contains information about the status and result of a transaction,
     such as the TokenId or AccountId involved.
@@ -28,7 +30,7 @@ class TransactionReceipt:
         self._receipt_proto = receipt_proto
 
     @property
-    def tokenId(self):
+    def token_id(self):
         """
         Retrieves the TokenId associated with the transaction receipt, if available.
 
@@ -41,7 +43,7 @@ class TransactionReceipt:
             return None
 
     @property
-    def topicId(self):
+    def topic_id(self):
         """
         Retrieves the TopicId associated with the transaction receipt, if available.
 
@@ -54,7 +56,7 @@ class TransactionReceipt:
             return None
 
     @property
-    def accountId(self):
+    def account_id(self):
         """
         Retrieves the AccountId associated with the transaction receipt, if available.
 
@@ -77,7 +79,7 @@ class TransactionReceipt:
         return self._receipt_proto.serialNumbers
 
     @property
-    def fileId(self):
+    def file_id(self):
         """
         Returns the file ID associated with this receipt.
         """

@@ -955,7 +955,7 @@ print(f"Transaction ID: {record.transaction_id}")
 print(f"Transaction Fee: {record.transaction_fee}")
 print(f"Transaction Hash: {record.transaction_hash}")
 print(f"Transaction Memo: {record.transaction_memo}")
-print(f"Transaction Account ID: {record.receipt.accountId}")
+print(f"Transaction Account ID: {record.receipt.account_id}")
 ```
 #### Method Chaining:
 ```
@@ -969,5 +969,5 @@ print(f"Transaction ID: {record.transaction_id}")
 print(f"Transaction Fee: {record.transaction_fee}")
 print(f"Transaction Hash: {record.transaction_hash}")
 print(f"Transaction Memo: {record.transaction_memo}")
-print(f"Transaction Account ID: {record.receipt.accountId}")
+print(f"Transaction Account ID: {record.receipt.account_id}")
 ```
