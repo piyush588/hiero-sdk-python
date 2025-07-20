@@ -1,0 +1,23 @@
+[MESSAGES CONTROL]
+# Disable specific warnings that are not relevant or cause false positives
+disable=W0212,E0611,C0114,C0115,C0116
+
+# W0212: Access to a protected member of a client class (protected-access)
+# E0611: No name in module (no-name-in-module) 
+# C0114: Missing module docstring
+# C0115: Missing class docstring  
+# C0116: Missing function or method docstring
+
+[FORMAT]
+# Maximum number of characters on a single line
+max-line-length=100
+
+[BASIC]
+# Good variable names which should always be accepted
+good-names=i,j,k,ex,Run,_,id,pk
+
+[DESIGN]
+# Maximum number of arguments for function / method
+max-args=10
+# Maximum number of attributes for a class
+max-attributes=15
