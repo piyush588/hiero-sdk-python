@@ -88,19 +88,18 @@ class PendingAirdropId:
         Returns:
             basic_types_pb2.PendingAirdropId: The protobuf representation of the PendingAirdropId.
         """
+        base = basic_types_pb2.PendingAirdropId(
+            sender_id=self.sender_id._to_proto(),
+            receiver_id=self.receiver_id._to_proto()
+        )
         if self.token_id:
-            return basic_types_pb2.PendingAirdropId(
-                sender_id=self.sender_id._to_proto(),
-                receiver_id=self.receiver_id._to_proto(),
-                fungible_token_type=self.token_id._to_proto()
-            )
-        if self.nft_id:
-            return basic_types_pb2.PendingAirdropId(
-                sender_id=self.sender_id._to_proto(),
-                receiver_id=self.receiver_id._to_proto(),
-                non_fungible_token=self.nft_id._to_proto()
-            )
-        raise RuntimeError("PendingAirdropId must have a token or NFT set.")
+            base.fungible_token_type.CopyFrom(self.token_id._to_proto())
+        elif self.nft_id:
+            base.non_fungible_token.CopyFrom(self.nft_id._to_proto())
+        else:
+            raise RuntimeError("PendingAirdropId must have either token_id or nft_id.")
+        return base
+
 
     def __str__(self) -> str:
         """
