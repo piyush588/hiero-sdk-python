@@ -19,6 +19,7 @@ dependencies = [
     "cryptography==44.0.0",
     "python-dotenv==1.0.1",
     "requests==2.32.3",
+    "pycryptodome==3.23.0",
     "eth-abi==5.2.0",
 ]
 classifiers = [
