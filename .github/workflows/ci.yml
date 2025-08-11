@@ -1,23 +1,57 @@
-name: Hiero Solo Integration Tests
+name: CI
 
 on:
   push:
     branches:
-      - '**'
-  workflow_dispatch:
+      - "**"
   pull_request:
+  workflow_dispatch:
 
 jobs:
-  build-and-test:
+  lint:
+    name: Run Pylint
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11.13"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v3
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pylint
+          # Running pylint on pull requests while ignoring:
+      #        - Accessing protected members (W0212)
+      #        - Import-related issues due to dynamic or partial dependencies (E0611, E0401)
+      #        - Linting only the changed Python files in the PR
+      - name: Run Pylint on changed files only
+        run: |
+          git fetch origin main
+          changed_files=$(git diff --name-only origin/main...HEAD | grep '\.py$' || true)
+          echo "Changed Python files:"
+          echo "$changed_files"
+          if [ -n "$changed_files" ]; then
+            pylint --disable=W0212,E0611,E0401 $changed_files
+          else
+            echo "No Python files changed. Skipping pylint."
+          fi
+
+  test:
+    name: Build & Run Tests
+    needs: lint
     runs-on: ubuntu-latest
     steps:
       - name: Harden the runner (Audit all outbound calls)
         uses: step-security/harden-runner@0634a2670c59f64b4a01f0f96f84700a4088b9f0 # v2.12.0
-        with:
-          egress-policy: audit
 
       - name: Checkout repository
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@v4
 
       - name: Install uv
         uses: astral-sh/setup-uv@38f3f104447c67c051c4a08e39b64a148898af3a # v4.2.0
