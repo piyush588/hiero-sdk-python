@@ -27,6 +27,10 @@ from .tokens.token_burn_transaction import TokenBurnTransaction
 from .tokens.token_grant_kyc_transaction import TokenGrantKycTransaction
 from .tokens.token_revoke_kyc_transaction import TokenRevokeKycTransaction
 from .tokens.token_update_transaction import TokenUpdateTransaction
+from .tokens.token_airdrop_transaction import TokenAirdropTransaction
+from .tokens.token_cancel_airdrop_transaction import TokenCancelAirdropTransaction
+from .tokens.pending_airdrop_id import PendingAirdropId
+from .tokens.pending_airdrop_record import PendingAirdropRecord
 from .tokens.token_id import TokenId
 from .tokens.token_type import TokenType
 from .tokens.supply_type import SupplyType
@@ -81,8 +85,20 @@ from .logger.log_level import LogLevel
 
 # File
 from .file.file_create_transaction import FileCreateTransaction
+from .file.file_append_transaction import FileAppendTransaction
 from .file.file_info_query import FileInfoQuery
 from .file.file_info import FileInfo
+from .file.file_contents_query import FileContentsQuery
+from .file.file_update_transaction import FileUpdateTransaction
+from .file.file_delete_transaction import FileDeleteTransaction
+
+# Contract
+from .contract.contract_create_transaction import ContractCreateTransaction
+from .contract.contract_call_query import ContractCallQuery
+from .contract.contract_info_query import ContractInfoQuery
+from .contract.contract_function_parameters import ContractFunctionParameters
+from .contract.contract_function_result import ContractFunctionResult
+from .contract.contract_info import ContractInfo
 
 __all__ = [
     # Client
@@ -118,6 +134,10 @@ __all__ = [
     "TokenGrantKycTransaction",
     "TokenRelationship",
     "TokenUpdateTransaction",
+    "TokenAirdropTransaction",
+    "TokenCancelAirdropTransaction",
+    "PendingAirdropId",
+    "PendingAirdropRecord",
     "TokenType",
     "SupplyType",
 
@@ -147,11 +167,11 @@ __all__ = [
     "TokenNftInfoQuery",
     "TokenInfoQuery",
     "AccountInfoQuery",
-    
+
     # Address book
     "Endpoint",
     "NodeAddress",
-    
+
     # Logger
     "Logger",
     "LogLevel",
@@ -161,9 +181,21 @@ __all__ = [
     "ResponseCode",
     "Timestamp",
     "Duration",
-    
+
     # File
     "FileCreateTransaction",
+    "FileAppendTransaction",
     "FileInfoQuery",
     "FileInfo",
+    "FileContentsQuery",
+    "FileUpdateTransaction",
+    "FileDeleteTransaction",
+
+    # Contract
+    "ContractCreateTransaction",
+    "ContractCallQuery",
+    "ContractInfoQuery",
+    "ContractFunctionParameters",
+    "ContractFunctionResult",
+    "ContractInfo"
 ]
