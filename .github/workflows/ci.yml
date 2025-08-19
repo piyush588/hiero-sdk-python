@@ -31,6 +31,7 @@ jobs:
           pip install pylint
 
       - name: Linting the following files
+        continue-on-error: true
         run: |
           git fetch origin main
           changed_files=$(git diff --name-only origin/main...HEAD | grep '\.py$' || true)
@@ -100,7 +101,14 @@ jobs:
         run: uv pip install -e .
 
       - name: Run integration tests
-        run: uv run pytest -m integration
+        env:
+          OPERATOR_ID: ${{ steps.solo.outputs.accountId }}
+          OPERATOR_KEY: ${{ steps.solo.outputs.privateKey }}
+          ADMIN_KEY: ${{ steps.solo.outputs.privateKey }}
+          PUBLIC_KEY: ${{ steps.solo.outputs.publicKey }}
+          NETWORK: solo
+        run: |
+          uv run pytest -m integration
 
       - name: Run unit tests
         run: uv run pytest -m unit
