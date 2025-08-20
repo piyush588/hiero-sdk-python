@@ -7,8 +7,39 @@ This project adheres to [Semantic Versioning](https://semver.org).
 This changelog is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
+### Added
+- ContractExecuteTransaction class
+- setMessageAndPay() function in StatefulContract
 
-### Breaking API changes  
+### Changed
+- Extract Ed25519 byte loading logic into private helper method `_from_bytes_ed25519()`
+
+## [0.1.4] - 2025-08-19
+### Added
+- CONTRIBUTING.md: expanded documentation detailing various contribution processes in a step-by-step way. Includes new sections: blog posts and support.
+- README_upstream.md: documentation explaining how to rebase to main.
+
+### Added
+- Legacy ECDSA DER parse support
+- documented private key from_string method behavior
+- ContractInfo class
+- ContractInfoQuery class
+- ContractID check in PublicKey._from_proto() method
+- PendingAirdropId Class
+- PendingAirdropRecord Class
+- TokenCancelAirdropTransaction Class
+- AccountUpdateTransaction class
+- ContractBytecodeQuery class
+- SimpleStorage.bin-runtime
+- Support for both .bin and .bin-runtime contract bytecode extensions in contract_utils.py
+- ContractUpdateTransaction class
+
+### Fixed
+- missing ECDSA support in query.py and contract_create_transaction.py (was only creating ED25519 keys)
+- Applied linting and code formatting across the consensus module
+- fixed pip install hiero_sdk_python -> pip install hiero-sdk-python in README.md
+
+### Breaking API changes
 **We have several camelCase uses that will be deprecated → snake_case** Original aliases will continue to function, with a warning, until the following release.
 
 #### In `token_info.py`
@@ -43,6 +74,7 @@ This changelog is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.
 - logger.warn will be deprecated in v0.1.4. Please use logger.warning instead.
 - get_logger method passing (name, level) will be deprecated in v0.1.4 for (level, name).
 
+
 ## [0.1.3] - 2025-07-03
 ### Added
 - TokenType Class
@@ -66,7 +98,8 @@ This changelog is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.
 - TokenUpdateTransaction Class
 - added Type hinting and initial methods to several modules
 - TokenRevoceKycTransaction Class
-- README_types.md
+- [Types Guide](hiero/hedera_sdk_python/documentation/sdk_developers/types.md)
+
 - TransactionRecordQuery Class
 - AccountInfoQuery Class
 
@@ -82,6 +115,15 @@ This changelog is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.
 - README updated
 - added PublicKey.from_proto to PublicKey class
 - changed Query Class to have method get_cost
+- SimpleContract and StatefulContract constructors to be payable
+- added new_pending_airdrops to TransactionRecord Class
+- Reorganized SDK developer documentation:
+  - Renamed and moved `README_linting.md` to `linting.md`
+  - Renamed and moved `README_types.md` to `types.md`
+  - Renamed and moved `Commit_Signing.md` to `signing.md`
+- Created `sdk_users` docs folder and renamed `examples/README.md` to `running_examples.md`
+- Updated references and links accordingly
+
 
 ### Fixed
 - fixed INVALID_NODE_ACCOUNT during node switching
