@@ -6,7 +6,11 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org).  
 This changelog is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+
 ## [Unreleased]
+
+
+## [0.1.4] - 2025-08-19
 
 ### Added
 
@@ -28,6 +32,7 @@ This changelog is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.
 - ContractBytecodeQuery class
 - SimpleStorage.bin-runtime
 - Support for both .bin and .bin-runtime contract bytecode extensions in contract_utils.py
+- ContractUpdateTransaction class
 
 ### Fixed
 
