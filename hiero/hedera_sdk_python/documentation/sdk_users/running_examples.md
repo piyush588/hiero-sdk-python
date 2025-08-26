@@ -60,6 +60,8 @@ You can choose either syntax or even mix both styles in your projects.
   - [Querying Contract Info](#querying-contract-info)
   - [Querying Contract Bytecode](#querying-contract-bytecode)
   - [Updating a Contract](#updating-a-contract)
+  - [Executing a Contract](#executing-a-contract)
+  - [Deleting a Contract](#deleting-a-contract)
 - [Miscellaneous Queries](#miscellaneous-queries)
   - [Querying Transaction Record](#querying-transaction-record)
 
@@ -1368,6 +1370,97 @@ transaction = (
 
 transaction.sign(current_admin_key)  # Sign with current admin key
 transaction.sign(new_admin_key)      # Sign with new admin key
+transaction.execute(client)
+```
+
+### Executing a Contract
+
+#### Pythonic Syntax:
+```python
+# Example: calling setMessage(bytes32) (StatefulContract.sol)
+# Prepare function parameters for setMessage(bytes32)
+func_params = ContractFunctionParameters("setMessage").add_bytes32(b"New message")
+
+transaction = ContractExecuteTransaction(
+    contract_id=contract_id,
+    gas=1000000,
+    function_parameters=func_params.to_bytes() # function to execute
+).freeze_with(client)
+
+transaction.sign(operator_key)
+transaction.execute(client)
+```
+
+#### Method Chaining:
+```python
+# Execute a contract function using method chaining
+# Example: calling setMessage(bytes32) (StatefulContract.sol)
+transaction = (
+    ContractExecuteTransaction()
+    .set_contract_id(contract_id)
+    .set_gas(1000000)
+    .set_function("setMessage",ContractFunctionParameters().add_bytes32(b"New message"))
+    .freeze_with(client)
+)
+
+# Alternatively, you can use set_function_parameters() with ContractFunctionParameters:
+transaction = (
+    ContractExecuteTransaction()
+    .set_contract_id(contract_id)
+    .set_gas(1000000)
+    .set_function(ContractFunctionParameters("setMessage").add_bytes32(b"New message"))
+    .freeze_with(client)
+)
+
+transaction.sign(operator_key)
+transaction.execute(client)
+```
+
+### Deleting a Contract
+
+#### Pythonic Syntax:
+```python
+# Option 1: Transfer contract balance to an account
+transaction = ContractDeleteTransaction(
+    contract_id=contract_id,
+    transfer_account_id=recipient_account_id
+).freeze_with(client)
+
+transaction.sign(admin_key)  # Admin key must have been set during contract creation
+transaction.execute(client)
+
+# Option 2: Transfer contract balance to another contract
+transaction = ContractDeleteTransaction(
+    contract_id=contract_id,
+    transfer_contract_id=transfer_contract_id
+).freeze_with(client)
+
+transaction.sign(admin_key)  # Admin key must have been set during contract creation
+transaction.execute(client)
+```
+
+#### Method Chaining:
+```python
+# Option 1: Transfer contract balance to an account
+transaction = (
+    ContractDeleteTransaction()
+    .set_contract_id(contract_id)
+    .set_transfer_account_id(recipient_account_id)
+    .freeze_with(client)
+)
+
+transaction.sign(admin_key)  # Admin key must have been set during contract creation
+transaction.execute(client)
+
+# Option 2: Transfer contract balance to another contract
+transaction = (
+    ContractDeleteTransaction()
+    .set_contract_id(contract_id)
+    .set_transfer_contract_id(recipient_contract_id)
+    .freeze_with(client)
+)
+
+transaction.sign(admin_key)  # Admin key must have been set during contract creation
 transaction.execute(client)
 ```
 
