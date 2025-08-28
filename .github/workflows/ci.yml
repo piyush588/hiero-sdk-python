@@ -45,6 +45,7 @@ jobs:
   test:
     name: Build & Run Tests
     needs: lint
+    if: always()
     runs-on: ubuntu-latest
 
     strategy:
