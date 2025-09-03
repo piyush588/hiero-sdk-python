@@ -7,6 +7,8 @@ This project adheres to [Semantic Versioning](https://semver.org).
 This changelog is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
+- Convert camelCase to snake_case in integration tests (#318)
+
 ### Added
 - ContractDeleteTransaction class
 - ContractExecuteTransaction class
