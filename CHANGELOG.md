@@ -20,8 +20,6 @@ This changelog is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.
 ### Changed
 - bump solo version to `v0.12`
 - Extract Ed25519 byte loading logic into private helper method `_from_bytes_ed25519()`
-- Incorrect naming in README for generate_proto.py to generate_proto.sh
-- Changed README MIT license to Apache
 - Documentation structure updated: contents moved from `/documentation` to `/docs`.
 - Switched Mirror Node endpoints used by SDK to secure ones instead of deprecated insecure endpoints (shut down on Aug 20th, see [Hedera blogpost](https://hedera.com/blog/updated-deprecation-of-the-insecure-hedera-consensus-service-hcs-mirror-node-endpoints))
 - Update protobuf dependency from 5.28.1 to 5.29.1
@@ -32,6 +30,10 @@ This changelog is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.
 - Type annotations in TokenRelationship class (kyc_status and freeze_status)
 - Test assertions in test_executable.py using pytest match parameter
 - Moved and renamed README_upstream.md to docs/sdk_developers/rebasing.md
+
+### Fixed
+- Windows malformed path using uv run generate_proto.py using as_posix()
+- Changed README MIT license to Apache
 
 ### Removed
 - Removed the old `/documentation` folder.
