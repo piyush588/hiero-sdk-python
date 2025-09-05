@@ -19,6 +19,7 @@ This changelog is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.
 - AccountDeleteTransaction Class
 - generate_proto.py
 - Bumped Hedera proto version from v0.57.3 to v0.64.3
+- Added `dev` and `lint` dependency groups as default in `pyproject.toml`
 - EthereumTransaction class
 - AccountId support for ECDSA alias accounts
 - ContractId.to_evm_address() method for EVM compatibility
