@@ -67,6 +67,8 @@ You can choose either syntax or even mix both styles in your projects.
   - [Executing Ethereum Transactions](#executing-ethereum-transactions)
 - [Schedule Transactions](#schedule-transactions)
   - [Creating a Schedule](#creating-a-schedule)
+- [Node Transactions](#node-transactions)
+  - [Creating a Node](#creating-a-node)
 - [Miscellaneous Queries](#miscellaneous-queries)
   - [Querying Transaction Record](#querying-transaction-record)
 
@@ -1522,148 +1524,6 @@ transaction.sign(admin_key)  # Admin key must have been set during contract crea
 transaction.execute(client)
 ```
 
-## Schedule Transactions
-
-### Creating a Schedule
-
-#### Pythonic Syntax:
-```python
-# First, create a transaction to be scheduled (e.g., a transfer transaction)
-transfer_tx = TransferTransaction(
-    hbar_transfers={
-        sender_id: -amount,  # Negative amount = debit
-        recipient_id: amount  # Positive amount = credit
-    }
-)
-
-# There are two equivalent approaches to creating scheduled transactions:
-
-# Approach 1: Use transaction.schedule() to generate a pre-configured ScheduleCreateTransaction
-# This internally creates a ScheduleCreateTransaction and sets the scheduled transaction
-schedule_tx1 = transfer_tx.schedule()
-# Then you can use the setter methods to configure additional parameters
-# schedule_tx1.set_payer_account_id(...).set_admin_key(...).etc
-
-# Approach 2: Create a ScheduleCreateTransaction with params directly
-schedule_tx = ScheduleCreateTransaction(
-    schedule_params=ScheduleCreateParams(
-        payer_account_id=client.operator_account_id,
-        admin_key=admin_key.public_key(),
-        expiration_time=expiration_time,  # Timestamp when the schedule expires
-        wait_for_expiry=True  # If true, executes only when expired even if all signatures present
-    )
-)
-# Set the transaction to be scheduled
-schedule_tx.set_scheduled_transaction(transfer_tx)
-schedule_tx.freeze_with(client)
-
-# Sign with required keys (any account being debited must sign)
-schedule_tx.sign(sender_private_key)
-schedule_tx.sign(admin_key)
-schedule_tx.sign(payer_account_private_key) # Sign with the payer key
-```
-
-#### Method Chaining:
-```python
-# First, create a transaction to be scheduled (e.g., a transfer transaction)
-transfer_tx = (
-    TransferTransaction()
-    .add_hbar_transfer(sender_id, -amount)  # Negative amount = debit
-    .add_hbar_transfer(recipient_id, amount)  # Positive amount = credit
-)
-
-# Convert it to a scheduled transaction
-# Using schedule() is equivalent to:
-# schedule_tx = ScheduleCreateTransaction()
-# schedule_tx.set_scheduled_transaction(transfer_tx)
-schedule_tx = transfer_tx.schedule()
-
-# Configure the scheduled transaction
-receipt = (
-    schedule_tx
-    .set_payer_account_id(payer_account_id)
-    .set_admin_key(admin_key.public_key())
-    .set_expiration_time(expiration_time)  # Timestamp when the schedule expires
-    .set_wait_for_expiry(True)  # If true, executes only when expired even if all signatures present
-    .freeze_with(client)
-    .sign(sender_private_key)  # Sign with the account being debited
-    .sign(admin_key)  # Sign with the admin key
-    .sign(payer_account_private_key) # Sign with the payer key
-    .execute(client)
-)
-```
-
-## Schedule Transactions
-
-### Creating a Schedule
-
-#### Pythonic Syntax:
-```python
-# First, create a transaction to be scheduled (e.g., a transfer transaction)
-transfer_tx = TransferTransaction(
-    hbar_transfers={
-        sender_id: -amount,  # Negative amount = debit
-        recipient_id: amount  # Positive amount = credit
-    }
-)
-
-# There are two equivalent approaches to creating scheduled transactions:
-
-# Approach 1: Use transaction.schedule() to generate a pre-configured ScheduleCreateTransaction
-# This internally creates a ScheduleCreateTransaction and sets the scheduled transaction
-schedule_tx1 = transfer_tx.schedule()
-# Then you can use the setter methods to configure additional parameters
-# schedule_tx1.set_payer_account_id(...).set_admin_key(...).etc
-
-# Approach 2: Create a ScheduleCreateTransaction with params directly
-schedule_tx = ScheduleCreateTransaction(
-    schedule_params=ScheduleCreateParams(
-        payer_account_id=client.operator_account_id,
-        admin_key=admin_key.public_key(),
-        expiration_time=expiration_time,  # Timestamp when the schedule expires
-        wait_for_expiry=True  # If true, executes only when expired even if all signatures present
-    )
-)
-# Set the transaction to be scheduled
-schedule_tx.set_scheduled_transaction(transfer_tx)
-schedule_tx.freeze_with(client)
-
-# Sign with required keys (any account being debited must sign)
-schedule_tx.sign(sender_private_key)
-schedule_tx.sign(admin_key)
-schedule_tx.sign(payer_account_private_key) # Sign with the payer key
-```
-
-#### Method Chaining:
-```python
-# First, create a transaction to be scheduled (e.g., a transfer transaction)
-transfer_tx = (
-    TransferTransaction()
-    .add_hbar_transfer(sender_id, -amount)  # Negative amount = debit
-    .add_hbar_transfer(recipient_id, amount)  # Positive amount = credit
-)
-
-# Convert it to a scheduled transaction
-# Using schedule() is equivalent to:
-# schedule_tx = ScheduleCreateTransaction()
-# schedule_tx.set_scheduled_transaction(transfer_tx)
-schedule_tx = transfer_tx.schedule()
-
-# Configure the scheduled transaction
-receipt = (
-    schedule_tx
-    .set_payer_account_id(payer_account_id)
-    .set_admin_key(admin_key.public_key())
-    .set_expiration_time(expiration_time)  # Timestamp when the schedule expires
-    .set_wait_for_expiry(True)  # If true, executes only when expired even if all signatures present
-    .freeze_with(client)
-    .sign(sender_private_key)  # Sign with the account being debited
-    .sign(admin_key)  # Sign with the admin key
-    .sign(payer_account_private_key) # Sign with the payer key
-    .execute(client)
-)
-```
-
 ### Executing Ethereum Transactions
 
 #### Pythonic Syntax:
@@ -1688,6 +1548,132 @@ transaction = (
 transaction.execute(client)
 ```
 
+## Schedule Transactions
+
+### Creating a Schedule
+
+#### Pythonic Syntax:
+```python
+# First, create a transaction to be scheduled (e.g., a transfer transaction)
+transfer_tx = TransferTransaction(
+    hbar_transfers={
+        sender_id: -amount,  # Negative amount = debit
+        recipient_id: amount  # Positive amount = credit
+    }
+)
+
+# There are two equivalent approaches to creating scheduled transactions:
+
+# Approach 1: Use transaction.schedule() to generate a pre-configured ScheduleCreateTransaction
+# This internally creates a ScheduleCreateTransaction and sets the scheduled transaction
+schedule_tx1 = transfer_tx.schedule()
+# Then you can use the setter methods to configure additional parameters
+# schedule_tx1.set_payer_account_id(...).set_admin_key(...).etc
+
+# Approach 2: Create a ScheduleCreateTransaction with params directly
+schedule_tx = ScheduleCreateTransaction(
+    schedule_params=ScheduleCreateParams(
+        payer_account_id=client.operator_account_id,
+        admin_key=admin_key.public_key(),
+        expiration_time=expiration_time,  # Timestamp when the schedule expires
+        wait_for_expiry=True  # If true, executes only when expired even if all signatures present
+    )
+)
+# Set the transaction to be scheduled
+schedule_tx.set_scheduled_transaction(transfer_tx)
+schedule_tx.freeze_with(client)
+
+# Sign with required keys (any account being debited must sign)
+schedule_tx.sign(sender_private_key)
+schedule_tx.sign(admin_key)
+schedule_tx.sign(payer_account_private_key) # Sign with the payer key
+```
+
+#### Method Chaining:
+```python
+# First, create a transaction to be scheduled (e.g., a transfer transaction)
+transfer_tx = (
+    TransferTransaction()
+    .add_hbar_transfer(sender_id, -amount)  # Negative amount = debit
+    .add_hbar_transfer(recipient_id, amount)  # Positive amount = credit
+)
+
+# Convert it to a scheduled transaction
+# Using schedule() is equivalent to:
+# schedule_tx = ScheduleCreateTransaction()
+# schedule_tx.set_scheduled_transaction(transfer_tx)
+schedule_tx = transfer_tx.schedule()
+
+# Configure the scheduled transaction
+receipt = (
+    schedule_tx
+    .set_payer_account_id(payer_account_id)
+    .set_admin_key(admin_key.public_key())
+    .set_expiration_time(expiration_time)  # Timestamp when the schedule expires
+    .set_wait_for_expiry(True)  # If true, executes only when expired even if all signatures present
+    .freeze_with(client)
+    .sign(sender_private_key)  # Sign with the account being debited
+    .sign(admin_key)  # Sign with the admin key
+    .sign(payer_account_private_key) # Sign with the payer key
+    .execute(client)
+)
+```
+
+## Node Transactions
+
+### Creating a Node
+
+> **IMPORTANT**: Node creation is a privileged transaction only available on local development networks like "solo". Regular developers do not have permission to create nodes on testnet or mainnet as this operation requires special authorization.
+
+#### Pythonic Syntax:
+```python
+transaction = NodeCreateTransaction(
+    node_create_params=NodeCreateParams(
+        account_id=account_id,
+        description="Example node",
+        gossip_endpoints=[
+            Endpoint(domain_name="gossip1.example.com", port=50211),
+            Endpoint(domain_name="gossip2.example.com", port=50212)
+        ],
+        service_endpoints=[
+            Endpoint(domain_name="service1.example.com", port=50211),
+            Endpoint(domain_name="service2.example.com", port=50212)
+        ],
+        gossip_ca_certificate=gossip_ca_cert,
+        admin_key=admin_key.public_key(),
+        decline_reward=True,
+        grpc_web_proxy_endpoint=Endpoint(domain_name="grpc.example.com", port=50213)
+    )
+).freeze_with(client)
+
+transaction.sign(admin_key)  # Sign with admin key
+receipt = transaction.execute(client)
+```
+
+#### Method Chaining:
+```python
+transaction = (
+    NodeCreateTransaction()
+    .set_account_id(account_id)
+    .set_description("Example node")
+    .set_gossip_endpoints([
+        Endpoint(domain_name="gossip1.example.com", port=50211),
+        Endpoint(domain_name="gossip2.example.com", port=50212)
+    ])
+    .set_service_endpoints([
+        Endpoint(domain_name="service1.example.com", port=50211),
+        Endpoint(domain_name="service2.example.com", port=50212)
+    ])
+    .set_gossip_ca_certificate(gossip_ca_cert)
+    .set_admin_key(admin_key.public_key())
+    .set_grpc_web_proxy_endpoint(Endpoint(domain_name="grpc.example.com", port=50213))
+    .set_decline_reward(True)
+    .freeze_with(client)
+)
+
+transaction.sign(admin_key)  # Sign with the admin key
+receipt = transaction.execute(client)
+```
 
 ## Miscellaneous Queries
 
