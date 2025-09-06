@@ -27,6 +27,7 @@ This changelog is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.
 - ContractId.to_evm_address() method for EVM compatibility
 - consumeLargeData() function in StatefulContract
 - example script for Token Airdrop
+- added variables directly in the example script to reduce the need for users to supply extra environment variables.
 
 ### Changed
 - Extract _build_proto_body() from build_transaction_body() in every transaction
@@ -52,6 +53,7 @@ This changelog is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.
 - Rebase command in README_upstream changed to just -S
 - generate_proto.sh
 - pkg_resources dependency in generate_proto.py
+
 
 ### Breaking API changes
 - We have some changed imports and returns to maintain compatability in the proto bump 
