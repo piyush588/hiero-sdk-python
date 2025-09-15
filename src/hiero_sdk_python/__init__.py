@@ -185,11 +185,11 @@ __all__ = [
     "TokenNftInfoQuery",
     "TokenInfoQuery",
     "AccountInfoQuery",
-
+    
     # Address book
     "Endpoint",
     "NodeAddress",
-
+    
     # Logger
     "Logger",
     "LogLevel",
