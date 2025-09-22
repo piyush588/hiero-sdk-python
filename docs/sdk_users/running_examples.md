@@ -68,6 +68,7 @@ You can choose either syntax or even mix both styles in your projects.
 - [Schedule Transactions](#schedule-transactions)
   - [Creating a Schedule](#creating-a-schedule)
   - [Querying Schedule Info](#querying-schedule-info)
+  - [Signing a Schedule](#signing-a-schedule)
   - [Deleting a Schedule](#deleting-a-schedule)
 - [Node Transactions](#node-transactions)
   - [Creating a Node](#creating-a-node)
@@ -1644,6 +1645,17 @@ schedule_info = (
 print(schedule_info)
 ```
 
+### Signing a Schedule
+
+#### Pythonic Syntax:
+```python
+# Sign a scheduled transaction to execute it
+schedule_sign_tx = ScheduleSignTransaction(schedule_id=schedule_id)
+schedule_sign_tx.freeze_with(client)
+schedule_sign_tx.sign(required_private_key)
+receipt = schedule_sign_tx.execute(client)
+```
+
 ### Deleting a Schedule
 
 #### Pythonic Syntax:
@@ -1658,6 +1670,12 @@ receipt = transaction.execute(client)
 
 #### Method Chaining:
 ```python
+# Sign a scheduled transaction to execute it
+receipt = (
+    ScheduleSignTransaction()
+    .set_schedule_id(schedule_id)
+    .freeze_with(client)
+    .sign(required_private_key)
 receipt = (
     ScheduleDeleteTransaction()
     .set_schedule_id(schedule_id)
