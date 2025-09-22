@@ -71,6 +71,7 @@ You can choose either syntax or even mix both styles in your projects.
   - [Deleting a Schedule](#deleting-a-schedule)
 - [Node Transactions](#node-transactions)
   - [Creating a Node](#creating-a-node)
+  - [Deleting a Node](#deleting-a-node)
 - [Miscellaneous Queries](#miscellaneous-queries)
   - [Querying Transaction Record](#querying-transaction-record)
 - [Miscellaneous Transactions](#miscellaneous-transactions)
@@ -1718,6 +1719,29 @@ transaction = (
 )
 
 transaction.sign(admin_key)  # Sign with the admin key
+receipt = transaction.execute(client)
+```
+
+### Deleting a Node
+
+> **IMPORTANT**: Node deletion is a privileged transaction only available on local development networks like "solo". Regular developers do not have permission to delete nodes on testnet or mainnet as this operation requires special authorization.
+
+#### Pythonic Syntax:
+```python
+transaction = NodeDeleteTransaction(
+    node_id=node_id
+)
+
+receipt = transaction.execute(client)
+```
+
+#### Method Chaining:
+```python
+transaction = (
+    NodeDeleteTransaction()
+    .set_node_id(node_id)
+)
+
 receipt = transaction.execute(client)
 ```
 

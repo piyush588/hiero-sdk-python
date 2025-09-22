@@ -116,6 +116,7 @@ from .schedule.schedule_delete_transaction import ScheduleDeleteTransaction
 
 # Nodes
 from .nodes.node_create_transaction import NodeCreateTransaction
+from .nodes.node_delete_transaction import NodeDeleteTransaction
 
 # PRNG
 from .prng_transaction import PrngTransaction
@@ -235,6 +236,7 @@ __all__ = [
 
     # Nodes
     "NodeCreateTransaction",
+    "NodeDeleteTransaction",
 
     # PRNG
     "PrngTransaction",
