@@ -48,6 +48,9 @@ This changelog is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.
 ### Changed
 
 - Extract \_build_proto_body() from build_transaction_body() in every transaction
+- bump protobufs version to `v0.66.0`
+- bump solo version to `v0.13`
+- Extract _build_proto_body() from build_transaction_body() in every transaction
 - StatefulContract's setMessage() function designed with no access restrictions, allowing calls from any address
 - bump solo version to `v0.12`
 - Extract Ed25519 byte loading logic into private helper method `_from_bytes_ed25519()`
