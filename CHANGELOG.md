@@ -6,6 +6,11 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org).  
 This changelog is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [Unreleased]
+
+### Fixed
+- Incompatible Types assignment in token_transfer_list.py
+
 ## [0.1.5] - 2025-09-25
 
 ### Added
