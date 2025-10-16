@@ -29,7 +29,9 @@ This changelog is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.
 - Refactor examples/token_cancel_airdrop
 
 ### Changed
+
 - Refactor token_associate.py for better structure, add association verification query (#367)
+- Refactored `examples/account_create.py` to improve modularity and readability (#363)
 
 ### Fixed
 
