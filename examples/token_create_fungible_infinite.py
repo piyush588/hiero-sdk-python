@@ -43,7 +43,7 @@ def setup_client():
         print(f"Using operator account: {operator_id}")
         return client, operator_id, operator_key
     except (TypeError, ValueError):
-        print("❌ Error: Please check OPERATOR_ID and OPERATOR_KEY in your .env file.")
+        print("Error: Please check OPERATOR_ID and OPERATOR_KEY in your .env file.")
         sys.exit(1)
 
 
@@ -52,7 +52,7 @@ def generate_keys():
     print("\nGenerating new admin and supply keys for the token...")
     admin_key = PrivateKey.generate_ed25519()
     supply_key = PrivateKey.generate_ed25519()
-    print("✅ Keys generated successfully.")
+    print("Keys generated successfully.")
     return admin_key, supply_key
 
 
@@ -86,12 +86,12 @@ def execute_transaction(transaction, client, operator_key, admin_key, supply_key
     try:
         receipt = transaction.execute(client)
         if receipt and receipt.token_id:
-            print(f"✅ Success! Infinite fungible token created with ID: {receipt.token_id}")
+            print(f"Success! Infinite fungible token created with ID: {receipt.token_id}")
         else:
-            print("❌ Token creation failed: Token ID not returned in receipt.")
+            print("Token creation failed: Token ID not returned in receipt.")
             sys.exit(1)
     except Exception as e:
-        print(f"❌ Token creation failed: {e}")
+        print(f"Token creation failed: {e}")
         sys.exit(1)
 
 
